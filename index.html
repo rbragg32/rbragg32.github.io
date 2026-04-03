@@ -1,438 +1,512 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Your Name — Portfolio</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <title>Your Name — Aerospace Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Outfit:wght@200;300;400;600&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --cream: #f5f0e8;
-      --ink: #1a1714;
-      --accent: #8b5e3c;
-      --muted: #7a746c;
-      --border: rgba(26,23,20,0.12);
-      --serif: 'Cormorant Garamond', Georgia, serif;
-      --sans: 'DM Sans', sans-serif;
+      --accent: #5de0f8;
+      --accent2: #f5a623;
+      --mono: 'Share Tech Mono', monospace;
+      --sans: 'Outfit', sans-serif;
     }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      background: var(--cream);
-      color: var(--ink);
-      font-family: var(--sans);
-      font-weight: 300;
-      line-height: 1.7;
-      overflow-x: hidden;
-    }
-
-    /* ── NAV ── */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0;
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 1.4rem 4rem;
-      background: rgba(245,240,232,0.85);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border);
-      z-index: 100;
-    }
-    .nav-name {
-      font-family: var(--serif);
-      font-size: 1.25rem;
-      font-weight: 400;
-      letter-spacing: 0.02em;
-    }
-    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
-    .nav-links a {
-      text-decoration: none;
-      color: var(--muted);
-      font-size: 0.8rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      transition: color 0.2s;
-    }
-    .nav-links a:hover { color: var(--ink); }
-
-    /* ── HERO ── */
-    #hero {
-      min-height: 100vh;
-      display: flex; align-items: flex-end;
-      padding: 0 4rem 7rem;
-      position: relative;
+    html, body {
+      width: 100%; height: 100%;
       overflow: hidden;
-    }
-    .hero-bg-line {
-      position: absolute;
-      top: 0; right: 10%;
-      width: 1px; height: 100%;
-      background: linear-gradient(to bottom, transparent, var(--border) 30%, var(--border) 70%, transparent);
-    }
-    .hero-eyebrow {
       font-family: var(--sans);
-      font-size: 0.75rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 1.5rem;
-      opacity: 0;
-      animation: fadeUp 0.8s 0.2s forwards;
+      background: #0a0e1a;
+      color: #fff;
+      user-select: none;
     }
-    .hero-title {
-      font-family: var(--serif);
-      font-size: clamp(4rem, 9vw, 9rem);
-      font-weight: 300;
-      line-height: 0.95;
-      letter-spacing: -0.01em;
-      max-width: 80vw;
-      opacity: 0;
-      animation: fadeUp 0.9s 0.35s forwards;
+    #bg-canvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; }
+    #star-canvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+    #atmo {
+      position: fixed; inset: 0; z-index: 2; pointer-events: none;
+      background: linear-gradient(to top, rgba(244,132,90,0.35) 0%, rgba(122,173,218,0.2) 40%, transparent 80%);
+      transition: opacity 1.2s ease;
     }
-    .hero-title em {
-      font-style: italic;
-      color: var(--accent);
+    #scene {
+      position: fixed; inset: 0; z-index: 10;
+      display: flex; align-items: center; justify-content: center;
     }
-    .hero-tagline {
+    #rocket-wrap {
+      position: relative;
+      width: 220px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    #flame {
+      width: 36px; margin: 0 auto;
+      animation: flicker 0.18s infinite alternate;
+      transform-origin: top center;
+    }
+    @keyframes flicker {
+      from { transform: scaleX(1) scaleY(1); opacity: 1; }
+      to   { transform: scaleX(0.88) scaleY(1.1); opacity: 0.85; }
+    }
+    #rocket-svg {
+      width: 100px;
+      filter: drop-shadow(0 0 18px rgba(93,224,248,0.35));
+      animation: hover 3s ease-in-out infinite;
+    }
+    @keyframes hover {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-10px); }
+    }
+    #panel-label {
       position: absolute;
-      bottom: 7rem; right: 4rem;
-      font-size: 0.9rem;
-      color: var(--muted);
-      max-width: 240px;
-      text-align: right;
-      line-height: 1.6;
+      top: 50%; transform: translateY(-50%);
+      left: calc(100% + 30px);
+      white-space: nowrap;
       opacity: 0;
-      animation: fadeUp 0.8s 0.55s forwards;
+      pointer-events: none;
+      transition: opacity 0.4s ease, transform 0.4s ease;
     }
-    .scroll-hint {
+    #panel-label.visible { opacity: 1; pointer-events: auto; }
+    .panel-tag {
+      font-family: var(--mono);
+      font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 6px;
+    }
+    .panel-name {
+      font-size: 2.2rem; font-weight: 600; line-height: 1.1;
+      color: #fff; cursor: pointer;
+      display: inline-block; position: relative;
+    }
+    .panel-name::after {
+      content: ''; position: absolute;
+      bottom: -3px; left: 0; width: 0; height: 2px;
+      background: var(--accent); transition: width 0.3s;
+    }
+    .panel-name:hover::after { width: 100%; }
+    .panel-sub {
+      font-size: 0.85rem; color: rgba(255,255,255,0.5);
+      margin-top: 8px; max-width: 280px; line-height: 1.5; font-weight: 300;
+    }
+    .panel-cta {
+      display: inline-block; margin-top: 14px;
+      font-family: var(--mono); font-size: 0.7rem;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--accent2); border: 1px solid var(--accent2);
+      padding: 6px 14px; cursor: pointer; text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+    }
+    .panel-cta:hover { background: var(--accent2); color: #000; }
+    .arrow-btn {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 44px; height: 44px;
+      border: 1px solid rgba(93,224,248,0.4);
+      background: rgba(93,224,248,0.07);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.2s, border-color 0.2s; z-index: 20;
+    }
+    .arrow-btn:hover { background: rgba(93,224,248,0.18); border-color: var(--accent); }
+    #arrow-left  { left: -70px; }
+    #arrow-right { right: -70px; }
+    .arrow-btn svg { width: 18px; height: 18px; stroke: var(--accent); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    #slot-wrap {
       position: absolute;
-      bottom: 2.5rem; left: 4rem;
-      font-size: 0.7rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--muted);
-      display: flex; align-items: center; gap: 0.75rem;
-      opacity: 0;
-      animation: fadeUp 0.8s 0.7s forwards;
+      left: 50%; transform: translateX(-50%);
+      bottom: calc(100% + 28px);
+      text-align: center; white-space: nowrap;
     }
-    .scroll-hint::before {
-      content: '';
-      display: block; width: 40px; height: 1px;
-      background: var(--muted);
+    #slot-track {
+      overflow: hidden; height: 2.2rem;
+      display: flex; align-items: center; justify-content: center;
     }
-
-    /* ── SECTIONS ── */
-    section { padding: 6rem 4rem; }
-    .section-label {
-      font-size: 0.7rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
+    #slot-text {
+      font-family: var(--mono); font-size: 0.75rem;
+      letter-spacing: 0.22em; text-transform: uppercase;
       color: var(--accent);
-      margin-bottom: 3rem;
-      display: flex; align-items: center; gap: 1rem;
+      transition: transform 0.35s ease, opacity 0.35s ease;
     }
-    .section-label::after {
-      content: '';
-      flex: 1; height: 1px;
-      background: var(--border);
+    .slot-dots { margin-top: 10px; display: flex; gap: 6px; justify-content: center; }
+    .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      border: 1px solid rgba(93,224,248,0.4);
+      transition: background 0.3s;
     }
-
-    /* ── ABOUT ── */
-    #about { border-top: 1px solid var(--border); }
-    .about-grid {
-      display: grid;
-      grid-template-columns: 1fr 1.6fr;
-      gap: 6rem;
-      align-items: start;
+    .dot.active { background: var(--accent); border-color: var(--accent); }
+    #name-banner {
+      position: fixed; top: 2.2rem; left: 50%; transform: translateX(-50%);
+      text-align: center; z-index: 30; pointer-events: none;
     }
-    .about-heading {
-      font-family: var(--serif);
-      font-size: clamp(2.5rem, 4vw, 4rem);
-      font-weight: 300;
-      line-height: 1.15;
+    #name-banner h1 {
+      font-size: 1rem; font-weight: 300; letter-spacing: 0.35em;
+      text-transform: uppercase; color: rgba(255,255,255,0.75);
     }
-    .about-body {
-      font-size: 1.05rem;
-      color: var(--muted);
-      line-height: 1.9;
+    #name-banner p {
+      font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.18em;
+      color: var(--accent); text-transform: uppercase; margin-top: 4px;
     }
-    .about-body p + p { margin-top: 1.25rem; }
-
-    /* ── EXPERIENCE ── */
-    #experience { border-top: 1px solid var(--border); background: var(--ink); color: var(--cream); }
-    #experience .section-label { color: #c9a07a; }
-    #experience .section-label::after { background: rgba(245,240,232,0.15); }
-    .exp-item {
-      display: grid;
-      grid-template-columns: 200px 1fr;
-      gap: 3rem;
-      padding: 2.5rem 0;
-      border-bottom: 1px solid rgba(245,240,232,0.1);
+    #altitude {
+      position: fixed; right: 2.5rem; top: 50%; transform: translateY(-50%);
+      z-index: 30; display: flex; flex-direction: column; align-items: center; gap: 6px;
     }
-    .exp-item:first-of-type { border-top: 1px solid rgba(245,240,232,0.1); }
-    .exp-date {
-      font-size: 0.8rem;
-      letter-spacing: 0.08em;
-      color: rgba(245,240,232,0.45);
-      padding-top: 0.2rem;
+    .alt-label {
+      font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.14em;
+      text-transform: uppercase; color: rgba(255,255,255,0.4);
+      writing-mode: vertical-rl; transform: rotate(180deg);
     }
-    .exp-role {
-      font-family: var(--serif);
-      font-size: 1.6rem;
-      font-weight: 400;
-      margin-bottom: 0.3rem;
+    .alt-bar {
+      width: 2px; height: 120px;
+      background: rgba(93,224,248,0.15);
+      position: relative; border-radius: 1px;
     }
-    .exp-company {
-      font-size: 0.85rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: #c9a07a;
-      margin-bottom: 1rem;
+    .alt-fill {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: var(--accent); border-radius: 1px;
+      transition: height 1.2s ease;
     }
-    .exp-desc {
-      font-size: 0.95rem;
-      color: rgba(245,240,232,0.6);
-      line-height: 1.8;
+    .alt-val { font-family: var(--mono); font-size: 0.6rem; color: var(--accent); }
+    #page-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(5,8,20,0);
+      backdrop-filter: blur(0px);
+      pointer-events: none;
+      transition: background 0.5s, backdrop-filter 0.5s;
+      display: flex; align-items: center; justify-content: center;
     }
-
-    /* ── SKILLS ── */
-    #skills { border-top: 1px solid var(--border); }
-    .skills-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1.5rem;
+    #page-overlay.open {
+      background: rgba(5,8,20,0.93);
+      backdrop-filter: blur(8px);
+      pointer-events: auto;
     }
-    .skill-card {
-      border: 1px solid var(--border);
-      padding: 2rem;
-      transition: border-color 0.25s, transform 0.25s;
+    #page-content {
+      max-width: 680px; width: 90%;
+      opacity: 0; transform: translateY(30px);
+      transition: opacity 0.4s 0.2s ease, transform 0.4s 0.2s ease;
+      padding: 3rem;
+      border: 1px solid rgba(93,224,248,0.15);
+      position: relative;
     }
-    .skill-card:hover {
-      border-color: var(--accent);
-      transform: translateY(-3px);
+    #page-overlay.open #page-content { opacity: 1; transform: none; }
+    .page-tag {
+      font-family: var(--mono); font-size: 0.65rem;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1rem;
     }
-    .skill-card-title {
-      font-family: var(--serif);
-      font-size: 1.35rem;
-      margin-bottom: 0.75rem;
+    .page-title {
+      font-size: 2.8rem; font-weight: 200;
+      line-height: 1.1; margin-bottom: 1.5rem;
     }
-    .skill-card-list {
-      list-style: none;
-      font-size: 0.88rem;
-      color: var(--muted);
-      line-height: 2;
+    .page-body {
+      font-size: 0.95rem; font-weight: 300;
+      color: rgba(255,255,255,0.7); line-height: 1.8;
     }
-    .skill-card-list li::before {
-      content: '— ';
-      color: var(--accent);
-    }
-
-    /* ── CONTACT ── */
-    #contact {
-      border-top: 1px solid var(--border);
-      text-align: center;
-      padding: 8rem 4rem;
-    }
-    .contact-heading {
-      font-family: var(--serif);
-      font-size: clamp(3rem, 6vw, 6rem);
-      font-weight: 300;
-      margin-bottom: 2.5rem;
-      line-height: 1.1;
-    }
-    .contact-heading em { font-style: italic; color: var(--accent); }
-    .contact-links {
-      display: flex; justify-content: center;
-      flex-wrap: wrap; gap: 1.5rem;
-      list-style: none; margin-top: 2rem;
-    }
-    .contact-links a {
-      display: inline-block;
-      text-decoration: none;
-      font-size: 0.8rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--ink);
-      border-bottom: 1px solid var(--ink);
-      padding-bottom: 2px;
+    .page-body p + p { margin-top: 1rem; }
+    .close-btn {
+      position: absolute; top: 1.2rem; right: 1.4rem;
+      font-family: var(--mono); font-size: 0.7rem;
+      letter-spacing: 0.15em; color: rgba(255,255,255,0.4);
+      cursor: pointer; text-transform: uppercase;
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 5px 10px;
       transition: color 0.2s, border-color 0.2s;
+      background: none;
     }
-    .contact-links a:hover { color: var(--accent); border-color: var(--accent); }
-
-    /* ── FOOTER ── */
-    footer {
-      padding: 2rem 4rem;
-      border-top: 1px solid var(--border);
-      display: flex; justify-content: space-between;
-      font-size: 0.75rem;
-      color: var(--muted);
-      letter-spacing: 0.05em;
+    .close-btn:hover { color: #fff; border-color: rgba(255,255,255,0.5); }
+    #hint {
+      position: fixed; bottom: 2.2rem; left: 50%; transform: translateX(-50%);
+      z-index: 30; font-family: var(--mono); font-size: 0.6rem;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      animation: pulse 2.5s ease-in-out infinite;
     }
-
-    /* ── ANIMATION ── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .reveal {
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
-    }
-    .reveal.visible { opacity: 1; transform: none; }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 768px) {
-      nav { padding: 1.2rem 1.5rem; }
-      .nav-links { gap: 1.5rem; }
-      #hero, section { padding-left: 1.5rem; padding-right: 1.5rem; }
-      .hero-tagline { display: none; }
-      .about-grid { grid-template-columns: 1fr; gap: 2rem; }
-      .exp-item { grid-template-columns: 1fr; gap: 0.5rem; }
-      footer { flex-direction: column; gap: 0.5rem; }
+    @keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:0.7} }
+    @media (max-width: 600px) {
+      #panel-label { left: auto; right: auto; top: auto;
+        bottom: calc(100% + 120px); transform: none;
+        text-align: center; left: 50%; transform: translateX(-50%);
+      }
+      .panel-name { font-size: 1.6rem; }
+      #arrow-left { left: -55px; }
+      #arrow-right { right: -55px; }
+      #altitude { display: none; }
     }
   </style>
 </head>
 <body>
 
-  <!-- NAV -->
-  <nav>
-    <span class="nav-name">Your Name</span>
-    <ul class="nav-links">
-      <li><a href="#about">About</a></li>
-      <li><a href="#experience">Experience</a></li>
-      <li><a href="#skills">Skills</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
-  </nav>
+<canvas id="bg-canvas"></canvas>
+<canvas id="star-canvas"></canvas>
+<div id="atmo"></div>
 
-  <!-- HERO -->
-  <section id="hero">
-    <div class="hero-bg-line"></div>
-    <div>
-      <p class="hero-eyebrow">Your Field / Title</p>
-      <h1 class="hero-title">Your<br/><em>Name</em></h1>
-    </div>
-    <p class="hero-tagline">A short one-liner about what you do or what you bring to the table.</p>
-    <p class="scroll-hint">Scroll to explore</p>
-  </section>
+<div id="name-banner">
+  <h1>Your Name</h1>
+  <p>Aerospace Engineer</p>
+</div>
 
-  <!-- ABOUT -->
-  <section id="about">
-    <p class="section-label">About</p>
-    <div class="about-grid">
-      <h2 class="about-heading reveal">A little about who I am.</h2>
-      <div class="about-body reveal">
-        <p>Write a paragraph here introducing yourself. What are you passionate about? What's your professional background? Keep it personal and genuine — this is the first thing people will read about you.</p>
-        <p>You can add a second paragraph here going a bit deeper — your values, what drives you, or what you're currently working toward in your career.</p>
-      </div>
-    </div>
-  </section>
+<div id="altitude">
+  <span class="alt-label">Altitude</span>
+  <div class="alt-bar"><div class="alt-fill" id="alt-fill" style="height:20%"></div></div>
+  <span class="alt-val" id="alt-val">Ground</span>
+</div>
 
-  <!-- EXPERIENCE -->
-  <section id="experience">
-    <p class="section-label">Experience</p>
+<div id="scene">
+  <div id="rocket-wrap">
 
-    <div class="exp-item reveal">
-      <div class="exp-date">2022 — Present</div>
-      <div>
-        <div class="exp-role">Your Job Title</div>
-        <div class="exp-company">Company Name</div>
-        <p class="exp-desc">Describe what you did in this role. Focus on impact — what did you accomplish, improve, or contribute? Keep it to 2–3 sentences.</p>
-      </div>
+    <div id="slot-wrap">
+      <div id="slot-track"><span id="slot-text">Navigate</span></div>
+      <div class="slot-dots" id="dots"></div>
     </div>
 
-    <div class="exp-item reveal">
-      <div class="exp-date">2019 — 2022</div>
-      <div>
-        <div class="exp-role">Previous Job Title</div>
-        <div class="exp-company">Previous Company</div>
-        <p class="exp-desc">Another role description here. What were your key responsibilities? What did you learn or achieve?</p>
-      </div>
+    <svg id="flame" viewBox="0 0 36 40" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="18" cy="12" rx="8" ry="12" fill="#f5a623" opacity="0.9"/>
+      <ellipse cx="18" cy="18" rx="5" ry="8" fill="#f4c97a" opacity="0.7"/>
+      <ellipse cx="13" cy="20" rx="4" ry="9" fill="#f5a623" opacity="0.5"/>
+      <ellipse cx="23" cy="20" rx="4" ry="9" fill="#f5a623" opacity="0.5"/>
+      <ellipse cx="18" cy="22" rx="3" ry="5" fill="#fff" opacity="0.4"/>
+    </svg>
+
+    <svg id="rocket-svg" viewBox="0 0 100 180" xmlns="http://www.w3.org/2000/svg">
+      <path d="M50 10 C30 30 22 70 22 110 L78 110 C78 70 70 30 50 10Z" fill="#dde8f5"/>
+      <path d="M50 10 C38 30 34 50 33 70 L67 70 C66 50 62 30 50 10Z" fill="#b0c8e8"/>
+      <circle cx="50" cy="78" r="10" fill="#5de0f8" opacity="0.9"/>
+      <circle cx="50" cy="78" r="7" fill="#0a2a4a"/>
+      <circle cx="47" cy="75" r="2.5" fill="#5de0f8" opacity="0.6"/>
+      <path d="M22 110 L4 148 L22 138Z" fill="#c8d8ec"/>
+      <path d="M78 110 L96 148 L78 138Z" fill="#c8d8ec"/>
+      <rect x="22" y="110" width="56" height="8" rx="2" fill="#aabdd6"/>
+      <path d="M35 118 L32 134 L68 134 L65 118Z" fill="#8faac4"/>
+      <rect x="22" y="92" width="56" height="5" rx="1" fill="#5de0f8" opacity="0.5"/>
+      <rect x="36" y="50" width="28" height="16" rx="2" fill="#1a3a6e" opacity="0.7"/>
+      <rect x="36" y="50" width="28" height="5" rx="1" fill="#c13a2a" opacity="0.8"/>
+    </svg>
+
+    <button class="arrow-btn" id="arrow-left" onclick="rotate(-1)" aria-label="Previous">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <button class="arrow-btn" id="arrow-right" onclick="rotate(1)" aria-label="Next">
+      <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+
+    <div id="panel-label">
+      <div class="panel-tag" id="panel-tag"></div>
+      <div class="panel-name" id="panel-name" onclick="openPage()"></div>
+      <div class="panel-sub" id="panel-sub"></div>
+      <span class="panel-cta" onclick="openPage()">Open section →</span>
     </div>
 
-    <div class="exp-item reveal">
-      <div class="exp-date">2016 — 2019</div>
-      <div>
-        <div class="exp-role">Earlier Role</div>
-        <div class="exp-company">Earlier Company</div>
-        <p class="exp-desc">Brief description of this earlier position. You can add or remove experience blocks as needed.</p>
-      </div>
-    </div>
+  </div>
+</div>
 
-  </section>
+<div id="hint">← arrows or keyboard to navigate →</div>
 
-  <!-- SKILLS -->
-  <section id="skills">
-    <p class="section-label">Skills</p>
-    <div class="skills-grid">
+<div id="page-overlay" onclick="overlayClick(event)">
+  <div id="page-content">
+    <button class="close-btn" onclick="closePage()">✕ Close</button>
+    <div class="page-tag" id="ov-tag"></div>
+    <div class="page-title" id="ov-title"></div>
+    <div class="page-body" id="ov-body"></div>
+  </div>
+</div>
 
-      <div class="skill-card reveal">
-        <div class="skill-card-title">Category One</div>
-        <ul class="skill-card-list">
-          <li>Skill or tool</li>
-          <li>Skill or tool</li>
-          <li>Skill or tool</li>
-          <li>Skill or tool</li>
-        </ul>
-      </div>
+<script>
+const pages = [
+  {
+    tag: 'Mission Brief', name: 'About Me',
+    sub: 'Who I am and what drives me.',
+    altitude: 20, altLabel: 'Ground',
+    skyTop: '#0a1628', skyBot: '#1a3a6e',
+    stars: 0.15, atmo: 0.9,
+    body: `<p>Hi, I'm <strong style="color:#fff">Your Name</strong> — an aerospace engineer specializing in [your area: propulsion / structures / avionics / systems engineering].</p>
+           <p>I've spent my career working on [brief summary — launch vehicles, satellites, defense systems, etc.]. I'm driven by the challenge of building things that work reliably at the edge of what's physically possible.</p>
+           <p>Outside of engineering, I [hobby or interest]. I believe the best teams run on curiosity, rigorous thinking, and a willingness to question assumptions.</p>`
+  },
+  {
+    tag: 'Flight Log', name: 'Experience',
+    sub: 'Missions and roles I've been part of.',
+    altitude: 45, altLabel: 'Upper Atmo',
+    skyTop: '#060e20', skyBot: '#0d1f52',
+    stars: 0.4, atmo: 0.3,
+    body: `<p><strong style="color:#fff">Senior Aerospace Engineer</strong> — Company Name &nbsp;(2021–Present)<br/>
+           <span style="color:rgba(255,255,255,0.5);font-size:0.85rem">Describe your key responsibilities and impact. What systems did you work on? What did you deliver?</span></p><br/>
+           <p><strong style="color:#fff">Aerospace Engineer II</strong> — Previous Company &nbsp;(2018–2021)<br/>
+           <span style="color:rgba(255,255,255,0.5);font-size:0.85rem">Another role. Think about what you contributed — tests passed, systems validated, launches supported.</span></p><br/>
+           <p><strong style="color:#fff">Engineering Intern</strong> — Earlier Company &nbsp;(2017)<br/>
+           <span style="color:rgba(255,255,255,0.5);font-size:0.85rem">Brief description of your internship and what you learned.</span></p>`
+  },
+  {
+    tag: 'Payload Bay', name: 'Projects',
+    sub: 'Technical work I\'m proud of.',
+    altitude: 68, altLabel: 'LEO',
+    skyTop: '#030a18', skyBot: '#091630',
+    stars: 0.78, atmo: 0.04,
+    body: `<p><strong style="color:#fff">Project One — Title Here</strong><br/>
+           <span style="color:rgba(255,255,255,0.5);font-size:0.85rem">Describe the project: goal, your role, and outcome. E.g. designed a thrust structure for a 2nd-stage LOX/kerosene engine — met mass budget within 3%.</span></p><br/>
+           <p><strong style="color:#fff">Project Two — Title Here</strong><br/>
+           <span style="color:rgba(255,255,255,0.5);font-size:0.85rem">Another notable project. Link to papers, GitHub repos, or writeups if you have them.</span></p><br/>
+           <p><strong style="color:#fff">Project Three — Title Here</strong><br/>
+           <span style="color:rgba(255,255,255,0.5);font-size:0.85rem">Great for side projects, research, academic work, or personal builds.</span></p>`
+  },
+  {
+    tag: 'Systems Check', name: 'Skills',
+    sub: 'Tools, disciplines, and methods.',
+    altitude: 85, altLabel: 'MEO',
+    skyTop: '#010408', skyBot: '#050d1e',
+    stars: 1.0, atmo: 0.0,
+    body: `<p><strong style="color:#fff">Disciplines</strong><br/>
+           <span style="color:rgba(255,255,255,0.5);font-size:0.85rem">Structural analysis · Propulsion · GN&amp;C · Systems engineering · Thermal management · [add yours]</span></p><br/>
+           <p><strong style="color:#fff">Tools &amp; Software</strong><br/>
+           <span style="color:rgba(255,255,255,0.5);font-size:0.85rem">MATLAB · Simulink · ANSYS · CATIA / SolidWorks · Python · STK · [add yours]</span></p><br/>
+           <p><strong style="color:#fff">Certifications &amp; Education</strong><br/>
+           <span style="color:rgba(255,255,255,0.5);font-size:0.85rem">B.S./M.S. Aerospace Engineering — University Name · [any certs, e.g. FAA, PMP]</span></p>`
+  },
+  {
+    tag: 'Ground Control', name: 'Contact',
+    sub: 'Let\'s connect and build something.',
+    altitude: 100, altLabel: 'GEO',
+    skyTop: '#000205', skyBot: '#010a18',
+    stars: 1.0, atmo: 0.0,
+    body: `<p>Open to new opportunities, collaborations, and conversations about interesting problems in aerospace.</p><br/>
+           <p>📧 &nbsp;<a href="mailto:your@email.com" style="color:#5de0f8">your@email.com</a></p>
+           <p>🔗 &nbsp;<a href="https://linkedin.com/in/yourprofile" target="_blank" style="color:#5de0f8">linkedin.com/in/yourprofile</a></p>
+           <p>💻 &nbsp;<a href="https://github.com/yourusername" target="_blank" style="color:#5de0f8">github.com/yourusername</a></p>`
+  }
+];
 
-      <div class="skill-card reveal">
-        <div class="skill-card-title">Category Two</div>
-        <ul class="skill-card-list">
-          <li>Skill or tool</li>
-          <li>Skill or tool</li>
-          <li>Skill or tool</li>
-          <li>Skill or tool</li>
-        </ul>
-      </div>
+let current = 0, busy = false;
+const bgC = document.getElementById('bg-canvas');
+const bCtx = bgC.getContext('2d');
+const stC = document.getElementById('star-canvas');
+const sCtx = stC.getContext('2d');
+let stars = [];
 
-      <div class="skill-card reveal">
-        <div class="skill-card-title">Category Three</div>
-        <ul class="skill-card-list">
-          <li>Skill or tool</li>
-          <li>Skill or tool</li>
-          <li>Skill or tool</li>
-          <li>Skill or tool</li>
-        </ul>
-      </div>
+function resize() {
+  bgC.width = stC.width = window.innerWidth;
+  bgC.height = stC.height = window.innerHeight;
+  buildStars();
+  render(current);
+}
 
-    </div>
-  </section>
+function buildStars() {
+  stars = Array.from({length: 300}, () => ({
+    x: Math.random() * stC.width,
+    y: Math.random() * stC.height,
+    r: Math.random() * 1.4 + 0.3,
+    o: Math.random()
+  }));
+}
 
-  <!-- CONTACT -->
-  <section id="contact">
-    <h2 class="contact-heading reveal">Let's<br/><em>connect.</em></h2>
-    <p class="reveal" style="color: var(--muted); max-width: 400px; margin: 0 auto; font-size: 1rem;">
-      Open to new opportunities, collaborations, or just a conversation. Reach out anytime.
-    </p>
-    <ul class="contact-links reveal">
-      <li><a href="mailto:your@email.com">your@email.com</a></li>
-      <li><a href="https://linkedin.com/in/yourprofile" target="_blank">LinkedIn</a></li>
-      <!-- Add more links as needed -->
-    </ul>
-  </section>
+function drawBg(top, bot) {
+  const g = bCtx.createLinearGradient(0, 0, 0, bgC.height);
+  g.addColorStop(0, top); g.addColorStop(1, bot);
+  bCtx.fillStyle = g;
+  bCtx.fillRect(0, 0, bgC.width, bgC.height);
+}
 
-  <!-- FOOTER -->
-  <footer>
-    <span>© 2026 Your Name</span>
-    <span>Built with GitHub Pages</span>
-  </footer>
+function drawStars(opacity) {
+  sCtx.clearRect(0, 0, stC.width, stC.height);
+  if (opacity <= 0) return;
+  stars.forEach(s => {
+    sCtx.beginPath();
+    sCtx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+    sCtx.fillStyle = `rgba(255,255,255,${s.o * opacity})`;
+    sCtx.fill();
+  });
+}
 
-  <script>
-    // Scroll reveal
-    const reveals = document.querySelectorAll('.reveal');
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry, i) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => entry.target.classList.add('visible'), i * 80);
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.12 });
-    reveals.forEach(el => observer.observe(el));
-  </script>
+function render(idx) {
+  const p = pages[idx];
+  drawBg(p.skyTop, p.skyBot);
+  drawStars(p.stars);
+  document.getElementById('atmo').style.opacity = p.atmo;
+  document.getElementById('alt-fill').style.height = p.altitude + '%';
+  document.getElementById('alt-val').textContent = p.altLabel;
+  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i===idx));
+}
 
+function showLabel(idx, fromDir) {
+  const p = pages[idx];
+  const label = document.getElementById('panel-label');
+  label.style.transition = 'none';
+  label.style.opacity = '0';
+  label.style.transform = `translateY(-50%) translateX(${fromDir * 12}px)`;
+  document.getElementById('panel-tag').textContent = p.tag;
+  document.getElementById('panel-name').textContent = p.name;
+  document.getElementById('panel-sub').textContent = p.sub;
+  label.classList.add('visible');
+  requestAnimationFrame(() => {
+    label.style.transition = 'opacity 0.45s ease, transform 0.45s ease';
+    label.style.opacity = '1';
+    label.style.transform = 'translateY(-50%) translateX(0)';
+  });
+}
+
+function slotSwap(name, dir) {
+  const el = document.getElementById('slot-text');
+  el.style.transition = 'transform 0.28s ease, opacity 0.28s ease';
+  el.style.transform = `translateY(${dir > 0 ? '-120%' : '120%'})`;
+  el.style.opacity = '0';
+  setTimeout(() => {
+    el.textContent = name;
+    el.style.transition = 'none';
+    el.style.transform = `translateY(${dir > 0 ? '120%' : '-120%'})`;
+    el.style.opacity = '0';
+    requestAnimationFrame(() => {
+      el.style.transition = 'transform 0.28s ease, opacity 0.28s ease';
+      el.style.transform = 'translateY(0)';
+      el.style.opacity = '1';
+    });
+  }, 280);
+}
+
+function rotate(dir) {
+  if (busy) return;
+  busy = true;
+  const label = document.getElementById('panel-label');
+  label.style.transition = 'opacity 0.2s, transform 0.2s';
+  label.style.opacity = '0';
+  label.style.transform = `translateY(-50%) translateX(${dir * -10}px)`;
+  slotSwap(pages[(current + dir + pages.length) % pages.length].name, dir);
+  setTimeout(() => {
+    current = (current + dir + pages.length) % pages.length;
+    render(current);
+    showLabel(current, dir);
+    busy = false;
+  }, 250);
+}
+
+function openPage() {
+  const p = pages[current];
+  document.getElementById('ov-tag').textContent = p.tag;
+  document.getElementById('ov-title').textContent = p.name;
+  document.getElementById('ov-body').innerHTML = p.body;
+  document.getElementById('page-overlay').classList.add('open');
+}
+function closePage() { document.getElementById('page-overlay').classList.remove('open'); }
+function overlayClick(e) { if (e.target === document.getElementById('page-overlay')) closePage(); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft')  rotate(-1);
+  if (e.key === 'ArrowRight') rotate(1);
+  if (e.key === 'Escape')     closePage();
+  if (e.key === 'Enter')      openPage();
+});
+
+// Dots
+const dotsEl = document.getElementById('dots');
+pages.forEach((_,i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i===0?' active':'');
+  dotsEl.appendChild(d);
+});
+
+// Twinkle
+function twinkle() {
+  stars.forEach(s => { s.o = 0.15 + Math.random() * 0.85; });
+  drawStars(pages[current].stars);
+  setTimeout(twinkle, 800 + Math.random() * 700);
+}
+
+window.addEventListener('resize', resize);
+resize();
+showLabel(0, 0);
+document.getElementById('slot-text').textContent = pages[0].name;
+twinkle();
+</script>
 </body>
 </html>
