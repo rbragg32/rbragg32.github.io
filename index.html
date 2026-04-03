@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Name — Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #f5f0e8;
+      --ink: #1a1714;
+      --accent: #8b5e3c;
+      --muted: #7a746c;
+      --border: rgba(26,23,20,0.12);
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.4rem 4rem;
+      background: rgba(245,240,232,0.85);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+    }
+    .nav-name {
+      font-family: var(--serif);
+      font-size: 1.25rem;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+    }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--ink); }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: flex; align-items: flex-end;
+      padding: 0 4rem 7rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-bg-line {
+      position: absolute;
+      top: 0; right: 10%;
+      width: 1px; height: 100%;
+      background: linear-gradient(to bottom, transparent, var(--border) 30%, var(--border) 70%, transparent);
+    }
+    .hero-eyebrow {
+      font-family: var(--sans);
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.2s forwards;
+    }
+    .hero-title {
+      font-family: var(--serif);
+      font-size: clamp(4rem, 9vw, 9rem);
+      font-weight: 300;
+      line-height: 0.95;
+      letter-spacing: -0.01em;
+      max-width: 80vw;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.35s forwards;
+    }
+    .hero-title em {
+      font-style: italic;
+      color: var(--accent);
+    }
+    .hero-tagline {
+      position: absolute;
+      bottom: 7rem; right: 4rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+      max-width: 240px;
+      text-align: right;
+      line-height: 1.6;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.55s forwards;
+    }
+    .scroll-hint {
+      position: absolute;
+      bottom: 2.5rem; left: 4rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex; align-items: center; gap: 0.75rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.7s forwards;
+    }
+    .scroll-hint::before {
+      content: '';
+      display: block; width: 40px; height: 1px;
+      background: var(--muted);
+    }
+
+    /* ── SECTIONS ── */
+    section { padding: 6rem 4rem; }
+    .section-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 3rem;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1; height: 1px;
+      background: var(--border);
+    }
+
+    /* ── ABOUT ── */
+    #about { border-top: 1px solid var(--border); }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 6rem;
+      align-items: start;
+    }
+    .about-heading {
+      font-family: var(--serif);
+      font-size: clamp(2.5rem, 4vw, 4rem);
+      font-weight: 300;
+      line-height: 1.15;
+    }
+    .about-body {
+      font-size: 1.05rem;
+      color: var(--muted);
+      line-height: 1.9;
+    }
+    .about-body p + p { margin-top: 1.25rem; }
+
+    /* ── EXPERIENCE ── */
+    #experience { border-top: 1px solid var(--border); background: var(--ink); color: var(--cream); }
+    #experience .section-label { color: #c9a07a; }
+    #experience .section-label::after { background: rgba(245,240,232,0.15); }
+    .exp-item {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 3rem;
+      padding: 2.5rem 0;
+      border-bottom: 1px solid rgba(245,240,232,0.1);
+    }
+    .exp-item:first-of-type { border-top: 1px solid rgba(245,240,232,0.1); }
+    .exp-date {
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      color: rgba(245,240,232,0.45);
+      padding-top: 0.2rem;
+    }
+    .exp-role {
+      font-family: var(--serif);
+      font-size: 1.6rem;
+      font-weight: 400;
+      margin-bottom: 0.3rem;
+    }
+    .exp-company {
+      font-size: 0.85rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #c9a07a;
+      margin-bottom: 1rem;
+    }
+    .exp-desc {
+      font-size: 0.95rem;
+      color: rgba(245,240,232,0.6);
+      line-height: 1.8;
+    }
+
+    /* ── SKILLS ── */
+    #skills { border-top: 1px solid var(--border); }
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .skill-card {
+      border: 1px solid var(--border);
+      padding: 2rem;
+      transition: border-color 0.25s, transform 0.25s;
+    }
+    .skill-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+    }
+    .skill-card-title {
+      font-family: var(--serif);
+      font-size: 1.35rem;
+      margin-bottom: 0.75rem;
+    }
+    .skill-card-list {
+      list-style: none;
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 2;
+    }
+    .skill-card-list li::before {
+      content: '— ';
+      color: var(--accent);
+    }
+
+    /* ── CONTACT ── */
+    #contact {
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 8rem 4rem;
+    }
+    .contact-heading {
+      font-family: var(--serif);
+      font-size: clamp(3rem, 6vw, 6rem);
+      font-weight: 300;
+      margin-bottom: 2.5rem;
+      line-height: 1.1;
+    }
+    .contact-heading em { font-style: italic; color: var(--accent); }
+    .contact-links {
+      display: flex; justify-content: center;
+      flex-wrap: wrap; gap: 1.5rem;
+      list-style: none; margin-top: 2rem;
+    }
+    .contact-links a {
+      display: inline-block;
+      text-decoration: none;
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink);
+      border-bottom: 1px solid var(--ink);
+      padding-bottom: 2px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .contact-links a:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 2rem 4rem;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── ANIMATION ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 1.2rem 1.5rem; }
+      .nav-links { gap: 1.5rem; }
+      #hero, section { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .hero-tagline { display: none; }
+      .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .exp-item { grid-template-columns: 1fr; gap: 0.5rem; }
+      footer { flex-direction: column; gap: 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <span class="nav-name">Your Name</span>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg-line"></div>
+    <div>
+      <p class="hero-eyebrow">Your Field / Title</p>
+      <h1 class="hero-title">Your<br/><em>Name</em></h1>
+    </div>
+    <p class="hero-tagline">A short one-liner about what you do or what you bring to the table.</p>
+    <p class="scroll-hint">Scroll to explore</p>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <p class="section-label">About</p>
+    <div class="about-grid">
+      <h2 class="about-heading reveal">A little about who I am.</h2>
+      <div class="about-body reveal">
+        <p>Write a paragraph here introducing yourself. What are you passionate about? What's your professional background? Keep it personal and genuine — this is the first thing people will read about you.</p>
+        <p>You can add a second paragraph here going a bit deeper — your values, what drives you, or what you're currently working toward in your career.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience">
+    <p class="section-label">Experience</p>
+
+    <div class="exp-item reveal">
+      <div class="exp-date">2022 — Present</div>
+      <div>
+        <div class="exp-role">Your Job Title</div>
+        <div class="exp-company">Company Name</div>
+        <p class="exp-desc">Describe what you did in this role. Focus on impact — what did you accomplish, improve, or contribute? Keep it to 2–3 sentences.</p>
+      </div>
+    </div>
+
+    <div class="exp-item reveal">
+      <div class="exp-date">2019 — 2022</div>
+      <div>
+        <div class="exp-role">Previous Job Title</div>
+        <div class="exp-company">Previous Company</div>
+        <p class="exp-desc">Another role description here. What were your key responsibilities? What did you learn or achieve?</p>
+      </div>
+    </div>
+
+    <div class="exp-item reveal">
+      <div class="exp-date">2016 — 2019</div>
+      <div>
+        <div class="exp-role">Earlier Role</div>
+        <div class="exp-company">Earlier Company</div>
+        <p class="exp-desc">Brief description of this earlier position. You can add or remove experience blocks as needed.</p>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <p class="section-label">Skills</p>
+    <div class="skills-grid">
+
+      <div class="skill-card reveal">
+        <div class="skill-card-title">Category One</div>
+        <ul class="skill-card-list">
+          <li>Skill or tool</li>
+          <li>Skill or tool</li>
+          <li>Skill or tool</li>
+          <li>Skill or tool</li>
+        </ul>
+      </div>
+
+      <div class="skill-card reveal">
+        <div class="skill-card-title">Category Two</div>
+        <ul class="skill-card-list">
+          <li>Skill or tool</li>
+          <li>Skill or tool</li>
+          <li>Skill or tool</li>
+          <li>Skill or tool</li>
+        </ul>
+      </div>
+
+      <div class="skill-card reveal">
+        <div class="skill-card-title">Category Three</div>
+        <ul class="skill-card-list">
+          <li>Skill or tool</li>
+          <li>Skill or tool</li>
+          <li>Skill or tool</li>
+          <li>Skill or tool</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <h2 class="contact-heading reveal">Let's<br/><em>connect.</em></h2>
+    <p class="reveal" style="color: var(--muted); max-width: 400px; margin: 0 auto; font-size: 1rem;">
+      Open to new opportunities, collaborations, or just a conversation. Reach out anytime.
+    </p>
+    <ul class="contact-links reveal">
+      <li><a href="mailto:your@email.com">your@email.com</a></li>
+      <li><a href="https://linkedin.com/in/yourprofile" target="_blank">LinkedIn</a></li>
+      <!-- Add more links as needed -->
+    </ul>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>© 2026 Your Name</span>
+    <span>Built with GitHub Pages</span>
+  </footer>
+
+  <script>
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 80);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>
