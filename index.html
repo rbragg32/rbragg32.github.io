@@ -1,512 +1,568 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Your Name — Aerospace Portfolio</title>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Outfit:wght@200;300;400;600&display=swap" rel="stylesheet"/>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --accent: #5de0f8;
-      --accent2: #f5a623;
-      --mono: 'Share Tech Mono', monospace;
-      --sans: 'Outfit', sans-serif;
-    }
-    html, body {
-      width: 100%; height: 100%;
-      overflow: hidden;
-      font-family: var(--sans);
-      background: #0a0e1a;
-      color: #fff;
-      user-select: none;
-    }
-    #bg-canvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; }
-    #star-canvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-    #atmo {
-      position: fixed; inset: 0; z-index: 2; pointer-events: none;
-      background: linear-gradient(to top, rgba(244,132,90,0.35) 0%, rgba(122,173,218,0.2) 40%, transparent 80%);
-      transition: opacity 1.2s ease;
-    }
-    #scene {
-      position: fixed; inset: 0; z-index: 10;
-      display: flex; align-items: center; justify-content: center;
-    }
-    #rocket-wrap {
-      position: relative;
-      width: 220px;
-      display: flex; flex-direction: column; align-items: center;
-    }
-    #flame {
-      width: 36px; margin: 0 auto;
-      animation: flicker 0.18s infinite alternate;
-      transform-origin: top center;
-    }
-    @keyframes flicker {
-      from { transform: scaleX(1) scaleY(1); opacity: 1; }
-      to   { transform: scaleX(0.88) scaleY(1.1); opacity: 0.85; }
-    }
-    #rocket-svg {
-      width: 100px;
-      filter: drop-shadow(0 0 18px rgba(93,224,248,0.35));
-      animation: hover 3s ease-in-out infinite;
-    }
-    @keyframes hover {
-      0%,100% { transform: translateY(0); }
-      50%      { transform: translateY(-10px); }
-    }
-    #panel-label {
-      position: absolute;
-      top: 50%; transform: translateY(-50%);
-      left: calc(100% + 30px);
-      white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s ease, transform 0.4s ease;
-    }
-    #panel-label.visible { opacity: 1; pointer-events: auto; }
-    .panel-tag {
-      font-family: var(--mono);
-      font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase;
-      color: var(--accent); margin-bottom: 6px;
-    }
-    .panel-name {
-      font-size: 2.2rem; font-weight: 600; line-height: 1.1;
-      color: #fff; cursor: pointer;
-      display: inline-block; position: relative;
-    }
-    .panel-name::after {
-      content: ''; position: absolute;
-      bottom: -3px; left: 0; width: 0; height: 2px;
-      background: var(--accent); transition: width 0.3s;
-    }
-    .panel-name:hover::after { width: 100%; }
-    .panel-sub {
-      font-size: 0.85rem; color: rgba(255,255,255,0.5);
-      margin-top: 8px; max-width: 280px; line-height: 1.5; font-weight: 300;
-    }
-    .panel-cta {
-      display: inline-block; margin-top: 14px;
-      font-family: var(--mono); font-size: 0.7rem;
-      letter-spacing: 0.15em; text-transform: uppercase;
-      color: var(--accent2); border: 1px solid var(--accent2);
-      padding: 6px 14px; cursor: pointer; text-decoration: none;
-      transition: background 0.2s, color 0.2s;
-    }
-    .panel-cta:hover { background: var(--accent2); color: #000; }
-    .arrow-btn {
-      position: absolute; top: 50%; transform: translateY(-50%);
-      width: 44px; height: 44px;
-      border: 1px solid rgba(93,224,248,0.4);
-      background: rgba(93,224,248,0.07);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: background 0.2s, border-color 0.2s; z-index: 20;
-    }
-    .arrow-btn:hover { background: rgba(93,224,248,0.18); border-color: var(--accent); }
-    #arrow-left  { left: -70px; }
-    #arrow-right { right: -70px; }
-    .arrow-btn svg { width: 18px; height: 18px; stroke: var(--accent); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    #slot-wrap {
-      position: absolute;
-      left: 50%; transform: translateX(-50%);
-      bottom: calc(100% + 28px);
-      text-align: center; white-space: nowrap;
-    }
-    #slot-track {
-      overflow: hidden; height: 2.2rem;
-      display: flex; align-items: center; justify-content: center;
-    }
-    #slot-text {
-      font-family: var(--mono); font-size: 0.75rem;
-      letter-spacing: 0.22em; text-transform: uppercase;
-      color: var(--accent);
-      transition: transform 0.35s ease, opacity 0.35s ease;
-    }
-    .slot-dots { margin-top: 10px; display: flex; gap: 6px; justify-content: center; }
-    .dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      border: 1px solid rgba(93,224,248,0.4);
-      transition: background 0.3s;
-    }
-    .dot.active { background: var(--accent); border-color: var(--accent); }
-    #name-banner {
-      position: fixed; top: 2.2rem; left: 50%; transform: translateX(-50%);
-      text-align: center; z-index: 30; pointer-events: none;
-    }
-    #name-banner h1 {
-      font-size: 1rem; font-weight: 300; letter-spacing: 0.35em;
-      text-transform: uppercase; color: rgba(255,255,255,0.75);
-    }
-    #name-banner p {
-      font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.18em;
-      color: var(--accent); text-transform: uppercase; margin-top: 4px;
-    }
-    #altitude {
-      position: fixed; right: 2.5rem; top: 50%; transform: translateY(-50%);
-      z-index: 30; display: flex; flex-direction: column; align-items: center; gap: 6px;
-    }
-    .alt-label {
-      font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.14em;
-      text-transform: uppercase; color: rgba(255,255,255,0.4);
-      writing-mode: vertical-rl; transform: rotate(180deg);
-    }
-    .alt-bar {
-      width: 2px; height: 120px;
-      background: rgba(93,224,248,0.15);
-      position: relative; border-radius: 1px;
-    }
-    .alt-fill {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      background: var(--accent); border-radius: 1px;
-      transition: height 1.2s ease;
-    }
-    .alt-val { font-family: var(--mono); font-size: 0.6rem; color: var(--accent); }
-    #page-overlay {
-      position: fixed; inset: 0; z-index: 100;
-      background: rgba(5,8,20,0);
-      backdrop-filter: blur(0px);
-      pointer-events: none;
-      transition: background 0.5s, backdrop-filter 0.5s;
-      display: flex; align-items: center; justify-content: center;
-    }
-    #page-overlay.open {
-      background: rgba(5,8,20,0.93);
-      backdrop-filter: blur(8px);
-      pointer-events: auto;
-    }
-    #page-content {
-      max-width: 680px; width: 90%;
-      opacity: 0; transform: translateY(30px);
-      transition: opacity 0.4s 0.2s ease, transform 0.4s 0.2s ease;
-      padding: 3rem;
-      border: 1px solid rgba(93,224,248,0.15);
-      position: relative;
-    }
-    #page-overlay.open #page-content { opacity: 1; transform: none; }
-    .page-tag {
-      font-family: var(--mono); font-size: 0.65rem;
-      letter-spacing: 0.2em; text-transform: uppercase;
-      color: var(--accent); margin-bottom: 1rem;
-    }
-    .page-title {
-      font-size: 2.8rem; font-weight: 200;
-      line-height: 1.1; margin-bottom: 1.5rem;
-    }
-    .page-body {
-      font-size: 0.95rem; font-weight: 300;
-      color: rgba(255,255,255,0.7); line-height: 1.8;
-    }
-    .page-body p + p { margin-top: 1rem; }
-    .close-btn {
-      position: absolute; top: 1.2rem; right: 1.4rem;
-      font-family: var(--mono); font-size: 0.7rem;
-      letter-spacing: 0.15em; color: rgba(255,255,255,0.4);
-      cursor: pointer; text-transform: uppercase;
-      border: 1px solid rgba(255,255,255,0.15);
-      padding: 5px 10px;
-      transition: color 0.2s, border-color 0.2s;
-      background: none;
-    }
-    .close-btn:hover { color: #fff; border-color: rgba(255,255,255,0.5); }
-    #hint {
-      position: fixed; bottom: 2.2rem; left: 50%; transform: translateX(-50%);
-      z-index: 30; font-family: var(--mono); font-size: 0.6rem;
-      letter-spacing: 0.18em; text-transform: uppercase;
-      color: rgba(255,255,255,0.3);
-      animation: pulse 2.5s ease-in-out infinite;
-    }
-    @keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:0.7} }
-    @media (max-width: 600px) {
-      #panel-label { left: auto; right: auto; top: auto;
-        bottom: calc(100% + 120px); transform: none;
-        text-align: center; left: 50%; transform: translateX(-50%);
-      }
-      .panel-name { font-size: 1.6rem; }
-      #arrow-left { left: -55px; }
-      #arrow-right { right: -55px; }
-      #altitude { display: none; }
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Your Name — Aerospace Portfolio</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{overflow:hidden;background:#000;font-family:'Courier New',monospace;color:#fff}
+#c{display:block;width:100vw;height:100vh}
+
+/* HUD */
+#hud{position:fixed;inset:0;pointer-events:none;z-index:10}
+#name{position:absolute;top:2rem;left:50%;transform:translateX(-50%);text-align:center;opacity:0;transition:opacity 1s}
+#name h1{font-size:.85rem;letter-spacing:.4em;text-transform:uppercase;font-weight:300;color:rgba(255,255,255,.8)}
+#name p{font-size:.55rem;letter-spacing:.25em;color:#5de0f8;margin-top:4px;text-transform:uppercase}
+
+#arrows{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:280px;opacity:0;transition:opacity .6s;pointer-events:none}
+#arrows.show{opacity:1;pointer-events:auto}
+.arr-btn{width:48px;height:48px;border:1px solid rgba(93,224,248,.5);background:rgba(93,224,248,.08);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s;pointer-events:auto}
+.arr-btn:hover{background:rgba(93,224,248,.22)}
+.arr-btn svg{width:20px;height:20px;stroke:#5de0f8;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+#label-hud{position:absolute;right:calc(50% - 200px);top:50%;transform:translateY(-50%);opacity:0;transition:opacity .5s,transform .5s;pointer-events:none}
+#label-hud.show{opacity:1;pointer-events:auto}
+#label-tag{font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:#5de0f8;margin-bottom:6px}
+#label-name{font-size:1.9rem;font-weight:600;cursor:pointer;line-height:1;position:relative;display:inline-block}
+#label-name::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:2px;background:#5de0f8;transition:width .3s}
+#label-name:hover::after{width:100%}
+#label-sub{font-size:.8rem;color:rgba(255,255,255,.5);margin-top:8px;max-width:240px;line-height:1.5;font-weight:300;font-family:sans-serif}
+#label-cta{display:inline-block;margin-top:12px;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:#f5a623;border:1px solid #f5a623;padding:5px 12px;cursor:pointer;transition:background .2s,color .2s;pointer-events:auto}
+#label-cta:hover{background:#f5a623;color:#000}
+
+#dots{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);display:flex;gap:8px;opacity:0;transition:opacity .6s}
+#dots.show{opacity:1}
+.dot{width:7px;height:7px;border-radius:50%;border:1px solid rgba(93,224,248,.4);transition:background .3s}
+.dot.active{background:#5de0f8;border-color:#5de0f8}
+
+#hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.3);opacity:0;transition:opacity .6s}
+#hint.show{opacity:1}
+
+#launch-hint{position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.5);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:.8}}
+
+/* Page overlay */
+#overlay{position:fixed;inset:0;z-index:100;background:rgba(4,8,20,0);backdrop-filter:blur(0px);pointer-events:none;transition:background .5s,backdrop-filter .5s;display:flex;align-items:center;justify-content:center}
+#overlay.open{background:rgba(4,8,20,.93);backdrop-filter:blur(10px);pointer-events:auto}
+#page{max-width:660px;width:90%;opacity:0;transform:translateY(28px);transition:opacity .4s .2s,transform .4s .2s;padding:2.8rem;border:1px solid rgba(93,224,248,.15);position:relative;max-height:80vh;overflow-y:auto}
+#overlay.open #page{opacity:1;transform:none}
+#pg-tag{font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:#5de0f8;margin-bottom:.8rem}
+#pg-title{font-size:2.5rem;font-weight:200;line-height:1.1;margin-bottom:1.2rem}
+#pg-body{font-size:.92rem;font-weight:300;color:rgba(255,255,255,.7);line-height:1.85;font-family:sans-serif}
+#pg-body p+p{margin-top:.9rem}
+#close{position:absolute;top:1rem;right:1.2rem;font-size:.65rem;letter-spacing:.15em;color:rgba(255,255,255,.4);cursor:pointer;border:1px solid rgba(255,255,255,.15);padding:4px 10px;background:none;text-transform:uppercase;font-family:'Courier New',monospace}
+#close:hover{color:#fff;border-color:rgba(255,255,255,.5)}
+</style>
 </head>
 <body>
+<canvas id="c"></canvas>
 
-<canvas id="bg-canvas"></canvas>
-<canvas id="star-canvas"></canvas>
-<div id="atmo"></div>
+<div id="hud">
+  <div id="name"><h1>Your Name</h1><p>Aerospace Engineer</p></div>
 
-<div id="name-banner">
-  <h1>Your Name</h1>
-  <p>Aerospace Engineer</p>
-</div>
-
-<div id="altitude">
-  <span class="alt-label">Altitude</span>
-  <div class="alt-bar"><div class="alt-fill" id="alt-fill" style="height:20%"></div></div>
-  <span class="alt-val" id="alt-val">Ground</span>
-</div>
-
-<div id="scene">
-  <div id="rocket-wrap">
-
-    <div id="slot-wrap">
-      <div id="slot-track"><span id="slot-text">Navigate</span></div>
-      <div class="slot-dots" id="dots"></div>
-    </div>
-
-    <svg id="flame" viewBox="0 0 36 40" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="18" cy="12" rx="8" ry="12" fill="#f5a623" opacity="0.9"/>
-      <ellipse cx="18" cy="18" rx="5" ry="8" fill="#f4c97a" opacity="0.7"/>
-      <ellipse cx="13" cy="20" rx="4" ry="9" fill="#f5a623" opacity="0.5"/>
-      <ellipse cx="23" cy="20" rx="4" ry="9" fill="#f5a623" opacity="0.5"/>
-      <ellipse cx="18" cy="22" rx="3" ry="5" fill="#fff" opacity="0.4"/>
-    </svg>
-
-    <svg id="rocket-svg" viewBox="0 0 100 180" xmlns="http://www.w3.org/2000/svg">
-      <path d="M50 10 C30 30 22 70 22 110 L78 110 C78 70 70 30 50 10Z" fill="#dde8f5"/>
-      <path d="M50 10 C38 30 34 50 33 70 L67 70 C66 50 62 30 50 10Z" fill="#b0c8e8"/>
-      <circle cx="50" cy="78" r="10" fill="#5de0f8" opacity="0.9"/>
-      <circle cx="50" cy="78" r="7" fill="#0a2a4a"/>
-      <circle cx="47" cy="75" r="2.5" fill="#5de0f8" opacity="0.6"/>
-      <path d="M22 110 L4 148 L22 138Z" fill="#c8d8ec"/>
-      <path d="M78 110 L96 148 L78 138Z" fill="#c8d8ec"/>
-      <rect x="22" y="110" width="56" height="8" rx="2" fill="#aabdd6"/>
-      <path d="M35 118 L32 134 L68 134 L65 118Z" fill="#8faac4"/>
-      <rect x="22" y="92" width="56" height="5" rx="1" fill="#5de0f8" opacity="0.5"/>
-      <rect x="36" y="50" width="28" height="16" rx="2" fill="#1a3a6e" opacity="0.7"/>
-      <rect x="36" y="50" width="28" height="5" rx="1" fill="#c13a2a" opacity="0.8"/>
-    </svg>
-
-    <button class="arrow-btn" id="arrow-left" onclick="rotate(-1)" aria-label="Previous">
+  <div id="arrows">
+    <button class="arr-btn" id="btn-l" aria-label="Previous">
       <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
-    <button class="arrow-btn" id="arrow-right" onclick="rotate(1)" aria-label="Next">
+    <button class="arr-btn" id="btn-r" aria-label="Next">
       <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
     </button>
+  </div>
 
-    <div id="panel-label">
-      <div class="panel-tag" id="panel-tag"></div>
-      <div class="panel-name" id="panel-name" onclick="openPage()"></div>
-      <div class="panel-sub" id="panel-sub"></div>
-      <span class="panel-cta" onclick="openPage()">Open section →</span>
-    </div>
+  <div id="label-hud">
+    <div id="label-tag"></div>
+    <div id="label-name" onclick="openPage()"></div>
+    <div id="label-sub"></div>
+    <div id="label-cta" onclick="openPage()">Open section →</div>
+  </div>
 
+  <div id="dots"></div>
+  <div id="hint">← keyboard arrows to navigate · enter to open</div>
+  <div id="launch-hint" id="lhint">Click anywhere to launch</div>
+</div>
+
+<div id="overlay" onclick="overlayBg(event)">
+  <div id="page">
+    <button id="close" onclick="closePage()">✕ Close</button>
+    <div id="pg-tag"></div>
+    <div id="pg-title"></div>
+    <div id="pg-body"></div>
   </div>
 </div>
 
-<div id="hint">← arrows or keyboard to navigate →</div>
-
-<div id="page-overlay" onclick="overlayClick(event)">
-  <div id="page-content">
-    <button class="close-btn" onclick="closePage()">✕ Close</button>
-    <div class="page-tag" id="ov-tag"></div>
-    <div class="page-title" id="ov-title"></div>
-    <div class="page-body" id="ov-body"></div>
-  </div>
-</div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-const pages = [
-  {
-    tag: 'Mission Brief', name: 'About Me',
-    sub: 'Who I am and what drives me.',
-    altitude: 20, altLabel: 'Ground',
-    skyTop: '#0a1628', skyBot: '#1a3a6e',
-    stars: 0.15, atmo: 0.9,
-    body: `<p>Hi, I'm <strong style="color:#fff">Your Name</strong> — an aerospace engineer specializing in [your area: propulsion / structures / avionics / systems engineering].</p>
-           <p>I've spent my career working on [brief summary — launch vehicles, satellites, defense systems, etc.]. I'm driven by the challenge of building things that work reliably at the edge of what's physically possible.</p>
-           <p>Outside of engineering, I [hobby or interest]. I believe the best teams run on curiosity, rigorous thinking, and a willingness to question assumptions.</p>`
-  },
-  {
-    tag: 'Flight Log', name: 'Experience',
-    sub: 'Missions and roles I've been part of.',
-    altitude: 45, altLabel: 'Upper Atmo',
-    skyTop: '#060e20', skyBot: '#0d1f52',
-    stars: 0.4, atmo: 0.3,
-    body: `<p><strong style="color:#fff">Senior Aerospace Engineer</strong> — Company Name &nbsp;(2021–Present)<br/>
-           <span style="color:rgba(255,255,255,0.5);font-size:0.85rem">Describe your key responsibilities and impact. What systems did you work on? What did you deliver?</span></p><br/>
-           <p><strong style="color:#fff">Aerospace Engineer II</strong> — Previous Company &nbsp;(2018–2021)<br/>
-           <span style="color:rgba(255,255,255,0.5);font-size:0.85rem">Another role. Think about what you contributed — tests passed, systems validated, launches supported.</span></p><br/>
-           <p><strong style="color:#fff">Engineering Intern</strong> — Earlier Company &nbsp;(2017)<br/>
-           <span style="color:rgba(255,255,255,0.5);font-size:0.85rem">Brief description of your internship and what you learned.</span></p>`
-  },
-  {
-    tag: 'Payload Bay', name: 'Projects',
-    sub: 'Technical work I\'m proud of.',
-    altitude: 68, altLabel: 'LEO',
-    skyTop: '#030a18', skyBot: '#091630',
-    stars: 0.78, atmo: 0.04,
-    body: `<p><strong style="color:#fff">Project One — Title Here</strong><br/>
-           <span style="color:rgba(255,255,255,0.5);font-size:0.85rem">Describe the project: goal, your role, and outcome. E.g. designed a thrust structure for a 2nd-stage LOX/kerosene engine — met mass budget within 3%.</span></p><br/>
-           <p><strong style="color:#fff">Project Two — Title Here</strong><br/>
-           <span style="color:rgba(255,255,255,0.5);font-size:0.85rem">Another notable project. Link to papers, GitHub repos, or writeups if you have them.</span></p><br/>
-           <p><strong style="color:#fff">Project Three — Title Here</strong><br/>
-           <span style="color:rgba(255,255,255,0.5);font-size:0.85rem">Great for side projects, research, academic work, or personal builds.</span></p>`
-  },
-  {
-    tag: 'Systems Check', name: 'Skills',
-    sub: 'Tools, disciplines, and methods.',
-    altitude: 85, altLabel: 'MEO',
-    skyTop: '#010408', skyBot: '#050d1e',
-    stars: 1.0, atmo: 0.0,
-    body: `<p><strong style="color:#fff">Disciplines</strong><br/>
-           <span style="color:rgba(255,255,255,0.5);font-size:0.85rem">Structural analysis · Propulsion · GN&amp;C · Systems engineering · Thermal management · [add yours]</span></p><br/>
-           <p><strong style="color:#fff">Tools &amp; Software</strong><br/>
-           <span style="color:rgba(255,255,255,0.5);font-size:0.85rem">MATLAB · Simulink · ANSYS · CATIA / SolidWorks · Python · STK · [add yours]</span></p><br/>
-           <p><strong style="color:#fff">Certifications &amp; Education</strong><br/>
-           <span style="color:rgba(255,255,255,0.5);font-size:0.85rem">B.S./M.S. Aerospace Engineering — University Name · [any certs, e.g. FAA, PMP]</span></p>`
-  },
-  {
-    tag: 'Ground Control', name: 'Contact',
-    sub: 'Let\'s connect and build something.',
-    altitude: 100, altLabel: 'GEO',
-    skyTop: '#000205', skyBot: '#010a18',
-    stars: 1.0, atmo: 0.0,
-    body: `<p>Open to new opportunities, collaborations, and conversations about interesting problems in aerospace.</p><br/>
-           <p>📧 &nbsp;<a href="mailto:your@email.com" style="color:#5de0f8">your@email.com</a></p>
-           <p>🔗 &nbsp;<a href="https://linkedin.com/in/yourprofile" target="_blank" style="color:#5de0f8">linkedin.com/in/yourprofile</a></p>
-           <p>💻 &nbsp;<a href="https://github.com/yourusername" target="_blank" style="color:#5de0f8">github.com/yourusername</a></p>`
-  }
+// ─── DATA ───────────────────────────────────────────────────────────────────
+const SECTIONS = [
+  { tag:'Mission Brief', name:'About Me',    sub:'Who I am and what drives me.',           angle: 0,
+    body:`<p>Hi, I'm <strong style="color:#fff">Your Name</strong> — an aerospace engineer specializing in [propulsion / structures / avionics / systems engineering].</p>
+          <p>I've spent my career working on [launch vehicles / satellites / defense systems]. I'm driven by the challenge of building things that work reliably at the absolute edge of what's physically possible.</p>
+          <p>Outside of engineering, I [hobby or interest]. I believe the best engineering teams run on curiosity, rigorous thinking, and the willingness to question every assumption.</p>` },
+  { tag:'Flight Log',   name:'Experience',   sub:'Missions and roles I\'ve been part of.', angle: Math.PI*2/5,
+    body:`<p><strong style="color:#fff">Senior Aerospace Engineer</strong> — Company Name &nbsp;(2021–Present)<br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Key responsibilities and impact. What systems did you own? What did you ship?</span></p><br/>
+          <p><strong style="color:#fff">Aerospace Engineer II</strong> — Previous Company &nbsp;(2018–2021)<br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">What you contributed — tests passed, systems validated, launches supported.</span></p><br/>
+          <p><strong style="color:#fff">Engineering Intern</strong> — Earlier Company &nbsp;(2017)<br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Brief description of your internship and what you learned.</span></p>` },
+  { tag:'Payload Bay',  name:'Projects',     sub:'Technical work I\'m proud of.',           angle: Math.PI*4/5,
+    body:`<p><strong style="color:#fff">Project One — Title Here</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Goal, your role, outcome. E.g. designed a thrust structure for a 2nd-stage LOX/kerosene engine — met mass budget within 3%.</span></p><br/>
+          <p><strong style="color:#fff">Project Two — Title Here</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Another project. Link to papers, GitHub repos, or writeups if available.</span></p><br/>
+          <p><strong style="color:#fff">Project Three — Title Here</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Side projects, research, academic work, or personal builds all count here.</span></p>` },
+  { tag:'Systems Check',name:'Skills',       sub:'Tools, disciplines, and methods.',        angle: Math.PI*6/5,
+    body:`<p><strong style="color:#fff">Disciplines</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Structural analysis · Propulsion · GN&amp;C · Systems engineering · Thermal management</span></p><br/>
+          <p><strong style="color:#fff">Tools &amp; Software</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">MATLAB · Simulink · ANSYS · CATIA / SolidWorks · Python · STK</span></p><br/>
+          <p><strong style="color:#fff">Education</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">B.S./M.S. Aerospace Engineering — University Name</span></p>` },
+  { tag:'Ground Control',name:'Contact',     sub:'Let\'s connect and build something.',     angle: Math.PI*8/5,
+    body:`<p>Open to new opportunities, collaborations, and interesting problems in aerospace.</p><br/>
+          <p>📧 &nbsp;<a href="mailto:your@email.com" style="color:#5de0f8">your@email.com</a></p>
+          <p>🔗 &nbsp;<a href="https://linkedin.com/in/yourprofile" target="_blank" style="color:#5de0f8">linkedin.com/in/yourprofile</a></p>
+          <p>💻 &nbsp;<a href="https://github.com/yourusername" target="_blank" style="color:#5de0f8">github.com/yourusername</a></p>` }
 ];
 
-let current = 0, busy = false;
-const bgC = document.getElementById('bg-canvas');
-const bCtx = bgC.getContext('2d');
-const stC = document.getElementById('star-canvas');
-const sCtx = stC.getContext('2d');
-let stars = [];
+// ─── THREE.JS SETUP ──────────────────────────────────────────────────────────
+const W = window.innerWidth, H = window.innerHeight;
+const renderer = new THREE.WebGLRenderer({canvas:document.getElementById('c'), antialias:true});
+renderer.setSize(W, H);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
 
-function resize() {
-  bgC.width = stC.width = window.innerWidth;
-  bgC.height = stC.height = window.innerHeight;
-  buildStars();
-  render(current);
-}
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, W/H, 0.1, 2000);
+camera.position.set(0, 2, 12);
+camera.lookAt(0, 2, 0);
 
-function buildStars() {
-  stars = Array.from({length: 300}, () => ({
-    x: Math.random() * stC.width,
-    y: Math.random() * stC.height,
-    r: Math.random() * 1.4 + 0.3,
-    o: Math.random()
-  }));
-}
-
-function drawBg(top, bot) {
-  const g = bCtx.createLinearGradient(0, 0, 0, bgC.height);
-  g.addColorStop(0, top); g.addColorStop(1, bot);
-  bCtx.fillStyle = g;
-  bCtx.fillRect(0, 0, bgC.width, bgC.height);
-}
-
-function drawStars(opacity) {
-  sCtx.clearRect(0, 0, stC.width, stC.height);
-  if (opacity <= 0) return;
-  stars.forEach(s => {
-    sCtx.beginPath();
-    sCtx.arc(s.x, s.y, s.r, 0, Math.PI*2);
-    sCtx.fillStyle = `rgba(255,255,255,${s.o * opacity})`;
-    sCtx.fill();
-  });
-}
-
-function render(idx) {
-  const p = pages[idx];
-  drawBg(p.skyTop, p.skyBot);
-  drawStars(p.stars);
-  document.getElementById('atmo').style.opacity = p.atmo;
-  document.getElementById('alt-fill').style.height = p.altitude + '%';
-  document.getElementById('alt-val').textContent = p.altLabel;
-  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i===idx));
-}
-
-function showLabel(idx, fromDir) {
-  const p = pages[idx];
-  const label = document.getElementById('panel-label');
-  label.style.transition = 'none';
-  label.style.opacity = '0';
-  label.style.transform = `translateY(-50%) translateX(${fromDir * 12}px)`;
-  document.getElementById('panel-tag').textContent = p.tag;
-  document.getElementById('panel-name').textContent = p.name;
-  document.getElementById('panel-sub').textContent = p.sub;
-  label.classList.add('visible');
-  requestAnimationFrame(() => {
-    label.style.transition = 'opacity 0.45s ease, transform 0.45s ease';
-    label.style.opacity = '1';
-    label.style.transform = 'translateY(-50%) translateX(0)';
-  });
-}
-
-function slotSwap(name, dir) {
-  const el = document.getElementById('slot-text');
-  el.style.transition = 'transform 0.28s ease, opacity 0.28s ease';
-  el.style.transform = `translateY(${dir > 0 ? '-120%' : '120%'})`;
-  el.style.opacity = '0';
-  setTimeout(() => {
-    el.textContent = name;
-    el.style.transition = 'none';
-    el.style.transform = `translateY(${dir > 0 ? '120%' : '-120%'})`;
-    el.style.opacity = '0';
-    requestAnimationFrame(() => {
-      el.style.transition = 'transform 0.28s ease, opacity 0.28s ease';
-      el.style.transform = 'translateY(0)';
-      el.style.opacity = '1';
-    });
-  }, 280);
-}
-
-function rotate(dir) {
-  if (busy) return;
-  busy = true;
-  const label = document.getElementById('panel-label');
-  label.style.transition = 'opacity 0.2s, transform 0.2s';
-  label.style.opacity = '0';
-  label.style.transform = `translateY(-50%) translateX(${dir * -10}px)`;
-  slotSwap(pages[(current + dir + pages.length) % pages.length].name, dir);
-  setTimeout(() => {
-    current = (current + dir + pages.length) % pages.length;
-    render(current);
-    showLabel(current, dir);
-    busy = false;
-  }, 250);
-}
-
-function openPage() {
-  const p = pages[current];
-  document.getElementById('ov-tag').textContent = p.tag;
-  document.getElementById('ov-title').textContent = p.name;
-  document.getElementById('ov-body').innerHTML = p.body;
-  document.getElementById('page-overlay').classList.add('open');
-}
-function closePage() { document.getElementById('page-overlay').classList.remove('open'); }
-function overlayClick(e) { if (e.target === document.getElementById('page-overlay')) closePage(); }
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'ArrowLeft')  rotate(-1);
-  if (e.key === 'ArrowRight') rotate(1);
-  if (e.key === 'Escape')     closePage();
-  if (e.key === 'Enter')      openPage();
+window.addEventListener('resize', () => {
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
 });
 
-// Dots
+// ─── LIGHTS ─────────────────────────────────────────────────────────────────
+const ambient = new THREE.AmbientLight(0x223355, 0.6);
+scene.add(ambient);
+const sun = new THREE.DirectionalLight(0xfff5e0, 2.2);
+sun.position.set(5, 10, 5);
+scene.add(sun);
+const rimLight = new THREE.DirectionalLight(0x5de0f8, 0.4);
+rimLight.position.set(-4, 0, -4);
+scene.add(rimLight);
+
+// ─── ROCKET ──────────────────────────────────────────────────────────────────
+const rocketGroup = new THREE.Group();
+scene.add(rocketGroup);
+
+// Materials
+const whiteMat  = new THREE.MeshPhongMaterial({color:0xdde8f5, shininess:80});
+const darkMat   = new THREE.MeshPhongMaterial({color:0x1a2a4a, shininess:40});
+const nozzleMat = new THREE.MeshPhongMaterial({color:0x8899aa, shininess:120});
+const accentMat = new THREE.MeshPhongMaterial({color:0x5de0f8, shininess:200, emissive:0x112233});
+const redMat    = new THREE.MeshPhongMaterial({color:0xc13a2a, shininess:60});
+
+// Body (tall cylinder)
+const bodyGeo = new THREE.CylinderGeometry(0.38, 0.42, 5.5, 32);
+const body = new THREE.Mesh(bodyGeo, whiteMat);
+body.position.y = 2.75;
+rocketGroup.add(body);
+
+// Nose cone
+const noseGeo = new THREE.ConeGeometry(0.38, 2.2, 32);
+const nose = new THREE.Mesh(noseGeo, whiteMat);
+nose.position.y = 6.1;
+rocketGroup.add(nose);
+
+// Nose tip (darker)
+const tipGeo = new THREE.ConeGeometry(0.12, 0.5, 16);
+const tip = new THREE.Mesh(tipGeo, darkMat);
+tip.position.y = 7.15;
+rocketGroup.add(tip);
+
+// Accent stripe
+const stripeGeo = new THREE.CylinderGeometry(0.43, 0.43, 0.18, 32);
+const stripe = new THREE.Mesh(stripeGeo, accentMat);
+stripe.position.y = 3.8;
+rocketGroup.add(stripe);
+
+const stripe2 = new THREE.Mesh(stripeGeo, redMat);
+stripe2.position.y = 1.8;
+rocketGroup.add(stripe2);
+
+// Window
+const winGeo = new THREE.SphereGeometry(0.22, 16, 16);
+const winMat = new THREE.MeshPhongMaterial({color:0x5de0f8, shininess:300, emissive:0x0a2233, transparent:true, opacity:0.9});
+const win = new THREE.Mesh(winGeo, winMat);
+win.position.set(0.42, 4.6, 0);
+rocketGroup.add(win);
+
+// Engine section (wider base)
+const engineGeo = new THREE.CylinderGeometry(0.5, 0.55, 0.6, 32);
+const engineShell = new THREE.Mesh(engineGeo, darkMat);
+engineShell.position.y = 0.3;
+rocketGroup.add(engineShell);
+
+// Nozzle
+const nozzleGeo = new THREE.CylinderGeometry(0.18, 0.32, 0.7, 24, 1, true);
+const nozzle = new THREE.Mesh(nozzleGeo, nozzleMat);
+nozzle.position.y = -0.35;
+rocketGroup.add(nozzle);
+
+// Grid fins (4x)
+function addFin(angle) {
+  const g = new THREE.Group();
+  const finGeo = new THREE.BoxGeometry(0.06, 0.55, 0.45);
+  const fin = new THREE.Mesh(finGeo, darkMat);
+  fin.position.set(0.55, 0, 0);
+  g.add(fin);
+  // cross piece
+  const crossGeo = new THREE.BoxGeometry(0.06, 0.06, 0.45);
+  [-0.18, 0, 0.18].forEach(y => {
+    const c = new THREE.Mesh(crossGeo, nozzleMat);
+    c.position.set(0.55, y, 0);
+    g.add(c);
+  });
+  g.rotation.y = angle;
+  g.position.y = 0.6;
+  rocketGroup.add(g);
+}
+[0, Math.PI/2, Math.PI, Math.PI*3/2].forEach(a => addFin(a));
+
+// Landing legs (folded up, 4x)
+function addLeg(angle) {
+  const geo = new THREE.BoxGeometry(0.05, 0.7, 0.05);
+  const leg = new THREE.Mesh(geo, darkMat);
+  leg.position.set(0.45, -0.15, 0);
+  leg.rotation.z = 0.3;
+  const g = new THREE.Group();
+  g.add(leg);
+  g.rotation.y = angle;
+  rocketGroup.add(g);
+}
+[Math.PI/4, Math.PI*3/4, Math.PI*5/4, Math.PI*7/4].forEach(a => addLeg(a));
+
+// Section labels on rocket hull (canvas textures)
+const labelMeshes = [];
+SECTIONS.forEach((sec, i) => {
+  const cvs = document.createElement('canvas');
+  cvs.width = 512; cvs.height = 128;
+  const ctx = cvs.getContext('2d');
+  ctx.clearRect(0, 0, 512, 128);
+  ctx.fillStyle = 'rgba(93,224,248,0.12)';
+  ctx.fillRect(0, 20, 512, 88);
+  ctx.strokeStyle = 'rgba(93,224,248,0.6)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(1, 20, 510, 88);
+  ctx.fillStyle = 'rgba(93,224,248,0.8)';
+  ctx.font = '500 18px "Courier New"';
+  ctx.textAlign = 'left';
+  ctx.fillText(sec.tag.toUpperCase(), 18, 50);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 36px sans-serif';
+  ctx.fillText(sec.name, 18, 96);
+
+  const tex = new THREE.CanvasTexture(cvs);
+  const labelGeo = new THREE.PlaneGeometry(1.8, 0.45);
+  const labelMat = new THREE.MeshBasicMaterial({map:tex, transparent:true, side:THREE.DoubleSide});
+  const mesh = new THREE.Mesh(labelGeo, labelMat);
+  const a = sec.angle;
+  const r = 0.45;
+  mesh.position.set(Math.sin(a)*r, 3.2, Math.cos(a)*r);
+  mesh.rotation.y = -a;
+  rocketGroup.add(mesh);
+  labelMeshes.push(mesh);
+});
+
+// ─── EXHAUST FLAME ───────────────────────────────────────────────────────────
+const flameGroup = new THREE.Group();
+flameGroup.position.y = -0.7;
+rocketGroup.add(flameGroup);
+
+const flameParts = [];
+for (let i = 0; i < 3; i++) {
+  const fg = new THREE.ConeGeometry(0.15 - i*0.04, 0.8 + i*0.3, 8);
+  const col = [0xffffff, 0xffaa33, 0xff4400][i];
+  const fm = new THREE.MeshBasicMaterial({color:col, transparent:true, opacity:[0.9,0.7,0.4][i]});
+  const ff = new THREE.Mesh(fg, fm);
+  ff.rotation.x = Math.PI;
+  ff.position.y = -(i * 0.15);
+  flameGroup.add(ff);
+  flameParts.push(ff);
+}
+flameGroup.visible = false;
+
+// ─── LAUNCHPAD ───────────────────────────────────────────────────────────────
+const padGroup = new THREE.Group();
+scene.add(padGroup);
+
+const groundGeo = new THREE.PlaneGeometry(40, 40);
+const groundMat = new THREE.MeshPhongMaterial({color:0x2a2a2a});
+const ground = new THREE.Mesh(groundGeo, groundMat);
+ground.rotation.x = -Math.PI/2;
+ground.position.y = -2;
+padGroup.add(ground);
+
+const padGeo = new THREE.CylinderGeometry(1.5, 1.5, 0.2, 32);
+const padMat = new THREE.MeshPhongMaterial({color:0x444444});
+const pad = new THREE.Mesh(padGeo, padMat);
+pad.position.y = -1.9;
+padGroup.add(pad);
+
+// Gantry arms
+[[1.8,0],[−1.8,0],[0,1.8],[0,-1.8]].forEach(([x,z]) => {
+  const g = new THREE.Mesh(new THREE.BoxGeometry(0.08, 3.5, 0.08), new THREE.MeshPhongMaterial({color:0x555566}));
+  g.position.set(x, 0, z);
+  padGroup.add(g);
+});
+
+// ─── STARS ───────────────────────────────────────────────────────────────────
+const starGeo = new THREE.BufferGeometry();
+const starCount = 3000;
+const starPos = new Float32Array(starCount * 3);
+for (let i = 0; i < starCount*3; i++) starPos[i] = (Math.random()-0.5)*1800;
+starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+const starMat = new THREE.PointsMaterial({color:0xffffff, size:1.2, sizeAttenuation:true, transparent:true, opacity:0});
+const starField = new THREE.Points(starGeo, starMat);
+scene.add(starField);
+
+// ─── CLOUDS ──────────────────────────────────────────────────────────────────
+const cloudGroup = new THREE.Group();
+scene.add(cloudGroup);
+for (let i = 0; i < 18; i++) {
+  const cg = new THREE.SphereGeometry(2 + Math.random()*3, 8, 6);
+  const cm = new THREE.MeshPhongMaterial({color:0xffffff, transparent:true, opacity:0.55});
+  const cv = new THREE.Mesh(cg, cm);
+  cv.position.set((Math.random()-0.5)*60, 12 + Math.random()*8, (Math.random()-0.5)*60 - 20);
+  cv.scale.y = 0.35;
+  cloudGroup.add(cv);
+}
+cloudGroup.visible = false;
+
+// ─── METEORS ─────────────────────────────────────────────────────────────────
+const meteors = [];
+function spawnMeteor() {
+  const g = new THREE.Group();
+  const mg = new THREE.CylinderGeometry(0.03, 0.01, 1.5+Math.random()*2, 4);
+  const mm = new THREE.MeshBasicMaterial({color:0xffcc77, transparent:true, opacity:0.8});
+  const m = new THREE.Mesh(mg, mm);
+  m.rotation.z = Math.PI/2;
+  g.add(m);
+  g.position.set(30 + Math.random()*20, 20 + Math.random()*30, -20 - Math.random()*40);
+  const spd = 0.4 + Math.random()*0.5;
+  g.userData = {vx:-spd, vy:-spd*0.4, life:0, maxLife:120};
+  scene.add(g);
+  meteors.push(g);
+}
+
+// ─── SKY COLOR ───────────────────────────────────────────────────────────────
+const skyColors = [
+  new THREE.Color(0x87ceeb), // ground - blue sky
+  new THREE.Color(0x4a90d9), // low atmo
+  new THREE.Color(0x1a3a6e), // high atmo
+  new THREE.Color(0x050d1e), // space
+];
+
+// ─── STATE MACHINE ───────────────────────────────────────────────────────────
+// phases: 'prelaunch' | 'launching' | 'flying' | 'orbit'
+let phase = 'prelaunch';
+let launchT = 0;
+let orbitReady = false;
+let currentSection = 0;
+let targetRotY = 0;
+let rotY = 0;
+let busy = false;
+
+// rocket start pos
+rocketGroup.position.set(0, -1.85, 0);
+
+// ─── DOM SETUP ───────────────────────────────────────────────────────────────
 const dotsEl = document.getElementById('dots');
-pages.forEach((_,i) => {
+SECTIONS.forEach((_,i) => {
   const d = document.createElement('div');
   d.className = 'dot' + (i===0?' active':'');
   dotsEl.appendChild(d);
 });
 
-// Twinkle
-function twinkle() {
-  stars.forEach(s => { s.o = 0.15 + Math.random() * 0.85; });
-  drawStars(pages[current].stars);
-  setTimeout(twinkle, 800 + Math.random() * 700);
+function updateLabel(idx) {
+  const s = SECTIONS[idx];
+  document.getElementById('label-tag').textContent = s.tag;
+  document.getElementById('label-name').textContent = s.name;
+  document.getElementById('label-sub').textContent = s.sub;
+  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i===idx));
+}
+updateLabel(0);
+
+function showOrbitUI() {
+  document.getElementById('name').style.opacity = '1';
+  document.getElementById('arrows').classList.add('show');
+  document.getElementById('label-hud').classList.add('show');
+  document.getElementById('dots').classList.add('show');
+  document.getElementById('hint').classList.add('show');
+  document.getElementById('launch-hint').style.display = 'none';
 }
 
-window.addEventListener('resize', resize);
-resize();
-showLabel(0, 0);
-document.getElementById('slot-text').textContent = pages[0].name;
-twinkle();
+function rotate(dir) {
+  if (busy || phase !== 'orbit') return;
+  busy = true;
+  const lh = document.getElementById('label-hud');
+  lh.style.opacity = '0';
+  lh.style.transform = 'translateY(-50%) translateX(' + (dir*10) + 'px)';
+  currentSection = (currentSection + dir + SECTIONS.length) % SECTIONS.length;
+  targetRotY = -SECTIONS[currentSection].angle;
+  setTimeout(() => {
+    updateLabel(currentSection);
+    lh.style.transition = 'opacity .45s, transform .45s';
+    lh.style.opacity = '1';
+    lh.style.transform = 'translateY(-50%) translateX(0)';
+    busy = false;
+  }, 350);
+}
+
+document.getElementById('btn-l').addEventListener('click', () => rotate(-1));
+document.getElementById('btn-r').addEventListener('click', () => rotate(1));
+document.addEventListener('keydown', e => {
+  if (e.key==='ArrowLeft')  rotate(-1);
+  if (e.key==='ArrowRight') rotate(1);
+  if (e.key==='Escape')     closePage();
+  if (e.key==='Enter')      openPage();
+});
+
+// Launch on click
+document.getElementById('c').addEventListener('click', () => {
+  if (phase === 'prelaunch') startLaunch();
+});
+
+function startLaunch() {
+  phase = 'launching';
+  flameGroup.visible = true;
+  cloudGroup.visible = true;
+  document.getElementById('launch-hint').style.display = 'none';
+}
+
+function openPage() {
+  if (phase !== 'orbit') return;
+  const s = SECTIONS[currentSection];
+  document.getElementById('pg-tag').textContent = s.tag;
+  document.getElementById('pg-title').textContent = s.name;
+  document.getElementById('pg-body').innerHTML = s.body;
+  document.getElementById('overlay').classList.add('open');
+}
+function closePage() { document.getElementById('overlay').classList.remove('open'); }
+function overlayBg(e) { if (e.target===document.getElementById('overlay')) closePage(); }
+window.openPage = openPage;
+window.closePage = closePage;
+window.overlayBg = overlayBg;
+window.rotate = rotate;
+
+// ─── ANIMATION LOOP ──────────────────────────────────────────────────────────
+const clock = new THREE.Clock();
+let meteorTimer = 0;
+
+function lerp(a, b, t) { return a + (b-a)*t; }
+function lerpAngle(a, b, t) {
+  let d = b - a;
+  while (d > Math.PI) d -= Math.PI*2;
+  while (d < -Math.PI) d += Math.PI*2;
+  return a + d*t;
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = clock.getDelta();
+  const elapsed = clock.getElapsedTime();
+
+  // Flame flicker
+  if (flameGroup.visible) {
+    const fl = 0.9 + Math.sin(elapsed*28)*0.1;
+    flameGroup.scale.set(fl, 0.9+Math.sin(elapsed*22)*0.15, fl);
+  }
+
+  // Star rotation drift
+  starField.rotation.y = elapsed * 0.002;
+
+  // Meteor system (orbit phase)
+  if (phase === 'orbit') {
+    meteorTimer += dt;
+    if (meteorTimer > 2.5 + Math.random()*3) {
+      spawnMeteor();
+      meteorTimer = 0;
+    }
+    meteors.forEach((m, i) => {
+      m.userData.life++;
+      m.position.x += m.userData.vx;
+      m.position.y += m.userData.vy;
+      m.children[0].material.opacity = Math.max(0, 0.8 * (1 - m.userData.life/m.userData.maxLife));
+      if (m.userData.life >= m.userData.maxLife) {
+        scene.remove(m);
+        meteors.splice(i, 1);
+      }
+    });
+  }
+
+  // LAUNCH phase
+  if (phase === 'launching') {
+    launchT += dt;
+    const t = launchT;
+
+    // Rocket ascent
+    rocketGroup.position.y = -1.85 + t*t*0.8;
+
+    // Camera follows up
+    camera.position.y = lerp(2, 2 + rocketGroup.position.y * 0.6, Math.min(t/4, 1));
+    camera.lookAt(0, rocketGroup.position.y, 0);
+
+    // Sky color transition: blue → dark
+    const skyT = Math.min(t / 8, 1);
+    const skyCol = new THREE.Color().lerpColors(skyColors[0], skyColors[3], skyT);
+    renderer.setClearColor(skyCol);
+
+    // Stars fade in
+    starMat.opacity = Math.min(skyT * 1.2, 1);
+
+    // Clouds drift by and fade
+    cloudGroup.children.forEach(c => {
+      c.position.y -= dt * (1 + t*0.1);
+      c.material.opacity = Math.max(0, 0.55 - t*0.06);
+    });
+
+    // Launchpad shrinks away
+    padGroup.scale.setScalar(Math.max(0.01, 1 - t*0.15));
+    padGroup.position.y = -rocketGroup.position.y * 0.5;
+
+    // Camera pull back to show rocket fully
+    camera.position.z = lerp(12, 9, Math.min(t/5, 1));
+
+    // Transition to orbit when high enough
+    if (t > 7) {
+      phase = 'orbit';
+      padGroup.visible = false;
+      cloudGroup.visible = false;
+      renderer.setClearColor(0x050d1e);
+      starMat.opacity = 1;
+      rocketGroup.position.set(0, 0, 0);
+      camera.position.set(0, 1.5, 9);
+      camera.lookAt(0, 1.5, 0);
+      showOrbitUI();
+    }
+  }
+
+  // ORBIT phase — gentle hover + rotation
+  if (phase === 'orbit') {
+    rocketGroup.position.y = Math.sin(elapsed * 0.5) * 0.12;
+    // Smooth rotation to target
+    rotY = lerpAngle(rotY, targetRotY, 0.06);
+    rocketGroup.rotation.y = rotY;
+    // Gentle camera sway
+    camera.position.x = Math.sin(elapsed * 0.15) * 0.2;
+    camera.lookAt(0, 1, 0);
+  }
+
+  // PRELAUNCH — idle
+  if (phase === 'prelaunch') {
+    renderer.setClearColor(skyColors[0]);
+    rocketGroup.position.y = -1.85 + Math.sin(elapsed*0.8)*0.03;
+  }
+
+  renderer.render(scene, camera);
+}
+
+animate();
 </script>
 </body>
 </html>
