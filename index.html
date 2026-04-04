@@ -150,16 +150,15 @@ window.addEventListener('resize', function() {
   camera.updateProjectionMatrix();
 });
 
-// ── LIGHTS ───────────────────────────────────────────────────────────────────
-// Stronger lights to bring out GLB textures properly
-scene.add(new THREE.AmbientLight(0x8899bb, 1.2));
-var sun = new THREE.DirectionalLight(0xfff8e8, 3.5);
+// ── LIGHTS — tuned for fully textured PBR GLB ────────────────────────────────
+scene.add(new THREE.AmbientLight(0x667788, 0.9));  // softer ambient so textures aren't washed out
+var sun = new THREE.DirectionalLight(0xfff8e8, 3.0);
 sun.position.set(8, 12, 6);
 scene.add(sun);
-var fill = new THREE.DirectionalLight(0xaaddff, 0.8);
+var fill = new THREE.DirectionalLight(0xaaddff, 0.6);
 fill.position.set(-6, 2, -4);
 scene.add(fill);
-var back = new THREE.DirectionalLight(0x334455, 0.5);
+var back = new THREE.DirectionalLight(0x223344, 0.4);
 back.position.set(0, -5, -8);
 scene.add(back);
 
@@ -207,11 +206,7 @@ loader.load(
     model.position.z = -center.z;
     model.position.y = -box.min.y; // base sits at rocket group origin
 
-    // Fix orientation: GLB models vary — try Y-up first.
-    // If rocket appears sideways when you load, uncomment one of these:
-    // model.rotation.x = -Math.PI / 2;  // Z-up source (common in CAD)
-    // model.rotation.z =  Math.PI / 2;  // X-axis pointing up
-
+    // Y-up confirmed — no rotation correction needed
     rocket.add(model);
     modelLoaded = true;
 
