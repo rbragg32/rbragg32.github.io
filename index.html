@@ -8,20 +8,16 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{overflow:hidden;background:#000;font-family:'Courier New',monospace;color:#fff}
 #c{display:block;width:100vw;height:100vh}
-
-/* HUD */
 #hud{position:fixed;inset:0;pointer-events:none;z-index:10}
 #name{position:absolute;top:2rem;left:50%;transform:translateX(-50%);text-align:center;opacity:0;transition:opacity 1s}
 #name h1{font-size:.85rem;letter-spacing:.4em;text-transform:uppercase;font-weight:300;color:rgba(255,255,255,.8)}
 #name p{font-size:.55rem;letter-spacing:.25em;color:#5de0f8;margin-top:4px;text-transform:uppercase}
-
-#arrows{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:280px;opacity:0;transition:opacity .6s;pointer-events:none}
+#arrows{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:300px;opacity:0;transition:opacity .6s;pointer-events:none}
 #arrows.show{opacity:1;pointer-events:auto}
 .arr-btn{width:48px;height:48px;border:1px solid rgba(93,224,248,.5);background:rgba(93,224,248,.08);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s;pointer-events:auto}
 .arr-btn:hover{background:rgba(93,224,248,.22)}
 .arr-btn svg{width:20px;height:20px;stroke:#5de0f8;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-
-#label-hud{position:absolute;right:calc(50% - 200px);top:50%;transform:translateY(-50%);opacity:0;transition:opacity .5s,transform .5s;pointer-events:none}
+#label-hud{position:absolute;right:calc(50% - 210px);top:50%;transform:translateY(-50%);opacity:0;transition:opacity .5s,transform .5s;pointer-events:none}
 #label-hud.show{opacity:1;pointer-events:auto}
 #label-tag{font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:#5de0f8;margin-bottom:6px}
 #label-name{font-size:1.9rem;font-weight:600;cursor:pointer;line-height:1;position:relative;display:inline-block}
@@ -30,19 +26,14 @@ body{overflow:hidden;background:#000;font-family:'Courier New',monospace;color:#
 #label-sub{font-size:.8rem;color:rgba(255,255,255,.5);margin-top:8px;max-width:240px;line-height:1.5;font-weight:300;font-family:sans-serif}
 #label-cta{display:inline-block;margin-top:12px;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:#f5a623;border:1px solid #f5a623;padding:5px 12px;cursor:pointer;transition:background .2s,color .2s;pointer-events:auto}
 #label-cta:hover{background:#f5a623;color:#000}
-
 #dots{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);display:flex;gap:8px;opacity:0;transition:opacity .6s}
 #dots.show{opacity:1}
 .dot{width:7px;height:7px;border-radius:50%;border:1px solid rgba(93,224,248,.4);transition:background .3s}
 .dot.active{background:#5de0f8;border-color:#5de0f8}
-
 #hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.3);opacity:0;transition:opacity .6s}
 #hint.show{opacity:1}
-
-#launch-hint{position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.5);animation:pulse 2s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:.3}50%{opacity:.8}}
-
-/* Page overlay */
+#launch-hint{position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.55);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:.9}}
 #overlay{position:fixed;inset:0;z-index:100;background:rgba(4,8,20,0);backdrop-filter:blur(0px);pointer-events:none;transition:background .5s,backdrop-filter .5s;display:flex;align-items:center;justify-content:center}
 #overlay.open{background:rgba(4,8,20,.93);backdrop-filter:blur(10px);pointer-events:auto}
 #page{max-width:660px;width:90%;opacity:0;transform:translateY(28px);transition:opacity .4s .2s,transform .4s .2s;padding:2.8rem;border:1px solid rgba(93,224,248,.15);position:relative;max-height:80vh;overflow-y:auto}
@@ -51,16 +42,14 @@ body{overflow:hidden;background:#000;font-family:'Courier New',monospace;color:#
 #pg-title{font-size:2.5rem;font-weight:200;line-height:1.1;margin-bottom:1.2rem}
 #pg-body{font-size:.92rem;font-weight:300;color:rgba(255,255,255,.7);line-height:1.85;font-family:sans-serif}
 #pg-body p+p{margin-top:.9rem}
-#close{position:absolute;top:1rem;right:1.2rem;font-size:.65rem;letter-spacing:.15em;color:rgba(255,255,255,.4);cursor:pointer;border:1px solid rgba(255,255,255,.15);padding:4px 10px;background:none;text-transform:uppercase;font-family:'Courier New',monospace}
-#close:hover{color:#fff;border-color:rgba(255,255,255,.5)}
+#close-btn{position:absolute;top:1rem;right:1.2rem;font-size:.65rem;letter-spacing:.15em;color:rgba(255,255,255,.4);cursor:pointer;border:1px solid rgba(255,255,255,.15);padding:4px 10px;background:none;text-transform:uppercase;font-family:'Courier New',monospace}
+#close-btn:hover{color:#fff;border-color:rgba(255,255,255,.5)}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
-
 <div id="hud">
   <div id="name"><h1>Your Name</h1><p>Aerospace Engineer</p></div>
-
   <div id="arrows">
     <button class="arr-btn" id="btn-l" aria-label="Previous">
       <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
@@ -69,22 +58,19 @@ body{overflow:hidden;background:#000;font-family:'Courier New',monospace;color:#
       <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
     </button>
   </div>
-
   <div id="label-hud">
     <div id="label-tag"></div>
-    <div id="label-name" onclick="openPage()"></div>
+    <div id="label-name"></div>
     <div id="label-sub"></div>
-    <div id="label-cta" onclick="openPage()">Open section →</div>
+    <div id="label-cta">Open section &rarr;</div>
   </div>
-
   <div id="dots"></div>
-  <div id="hint">← keyboard arrows to navigate · enter to open</div>
-  <div id="launch-hint" id="lhint">Click anywhere to launch</div>
+  <div id="hint">arrow keys to navigate &nbsp;&bull;&nbsp; enter to open</div>
+  <div id="launch-hint">Click anywhere to launch</div>
 </div>
-
-<div id="overlay" onclick="overlayBg(event)">
+<div id="overlay">
   <div id="page">
-    <button id="close" onclick="closePage()">✕ Close</button>
+    <button id="close-btn">&#x2715; Close</button>
     <div id="pg-tag"></div>
     <div id="pg-title"></div>
     <div id="pg-body"></div>
@@ -93,298 +79,348 @@ body{overflow:hidden;background:#000;font-family:'Courier New',monospace;color:#
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-// ─── DATA ───────────────────────────────────────────────────────────────────
-const SECTIONS = [
-  { tag:'Mission Brief', name:'About Me',    sub:'Who I am and what drives me.',           angle: 0,
-    body:`<p>Hi, I'm <strong style="color:#fff">Your Name</strong> — an aerospace engineer specializing in [propulsion / structures / avionics / systems engineering].</p>
-          <p>I've spent my career working on [launch vehicles / satellites / defense systems]. I'm driven by the challenge of building things that work reliably at the absolute edge of what's physically possible.</p>
-          <p>Outside of engineering, I [hobby or interest]. I believe the best engineering teams run on curiosity, rigorous thinking, and the willingness to question every assumption.</p>` },
-  { tag:'Flight Log',   name:'Experience',   sub:'Missions and roles I\'ve been part of.', angle: Math.PI*2/5,
-    body:`<p><strong style="color:#fff">Senior Aerospace Engineer</strong> — Company Name &nbsp;(2021–Present)<br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Key responsibilities and impact. What systems did you own? What did you ship?</span></p><br/>
-          <p><strong style="color:#fff">Aerospace Engineer II</strong> — Previous Company &nbsp;(2018–2021)<br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">What you contributed — tests passed, systems validated, launches supported.</span></p><br/>
-          <p><strong style="color:#fff">Engineering Intern</strong> — Earlier Company &nbsp;(2017)<br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Brief description of your internship and what you learned.</span></p>` },
-  { tag:'Payload Bay',  name:'Projects',     sub:'Technical work I\'m proud of.',           angle: Math.PI*4/5,
-    body:`<p><strong style="color:#fff">Project One — Title Here</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Goal, your role, outcome. E.g. designed a thrust structure for a 2nd-stage LOX/kerosene engine — met mass budget within 3%.</span></p><br/>
-          <p><strong style="color:#fff">Project Two — Title Here</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Another project. Link to papers, GitHub repos, or writeups if available.</span></p><br/>
-          <p><strong style="color:#fff">Project Three — Title Here</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Side projects, research, academic work, or personal builds all count here.</span></p>` },
-  { tag:'Systems Check',name:'Skills',       sub:'Tools, disciplines, and methods.',        angle: Math.PI*6/5,
-    body:`<p><strong style="color:#fff">Disciplines</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Structural analysis · Propulsion · GN&amp;C · Systems engineering · Thermal management</span></p><br/>
-          <p><strong style="color:#fff">Tools &amp; Software</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">MATLAB · Simulink · ANSYS · CATIA / SolidWorks · Python · STK</span></p><br/>
-          <p><strong style="color:#fff">Education</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">B.S./M.S. Aerospace Engineering — University Name</span></p>` },
-  { tag:'Ground Control',name:'Contact',     sub:'Let\'s connect and build something.',     angle: Math.PI*8/5,
-    body:`<p>Open to new opportunities, collaborations, and interesting problems in aerospace.</p><br/>
-          <p>📧 &nbsp;<a href="mailto:your@email.com" style="color:#5de0f8">your@email.com</a></p>
-          <p>🔗 &nbsp;<a href="https://linkedin.com/in/yourprofile" target="_blank" style="color:#5de0f8">linkedin.com/in/yourprofile</a></p>
-          <p>💻 &nbsp;<a href="https://github.com/yourusername" target="_blank" style="color:#5de0f8">github.com/yourusername</a></p>` }
+// ── SECTIONS DATA ────────────────────────────────────────────────────────────
+var SECTIONS = [
+  { tag:'Mission Brief', name:'About Me', sub:'Who I am and what drives me.',
+    angle: 0,
+    body:'<p>Hi, I\'m <strong style="color:#fff">Your Name</strong> - an aerospace engineer specializing in [propulsion / structures / avionics / systems engineering].</p><p>I\'ve spent my career working on [launch vehicles / satellites / defense systems]. Driven by building things that work at the edge of what\'s physically possible.</p><p>Outside engineering, I [hobby or interest].</p>' },
+  { tag:'Flight Log', name:'Experience', sub:'Missions and roles I have been part of.',
+    angle: Math.PI * 2 / 5,
+    body:'<p><strong style="color:#fff">Senior Aerospace Engineer</strong> - Company Name (2021-Present)<br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Key responsibilities and impact. What systems did you own?</span></p><br/><p><strong style="color:#fff">Aerospace Engineer II</strong> - Previous Company (2018-2021)<br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">What you contributed - tests passed, launches supported.</span></p><br/><p><strong style="color:#fff">Engineering Intern</strong> - Earlier Company (2017)<br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Brief description of your internship.</span></p>' },
+  { tag:'Payload Bay', name:'Projects', sub:'Technical work I am proud of.',
+    angle: Math.PI * 4 / 5,
+    body:'<p><strong style="color:#fff">Project One</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Goal, your role, outcome. E.g. designed a thrust structure for a LOX/kerosene engine - met mass budget within 3%.</span></p><br/><p><strong style="color:#fff">Project Two</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Link to papers, GitHub repos, or writeups if available.</span></p><br/><p><strong style="color:#fff">Project Three</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Side projects, research, academic work, personal builds all count.</span></p>' },
+  { tag:'Systems Check', name:'Skills', sub:'Tools, disciplines, and methods.',
+    angle: Math.PI * 6 / 5,
+    body:'<p><strong style="color:#fff">Disciplines</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Structural analysis - Propulsion - GNC - Systems engineering - Thermal management</span></p><br/><p><strong style="color:#fff">Tools and Software</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">MATLAB - Simulink - ANSYS - CATIA / SolidWorks - Python - STK</span></p><br/><p><strong style="color:#fff">Education</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">B.S./M.S. Aerospace Engineering - University Name</span></p>' },
+  { tag:'Ground Control', name:'Contact', sub:'Let us connect and build something.',
+    angle: Math.PI * 8 / 5,
+    body:'<p>Open to new opportunities, collaborations, and interesting problems in aerospace.</p><br/><p>Email: <a href="mailto:your@email.com" style="color:#5de0f8">your@email.com</a></p><p>LinkedIn: <a href="https://linkedin.com/in/yourprofile" target="_blank" style="color:#5de0f8">linkedin.com/in/yourprofile</a></p><p>GitHub: <a href="https://github.com/yourusername" target="_blank" style="color:#5de0f8">github.com/yourusername</a></p>' }
 ];
 
-// ─── THREE.JS SETUP ──────────────────────────────────────────────────────────
-const W = window.innerWidth, H = window.innerHeight;
-const renderer = new THREE.WebGLRenderer({canvas:document.getElementById('c'), antialias:true});
-renderer.setSize(W, H);
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.shadowMap.enabled = true;
+// ── RENDERER ─────────────────────────────────────────────────────────────────
+var renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setClearColor(0x87ceeb);
 
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(45, W/H, 0.1, 2000);
-camera.position.set(0, 2, 12);
-camera.lookAt(0, 2, 0);
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 2000);
+camera.position.set(0, 2, 13);
+camera.lookAt(0, 1, 0);
 
-window.addEventListener('resize', () => {
+window.addEventListener('resize', function() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 });
 
-// ─── LIGHTS ─────────────────────────────────────────────────────────────────
-const ambient = new THREE.AmbientLight(0x223355, 0.6);
-scene.add(ambient);
-const sun = new THREE.DirectionalLight(0xfff5e0, 2.2);
-sun.position.set(5, 10, 5);
+// ── LIGHTS ───────────────────────────────────────────────────────────────────
+scene.add(new THREE.AmbientLight(0x334466, 0.7));
+var sun = new THREE.DirectionalLight(0xfff5e0, 2.5);
+sun.position.set(6, 10, 6);
 scene.add(sun);
-const rimLight = new THREE.DirectionalLight(0x5de0f8, 0.4);
-rimLight.position.set(-4, 0, -4);
-scene.add(rimLight);
+var rim = new THREE.DirectionalLight(0x5de0f8, 0.5);
+rim.position.set(-5, 2, -5);
+scene.add(rim);
 
-// ─── ROCKET ──────────────────────────────────────────────────────────────────
-const rocketGroup = new THREE.Group();
-scene.add(rocketGroup);
+// ── ROCKET ───────────────────────────────────────────────────────────────────
+var rocket = new THREE.Group();
+scene.add(rocket);
 
-// Materials
-const whiteMat  = new THREE.MeshPhongMaterial({color:0xdde8f5, shininess:80});
-const darkMat   = new THREE.MeshPhongMaterial({color:0x1a2a4a, shininess:40});
-const nozzleMat = new THREE.MeshPhongMaterial({color:0x8899aa, shininess:120});
-const accentMat = new THREE.MeshPhongMaterial({color:0x5de0f8, shininess:200, emissive:0x112233});
-const redMat    = new THREE.MeshPhongMaterial({color:0xc13a2a, shininess:60});
+var white  = new THREE.MeshPhongMaterial({ color: 0xe8eef5, shininess: 90 });
+var dark   = new THREE.MeshPhongMaterial({ color: 0x1a2840, shininess: 50 });
+var metal  = new THREE.MeshPhongMaterial({ color: 0x8899aa, shininess: 150 });
+var cyan   = new THREE.MeshPhongMaterial({ color: 0x5de0f8, shininess: 200, emissive: 0x0a1a22 });
+var red    = new THREE.MeshPhongMaterial({ color: 0xc13a2a, shininess: 60 });
+var black  = new THREE.MeshPhongMaterial({ color: 0x111111, shininess: 30 });
 
-// Body (tall cylinder)
-const bodyGeo = new THREE.CylinderGeometry(0.38, 0.42, 5.5, 32);
-const body = new THREE.Mesh(bodyGeo, whiteMat);
-body.position.y = 2.75;
-rocketGroup.add(body);
+// Main body - tall and slender
+var body = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.40, 6.0, 32), white);
+body.position.y = 3.0;
+rocket.add(body);
+
+// Upper section (slightly narrower)
+var upper = new THREE.Mesh(new THREE.CylinderGeometry(0.30, 0.36, 1.5, 32), white);
+upper.position.y = 6.75;
+rocket.add(upper);
 
 // Nose cone
-const noseGeo = new THREE.ConeGeometry(0.38, 2.2, 32);
-const nose = new THREE.Mesh(noseGeo, whiteMat);
-nose.position.y = 6.1;
-rocketGroup.add(nose);
+var nose = new THREE.Mesh(new THREE.ConeGeometry(0.30, 2.5, 32), white);
+nose.position.y = 8.25;
+rocket.add(nose);
 
-// Nose tip (darker)
-const tipGeo = new THREE.ConeGeometry(0.12, 0.5, 16);
-const tip = new THREE.Mesh(tipGeo, darkMat);
-tip.position.y = 7.15;
-rocketGroup.add(tip);
+// Nose tip
+var tip = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.4, 16), dark);
+tip.position.y = 9.45;
+rocket.add(tip);
 
-// Accent stripe
-const stripeGeo = new THREE.CylinderGeometry(0.43, 0.43, 0.18, 32);
-const stripe = new THREE.Mesh(stripeGeo, accentMat);
-stripe.position.y = 3.8;
-rocketGroup.add(stripe);
+// Interstage ring
+var ring1 = new THREE.Mesh(new THREE.CylinderGeometry(0.41, 0.41, 0.15, 32), dark);
+ring1.position.y = 6.0;
+rocket.add(ring1);
 
-const stripe2 = new THREE.Mesh(stripeGeo, redMat);
-stripe2.position.y = 1.8;
-rocketGroup.add(stripe2);
+// Accent stripes
+var stripeA = new THREE.Mesh(new THREE.CylinderGeometry(0.405, 0.405, 0.12, 32), cyan);
+stripeA.position.y = 4.5;
+rocket.add(stripeA);
 
-// Window
-const winGeo = new THREE.SphereGeometry(0.22, 16, 16);
-const winMat = new THREE.MeshPhongMaterial({color:0x5de0f8, shininess:300, emissive:0x0a2233, transparent:true, opacity:0.9});
-const win = new THREE.Mesh(winGeo, winMat);
-win.position.set(0.42, 4.6, 0);
-rocketGroup.add(win);
+var stripeB = new THREE.Mesh(new THREE.CylinderGeometry(0.405, 0.405, 0.12, 32), red);
+stripeB.position.y = 2.2;
+rocket.add(stripeB);
 
-// Engine section (wider base)
-const engineGeo = new THREE.CylinderGeometry(0.5, 0.55, 0.6, 32);
-const engineShell = new THREE.Mesh(engineGeo, darkMat);
-engineShell.position.y = 0.3;
-rocketGroup.add(engineShell);
+// Payload fairing hint at top
+var fairing = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.30, 0.8, 32), dark);
+fairing.position.y = 7.25;
+rocket.add(fairing);
 
-// Nozzle
-const nozzleGeo = new THREE.CylinderGeometry(0.18, 0.32, 0.7, 24, 1, true);
-const nozzle = new THREE.Mesh(nozzleGeo, nozzleMat);
-nozzle.position.y = -0.35;
-rocketGroup.add(nozzle);
+// Window / sensor port
+var winMat = new THREE.MeshPhongMaterial({ color: 0x5de0f8, shininess: 300, emissive: 0x081520, transparent: true, opacity: 0.9 });
+var win = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 16), winMat);
+win.position.set(0.40, 5.0, 0.0);
+rocket.add(win);
 
-// Grid fins (4x)
-function addFin(angle) {
-  const g = new THREE.Group();
-  const finGeo = new THREE.BoxGeometry(0.06, 0.55, 0.45);
-  const fin = new THREE.Mesh(finGeo, darkMat);
-  fin.position.set(0.55, 0, 0);
-  g.add(fin);
-  // cross piece
-  const crossGeo = new THREE.BoxGeometry(0.06, 0.06, 0.45);
-  [-0.18, 0, 0.18].forEach(y => {
-    const c = new THREE.Mesh(crossGeo, nozzleMat);
-    c.position.set(0.55, y, 0);
-    g.add(c);
-  });
-  g.rotation.y = angle;
-  g.position.y = 0.6;
-  rocketGroup.add(g);
+// Engine section
+var engBell = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.50, 0.5, 32), dark);
+engBell.position.y = 0.25;
+rocket.add(engBell);
+
+// Nozzle (open ended)
+var nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.34, 0.75, 24, 1, true), metal);
+nozzle.position.y = -0.38;
+rocket.add(nozzle);
+
+// Grid fins x4
+var finAngles = [0, Math.PI/2, Math.PI, Math.PI * 3/2];
+for (var fi = 0; fi < 4; fi++) {
+  var finGroup = new THREE.Group();
+  var finBody = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.6, 0.5), dark);
+  finBody.position.set(0.54, 0, 0);
+  finGroup.add(finBody);
+  // Grid lines
+  for (var gi = 0; gi < 3; gi++) {
+    var bar = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.5), metal);
+    bar.position.set(0.54, -0.2 + gi * 0.2, 0);
+    finGroup.add(bar);
+  }
+  finGroup.rotation.y = finAngles[fi];
+  finGroup.position.y = 0.55;
+  rocket.add(finGroup);
 }
-[0, Math.PI/2, Math.PI, Math.PI*3/2].forEach(a => addFin(a));
 
-// Landing legs (folded up, 4x)
-function addLeg(angle) {
-  const geo = new THREE.BoxGeometry(0.05, 0.7, 0.05);
-  const leg = new THREE.Mesh(geo, darkMat);
-  leg.position.set(0.45, -0.15, 0);
-  leg.rotation.z = 0.3;
-  const g = new THREE.Group();
-  g.add(leg);
-  g.rotation.y = angle;
-  rocketGroup.add(g);
+// Landing legs x4 (folded)
+var legAngles = [Math.PI/4, Math.PI*3/4, Math.PI*5/4, Math.PI*7/4];
+for (var li = 0; li < 4; li++) {
+  var legGroup = new THREE.Group();
+  var legMesh = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.8, 0.04), dark);
+  legMesh.position.set(0.44, -0.1, 0);
+  legMesh.rotation.z = 0.28;
+  legGroup.add(legMesh);
+  legGroup.rotation.y = legAngles[li];
+  rocket.add(legGroup);
 }
-[Math.PI/4, Math.PI*3/4, Math.PI*5/4, Math.PI*7/4].forEach(a => addLeg(a));
 
-// Section labels on rocket hull (canvas textures)
-const labelMeshes = [];
-SECTIONS.forEach((sec, i) => {
-  const cvs = document.createElement('canvas');
-  cvs.width = 512; cvs.height = 128;
-  const ctx = cvs.getContext('2d');
-  ctx.clearRect(0, 0, 512, 128);
-  ctx.fillStyle = 'rgba(93,224,248,0.12)';
-  ctx.fillRect(0, 20, 512, 88);
-  ctx.strokeStyle = 'rgba(93,224,248,0.6)';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(1, 20, 510, 88);
-  ctx.fillStyle = 'rgba(93,224,248,0.8)';
-  ctx.font = '500 18px "Courier New"';
-  ctx.textAlign = 'left';
-  ctx.fillText(sec.tag.toUpperCase(), 18, 50);
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 36px sans-serif';
-  ctx.fillText(sec.name, 18, 96);
+// ── HULL LABELS ──────────────────────────────────────────────────────────────
+for (var si = 0; si < SECTIONS.length; si++) {
+  (function(sec, i) {
+    var cvs = document.createElement('canvas');
+    cvs.width = 512;
+    cvs.height = 128;
+    var ctx = cvs.getContext('2d');
+    // Background panel
+    ctx.fillStyle = 'rgba(10,30,60,0.85)';
+    roundRect(ctx, 4, 4, 504, 120, 8);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(93,224,248,0.7)';
+    ctx.lineWidth = 2;
+    roundRect(ctx, 4, 4, 504, 120, 8);
+    ctx.stroke();
+    // Tag
+    ctx.fillStyle = 'rgba(93,224,248,0.9)';
+    ctx.font = '500 16px "Courier New"';
+    ctx.fillText(sec.tag.toUpperCase(), 20, 36);
+    // Name
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 42px Arial';
+    ctx.fillText(sec.name, 20, 96);
 
-  const tex = new THREE.CanvasTexture(cvs);
-  const labelGeo = new THREE.PlaneGeometry(1.8, 0.45);
-  const labelMat = new THREE.MeshBasicMaterial({map:tex, transparent:true, side:THREE.DoubleSide});
-  const mesh = new THREE.Mesh(labelGeo, labelMat);
-  const a = sec.angle;
-  const r = 0.45;
-  mesh.position.set(Math.sin(a)*r, 3.2, Math.cos(a)*r);
-  mesh.rotation.y = -a;
-  rocketGroup.add(mesh);
-  labelMeshes.push(mesh);
-});
+    var tex = new THREE.CanvasTexture(cvs);
+    var plane = new THREE.Mesh(
+      new THREE.PlaneGeometry(2.0, 0.5),
+      new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide })
+    );
+    var a = sec.angle;
+    plane.position.set(Math.sin(a) * 0.42, 3.4, Math.cos(a) * 0.42);
+    plane.rotation.y = -a;
+    rocket.add(plane);
+  })(SECTIONS[si], si);
+}
 
-// ─── EXHAUST FLAME ───────────────────────────────────────────────────────────
-const flameGroup = new THREE.Group();
-flameGroup.position.y = -0.7;
-rocketGroup.add(flameGroup);
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
 
-const flameParts = [];
-for (let i = 0; i < 3; i++) {
-  const fg = new THREE.ConeGeometry(0.15 - i*0.04, 0.8 + i*0.3, 8);
-  const col = [0xffffff, 0xffaa33, 0xff4400][i];
-  const fm = new THREE.MeshBasicMaterial({color:col, transparent:true, opacity:[0.9,0.7,0.4][i]});
-  const ff = new THREE.Mesh(fg, fm);
+// ── FLAME ─────────────────────────────────────────────────────────────────────
+var flameGroup = new THREE.Group();
+flameGroup.position.y = -0.75;
+rocket.add(flameGroup);
+
+var flameLayers = [
+  { r: 0.14, h: 0.9, col: 0xffffff, op: 0.95 },
+  { r: 0.20, h: 1.4, col: 0xffcc44, op: 0.75 },
+  { r: 0.26, h: 2.0, col: 0xff6600, op: 0.50 },
+  { r: 0.32, h: 2.8, col: 0xff2200, op: 0.25 }
+];
+var flameMeshes = [];
+for (var fli = 0; fli < flameLayers.length; fli++) {
+  var fl = flameLayers[fli];
+  var fg = new THREE.ConeGeometry(fl.r, fl.h, 8);
+  var fm = new THREE.MeshBasicMaterial({ color: fl.col, transparent: true, opacity: fl.op });
+  var ff = new THREE.Mesh(fg, fm);
   ff.rotation.x = Math.PI;
-  ff.position.y = -(i * 0.15);
+  ff.position.y = -(fli * 0.2);
   flameGroup.add(ff);
-  flameParts.push(ff);
+  flameMeshes.push({ mesh: ff, mat: fm, baseOp: fl.op });
 }
 flameGroup.visible = false;
 
-// ─── LAUNCHPAD ───────────────────────────────────────────────────────────────
-const padGroup = new THREE.Group();
+// ── LAUNCHPAD ────────────────────────────────────────────────────────────────
+var padGroup = new THREE.Group();
 scene.add(padGroup);
 
-const groundGeo = new THREE.PlaneGeometry(40, 40);
-const groundMat = new THREE.MeshPhongMaterial({color:0x2a2a2a});
-const ground = new THREE.Mesh(groundGeo, groundMat);
-ground.rotation.x = -Math.PI/2;
-ground.position.y = -2;
+var ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(80, 80),
+  new THREE.MeshPhongMaterial({ color: 0x2a2a2a })
+);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = -2.0;
 padGroup.add(ground);
 
-const padGeo = new THREE.CylinderGeometry(1.5, 1.5, 0.2, 32);
-const padMat = new THREE.MeshPhongMaterial({color:0x444444});
-const pad = new THREE.Mesh(padGeo, padMat);
-pad.position.y = -1.9;
+var pad = new THREE.Mesh(
+  new THREE.CylinderGeometry(2.0, 2.0, 0.25, 32),
+  new THREE.MeshPhongMaterial({ color: 0x444455 })
+);
+pad.position.y = -1.88;
 padGroup.add(pad);
 
-// Gantry arms
-[[1.8,0],[−1.8,0],[0,1.8],[0,-1.8]].forEach(([x,z]) => {
-  const g = new THREE.Mesh(new THREE.BoxGeometry(0.08, 3.5, 0.08), new THREE.MeshPhongMaterial({color:0x555566}));
-  g.position.set(x, 0, z);
-  padGroup.add(g);
-});
+// Gantry tower arms
+var gantryOffsets = [[2.2, 0], [-2.2, 0], [0, 2.2], [0, -2.2]];
+for (var gi2 = 0; gi2 < gantryOffsets.length; gi2++) {
+  var gx = gantryOffsets[gi2][0];
+  var gz = gantryOffsets[gi2][1];
+  var tower = new THREE.Mesh(
+    new THREE.BoxGeometry(0.1, 4.5, 0.1),
+    new THREE.MeshPhongMaterial({ color: 0x556677 })
+  );
+  tower.position.set(gx, 0.35, gz);
+  padGroup.add(tower);
+  // Horizontal arm
+  var arm = new THREE.Mesh(
+    new THREE.BoxGeometry(Math.abs(gx) > 0 ? Math.abs(gx) : 2.2, 0.08, Math.abs(gz) > 0 ? Math.abs(gz) : 0.08),
+    new THREE.MeshPhongMaterial({ color: 0x667788 })
+  );
+  arm.position.set(gx / 2, 2.0, gz / 2);
+  padGroup.add(arm);
+}
 
-// ─── STARS ───────────────────────────────────────────────────────────────────
-const starGeo = new THREE.BufferGeometry();
-const starCount = 3000;
-const starPos = new Float32Array(starCount * 3);
-for (let i = 0; i < starCount*3; i++) starPos[i] = (Math.random()-0.5)*1800;
+// ── STARS ─────────────────────────────────────────────────────────────────────
+var starGeo = new THREE.BufferGeometry();
+var starCount = 4000;
+var starPos = new Float32Array(starCount * 3);
+for (var i = 0; i < starCount * 3; i++) {
+  starPos[i] = (Math.random() - 0.5) * 1600;
+}
 starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-const starMat = new THREE.PointsMaterial({color:0xffffff, size:1.2, sizeAttenuation:true, transparent:true, opacity:0});
-const starField = new THREE.Points(starGeo, starMat);
-scene.add(starField);
+var starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 1.5, sizeAttenuation: true, transparent: true, opacity: 0.0 });
+scene.add(new THREE.Points(starGeo, starMat));
 
-// ─── CLOUDS ──────────────────────────────────────────────────────────────────
-const cloudGroup = new THREE.Group();
+// ── CLOUDS ────────────────────────────────────────────────────────────────────
+var cloudGroup = new THREE.Group();
 scene.add(cloudGroup);
-for (let i = 0; i < 18; i++) {
-  const cg = new THREE.SphereGeometry(2 + Math.random()*3, 8, 6);
-  const cm = new THREE.MeshPhongMaterial({color:0xffffff, transparent:true, opacity:0.55});
-  const cv = new THREE.Mesh(cg, cm);
-  cv.position.set((Math.random()-0.5)*60, 12 + Math.random()*8, (Math.random()-0.5)*60 - 20);
-  cv.scale.y = 0.35;
-  cloudGroup.add(cv);
+var cloudMat = new THREE.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: 0.6 });
+for (var ci = 0; ci < 20; ci++) {
+  var cx = (Math.random() - 0.5) * 80;
+  var cy = 14 + Math.random() * 10;
+  var cz = (Math.random() - 0.5) * 80 - 10;
+  for (var cj = 0; cj < 4; cj++) {
+    var puff = new THREE.Mesh(
+      new THREE.SphereGeometry(1.5 + Math.random() * 2, 7, 5),
+      cloudMat.clone()
+    );
+    puff.position.set(cx + (Math.random()-0.5)*4, cy + (Math.random()-0.5)*0.5, cz + (Math.random()-0.5)*3);
+    puff.scale.y = 0.3;
+    cloudGroup.add(puff);
+  }
 }
 cloudGroup.visible = false;
 
-// ─── METEORS ─────────────────────────────────────────────────────────────────
-const meteors = [];
+// ── METEORS ───────────────────────────────────────────────────────────────────
+var meteors = [];
 function spawnMeteor() {
-  const g = new THREE.Group();
-  const mg = new THREE.CylinderGeometry(0.03, 0.01, 1.5+Math.random()*2, 4);
-  const mm = new THREE.MeshBasicMaterial({color:0xffcc77, transparent:true, opacity:0.8});
-  const m = new THREE.Mesh(mg, mm);
-  m.rotation.z = Math.PI/2;
+  var g = new THREE.Group();
+  var len = 1.5 + Math.random() * 3;
+  var mg = new THREE.CylinderGeometry(0.025, 0.005, len, 4);
+  var mm = new THREE.MeshBasicMaterial({ color: 0xffdd88, transparent: true, opacity: 0.85 });
+  var m = new THREE.Mesh(mg, mm);
+  m.rotation.z = Math.PI / 2;
   g.add(m);
-  g.position.set(30 + Math.random()*20, 20 + Math.random()*30, -20 - Math.random()*40);
-  const spd = 0.4 + Math.random()*0.5;
-  g.userData = {vx:-spd, vy:-spd*0.4, life:0, maxLife:120};
+  // tail glow
+  var tg = new THREE.CylinderGeometry(0.04, 0.0, len * 1.5, 4);
+  var tm = new THREE.MeshBasicMaterial({ color: 0xff8833, transparent: true, opacity: 0.3 });
+  var tail = new THREE.Mesh(tg, tm);
+  tail.rotation.z = Math.PI / 2;
+  tail.position.x = len * 0.5;
+  g.add(tail);
+
+  g.position.set(25 + Math.random() * 15, 15 + Math.random() * 25, -15 - Math.random() * 30);
+  var spd = 0.35 + Math.random() * 0.45;
+  g.userData = { vx: -spd, vy: -spd * 0.45, mat: mm, tmat: tm, life: 0, maxLife: 110 };
   scene.add(g);
   meteors.push(g);
 }
 
-// ─── SKY COLOR ───────────────────────────────────────────────────────────────
-const skyColors = [
-  new THREE.Color(0x87ceeb), // ground - blue sky
-  new THREE.Color(0x4a90d9), // low atmo
-  new THREE.Color(0x1a3a6e), // high atmo
-  new THREE.Color(0x050d1e), // space
-];
+// ── SKY COLORS ────────────────────────────────────────────────────────────────
+var skyDay   = new THREE.Color(0x5ba3d9);
+var skyHigh  = new THREE.Color(0x0d1b3e);
+var skySpace = new THREE.Color(0x020810);
 
-// ─── STATE MACHINE ───────────────────────────────────────────────────────────
-// phases: 'prelaunch' | 'launching' | 'flying' | 'orbit'
-let phase = 'prelaunch';
-let launchT = 0;
-let orbitReady = false;
-let currentSection = 0;
-let targetRotY = 0;
-let rotY = 0;
-let busy = false;
+// ── STATE ────────────────────────────────────────────────────────────────────
+var phase = 'prelaunch';
+var launchT = 0;
+var currentSection = 0;
+var targetRotY = 0;
+var rotY = 0;
+var navBusy = false;
+var meteorTimer = 0;
 
-// rocket start pos
-rocketGroup.position.set(0, -1.85, 0);
+rocket.position.y = -1.85;
 
-// ─── DOM SETUP ───────────────────────────────────────────────────────────────
-const dotsEl = document.getElementById('dots');
-SECTIONS.forEach((_,i) => {
-  const d = document.createElement('div');
-  d.className = 'dot' + (i===0?' active':'');
-  dotsEl.appendChild(d);
-});
+// ── DOTS ──────────────────────────────────────────────────────────────────────
+var dotsEl = document.getElementById('dots');
+for (var di = 0; di < SECTIONS.length; di++) {
+  var dot = document.createElement('div');
+  dot.className = 'dot' + (di === 0 ? ' active' : '');
+  dotsEl.appendChild(dot);
+}
 
 function updateLabel(idx) {
-  const s = SECTIONS[idx];
+  var s = SECTIONS[idx];
   document.getElementById('label-tag').textContent = s.tag;
   document.getElementById('label-name').textContent = s.name;
   document.getElementById('label-sub').textContent = s.sub;
-  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i===idx));
+  document.querySelectorAll('.dot').forEach(function(d, i) {
+    d.classList.toggle('active', i === idx);
+  });
 }
 updateLabel(0);
 
@@ -397,166 +433,178 @@ function showOrbitUI() {
   document.getElementById('launch-hint').style.display = 'none';
 }
 
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
 function rotate(dir) {
-  if (busy || phase !== 'orbit') return;
-  busy = true;
-  const lh = document.getElementById('label-hud');
+  if (navBusy || phase !== 'orbit') return;
+  navBusy = true;
+  var lh = document.getElementById('label-hud');
   lh.style.opacity = '0';
-  lh.style.transform = 'translateY(-50%) translateX(' + (dir*10) + 'px)';
+  lh.style.transform = 'translateY(-50%) translateX(' + (dir * 12) + 'px)';
   currentSection = (currentSection + dir + SECTIONS.length) % SECTIONS.length;
   targetRotY = -SECTIONS[currentSection].angle;
-  setTimeout(() => {
+  setTimeout(function() {
     updateLabel(currentSection);
     lh.style.transition = 'opacity .45s, transform .45s';
     lh.style.opacity = '1';
     lh.style.transform = 'translateY(-50%) translateX(0)';
-    busy = false;
-  }, 350);
+    navBusy = false;
+  }, 380);
 }
 
-document.getElementById('btn-l').addEventListener('click', () => rotate(-1));
-document.getElementById('btn-r').addEventListener('click', () => rotate(1));
-document.addEventListener('keydown', e => {
-  if (e.key==='ArrowLeft')  rotate(-1);
-  if (e.key==='ArrowRight') rotate(1);
-  if (e.key==='Escape')     closePage();
-  if (e.key==='Enter')      openPage();
+document.getElementById('btn-l').addEventListener('click', function() { rotate(-1); });
+document.getElementById('btn-r').addEventListener('click', function() { rotate(1); });
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'ArrowLeft')  rotate(-1);
+  if (e.key === 'ArrowRight') rotate(1);
+  if (e.key === 'Escape')     closePage();
+  if (e.key === 'Enter' && phase === 'orbit') openPage();
 });
 
-// Launch on click
-document.getElementById('c').addEventListener('click', () => {
-  if (phase === 'prelaunch') startLaunch();
+// ── LAUNCH ────────────────────────────────────────────────────────────────────
+document.getElementById('c').addEventListener('click', function() {
+  if (phase === 'prelaunch') {
+    phase = 'launching';
+    flameGroup.visible = true;
+    cloudGroup.visible = true;
+    document.getElementById('launch-hint').style.display = 'none';
+  }
 });
 
-function startLaunch() {
-  phase = 'launching';
-  flameGroup.visible = true;
-  cloudGroup.visible = true;
-  document.getElementById('launch-hint').style.display = 'none';
-}
-
+// ── PAGE OVERLAY ─────────────────────────────────────────────────────────────
 function openPage() {
   if (phase !== 'orbit') return;
-  const s = SECTIONS[currentSection];
+  var s = SECTIONS[currentSection];
   document.getElementById('pg-tag').textContent = s.tag;
   document.getElementById('pg-title').textContent = s.name;
   document.getElementById('pg-body').innerHTML = s.body;
   document.getElementById('overlay').classList.add('open');
 }
-function closePage() { document.getElementById('overlay').classList.remove('open'); }
-function overlayBg(e) { if (e.target===document.getElementById('overlay')) closePage(); }
-window.openPage = openPage;
-window.closePage = closePage;
-window.overlayBg = overlayBg;
-window.rotate = rotate;
-
-// ─── ANIMATION LOOP ──────────────────────────────────────────────────────────
-const clock = new THREE.Clock();
-let meteorTimer = 0;
-
-function lerp(a, b, t) { return a + (b-a)*t; }
-function lerpAngle(a, b, t) {
-  let d = b - a;
-  while (d > Math.PI) d -= Math.PI*2;
-  while (d < -Math.PI) d += Math.PI*2;
-  return a + d*t;
+function closePage() {
+  document.getElementById('overlay').classList.remove('open');
 }
+document.getElementById('overlay').addEventListener('click', function(e) {
+  if (e.target === document.getElementById('overlay')) closePage();
+});
+document.getElementById('label-name').addEventListener('click', openPage);
+document.getElementById('label-cta').addEventListener('click', openPage);
+document.getElementById('close-btn').addEventListener('click', closePage);
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function lerp(a, b, t) { return a + (b - a) * t; }
+function lerpAngle(a, b, t) {
+  var d = b - a;
+  while (d >  Math.PI) d -= Math.PI * 2;
+  while (d < -Math.PI) d += Math.PI * 2;
+  return a + d * t;
+}
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+// ── ANIMATE ───────────────────────────────────────────────────────────────────
+var clock = new THREE.Clock();
 
 function animate() {
   requestAnimationFrame(animate);
-  const dt = clock.getDelta();
-  const elapsed = clock.getElapsedTime();
+  var dt = clock.getDelta();
+  var elapsed = clock.getElapsedTime();
 
   // Flame flicker
   if (flameGroup.visible) {
-    const fl = 0.9 + Math.sin(elapsed*28)*0.1;
-    flameGroup.scale.set(fl, 0.9+Math.sin(elapsed*22)*0.15, fl);
-  }
-
-  // Star rotation drift
-  starField.rotation.y = elapsed * 0.002;
-
-  // Meteor system (orbit phase)
-  if (phase === 'orbit') {
-    meteorTimer += dt;
-    if (meteorTimer > 2.5 + Math.random()*3) {
-      spawnMeteor();
-      meteorTimer = 0;
+    var fl = 0.88 + Math.sin(elapsed * 30) * 0.12;
+    flameGroup.scale.set(fl, 0.85 + Math.sin(elapsed * 25) * 0.18, fl);
+    for (var fli = 0; fli < flameMeshes.length; fli++) {
+      flameMeshes[fli].mat.opacity = flameMeshes[fli].baseOp * (0.8 + Math.random() * 0.2);
     }
-    meteors.forEach((m, i) => {
-      m.userData.life++;
-      m.position.x += m.userData.vx;
-      m.position.y += m.userData.vy;
-      m.children[0].material.opacity = Math.max(0, 0.8 * (1 - m.userData.life/m.userData.maxLife));
-      if (m.userData.life >= m.userData.maxLife) {
-        scene.remove(m);
-        meteors.splice(i, 1);
-      }
-    });
   }
 
-  // LAUNCH phase
+  // PRELAUNCH
+  if (phase === 'prelaunch') {
+    rocket.position.y = -1.85 + Math.sin(elapsed * 0.9) * 0.025;
+  }
+
+  // LAUNCHING
   if (phase === 'launching') {
     launchT += dt;
-    const t = launchT;
+    var t = launchT;
 
-    // Rocket ascent
-    rocketGroup.position.y = -1.85 + t*t*0.8;
+    // Accelerating ascent
+    rocket.position.y = -1.85 + t * t * 0.75;
 
-    // Camera follows up
-    camera.position.y = lerp(2, 2 + rocketGroup.position.y * 0.6, Math.min(t/4, 1));
-    camera.lookAt(0, rocketGroup.position.y, 0);
+    // Camera follows rocket upward
+    var targetCamY = 2 + clamp(rocket.position.y * 0.55, 0, 30);
+    camera.position.y = lerp(camera.position.y, targetCamY, 0.04);
+    camera.position.z = lerp(camera.position.z, 10, 0.015);
+    camera.lookAt(0, rocket.position.y, 0);
 
-    // Sky color transition: blue → dark
-    const skyT = Math.min(t / 8, 1);
-    const skyCol = new THREE.Color().lerpColors(skyColors[0], skyColors[3], skyT);
+    // Sky fades from blue to space black
+    var skyT = clamp(t / 7.0, 0, 1);
+    var skyCol = new THREE.Color();
+    if (skyT < 0.5) {
+      skyCol.lerpColors(skyDay, skyHigh, skyT * 2);
+    } else {
+      skyCol.lerpColors(skyHigh, skySpace, (skyT - 0.5) * 2);
+    }
     renderer.setClearColor(skyCol);
 
     // Stars fade in
-    starMat.opacity = Math.min(skyT * 1.2, 1);
+    starMat.opacity = clamp(skyT * 1.3, 0, 1);
 
-    // Clouds drift by and fade
-    cloudGroup.children.forEach(c => {
-      c.position.y -= dt * (1 + t*0.1);
-      c.material.opacity = Math.max(0, 0.55 - t*0.06);
-    });
+    // Clouds drift past and fade
+    for (var ci2 = 0; ci2 < cloudGroup.children.length; ci2++) {
+      cloudGroup.children[ci2].position.y -= dt * (0.8 + t * 0.12);
+      cloudGroup.children[ci2].material.opacity = Math.max(0, 0.6 - t * 0.08);
+    }
 
-    // Launchpad shrinks away
-    padGroup.scale.setScalar(Math.max(0.01, 1 - t*0.15));
-    padGroup.position.y = -rocketGroup.position.y * 0.5;
+    // Launchpad recedes
+    padGroup.position.y = -rocket.position.y * 0.45;
+    padGroup.scale.setScalar(Math.max(0.01, 1.0 - t * 0.12));
 
-    // Camera pull back to show rocket fully
-    camera.position.z = lerp(12, 9, Math.min(t/5, 1));
-
-    // Transition to orbit when high enough
-    if (t > 7) {
+    // Enter orbit
+    if (t > 8.0) {
       phase = 'orbit';
       padGroup.visible = false;
       cloudGroup.visible = false;
-      renderer.setClearColor(0x050d1e);
-      starMat.opacity = 1;
-      rocketGroup.position.set(0, 0, 0);
-      camera.position.set(0, 1.5, 9);
+      renderer.setClearColor(skySpace);
+      starMat.opacity = 1.0;
+      rocket.position.set(0, 0, 0);
+      camera.position.set(0, 1.5, 10);
       camera.lookAt(0, 1.5, 0);
       showOrbitUI();
     }
   }
 
-  // ORBIT phase — gentle hover + rotation
+  // ORBIT
   if (phase === 'orbit') {
-    rocketGroup.position.y = Math.sin(elapsed * 0.5) * 0.12;
-    // Smooth rotation to target
-    rotY = lerpAngle(rotY, targetRotY, 0.06);
-    rocketGroup.rotation.y = rotY;
-    // Gentle camera sway
-    camera.position.x = Math.sin(elapsed * 0.15) * 0.2;
-    camera.lookAt(0, 1, 0);
-  }
+    // Gentle float
+    rocket.position.y = Math.sin(elapsed * 0.5) * 0.12;
 
-  // PRELAUNCH — idle
-  if (phase === 'prelaunch') {
-    renderer.setClearColor(skyColors[0]);
-    rocketGroup.position.y = -1.85 + Math.sin(elapsed*0.8)*0.03;
+    // Smooth rotation toward selected section
+    rotY = lerpAngle(rotY, targetRotY, 0.055);
+    rocket.rotation.y = rotY;
+
+    // Subtle camera drift
+    camera.position.x = Math.sin(elapsed * 0.12) * 0.18;
+    camera.lookAt(0, 1.2, 0);
+
+    // Meteors
+    meteorTimer += dt;
+    if (meteorTimer > 2.0 + Math.random() * 4.0) {
+      spawnMeteor();
+      meteorTimer = 0;
+    }
+    for (var mi = meteors.length - 1; mi >= 0; mi--) {
+      var met = meteors[mi];
+      met.userData.life++;
+      met.position.x += met.userData.vx;
+      met.position.y += met.userData.vy;
+      var lifeRatio = met.userData.life / met.userData.maxLife;
+      met.userData.mat.opacity = 0.85 * (1 - lifeRatio);
+      met.userData.tmat.opacity = 0.3 * (1 - lifeRatio);
+      if (met.userData.life >= met.userData.maxLife) {
+        scene.remove(met);
+        meteors.splice(mi, 1);
+      }
+    }
   }
 
   renderer.render(scene, camera);
