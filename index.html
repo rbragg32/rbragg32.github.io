@@ -9,31 +9,56 @@
 body{overflow:hidden;background:#000;font-family:'Courier New',monospace;color:#fff}
 #c{display:block;width:100vw;height:100vh}
 #hud{position:fixed;inset:0;pointer-events:none;z-index:10}
-#name{position:absolute;top:2rem;left:50%;transform:translateX(-50%);text-align:center;opacity:0;transition:opacity 1s}
+
+/* Name banner - top center */
+#name{position:absolute;top:2rem;left:50%;transform:translateX(-50%);text-align:center;opacity:0;transition:opacity 1s;white-space:nowrap}
 #name h1{font-size:.85rem;letter-spacing:.4em;text-transform:uppercase;font-weight:300;color:rgba(255,255,255,.8)}
 #name p{font-size:.55rem;letter-spacing:.25em;color:#5de0f8;margin-top:4px;text-transform:uppercase}
-#arrows{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:300px;opacity:0;transition:opacity .6s;pointer-events:none}
-#arrows.show{opacity:1;pointer-events:auto}
-.arr-btn{width:48px;height:48px;border:1px solid rgba(93,224,248,.5);background:rgba(93,224,248,.08);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s;pointer-events:auto}
-.arr-btn:hover{background:rgba(93,224,248,.22)}
-.arr-btn svg{width:20px;height:20px;stroke:#5de0f8;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-#label-hud{position:absolute;right:calc(50% - 210px);top:50%;transform:translateY(-50%);opacity:0;transition:opacity .5s,transform .5s;pointer-events:none}
+
+/* Arrows - pinned to left and right edges, vertically centered */
+#arr-left{position:absolute;left:2rem;top:50%;transform:translateY(-50%);opacity:0;transition:opacity .6s;pointer-events:none}
+#arr-right{position:absolute;right:2rem;top:50%;transform:translateY(-50%);opacity:0;transition:opacity .6s;pointer-events:none}
+#arr-left.show,#arr-right.show{opacity:1;pointer-events:auto}
+.arr-btn{width:52px;height:52px;border:1px solid rgba(93,224,248,.5);background:rgba(93,224,248,.08);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s;pointer-events:auto}
+.arr-btn:hover{background:rgba(93,224,248,.25)}
+.arr-btn svg{width:22px;height:22px;stroke:#5de0f8;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* Section label panel - bottom center, above dots */
+#label-hud{
+  position:absolute;
+  bottom:5.5rem;
+  left:50%;
+  transform:translateX(-50%);
+  text-align:center;
+  opacity:0;
+  transition:opacity .5s,transform .5s;
+  pointer-events:none;
+  white-space:nowrap;
+}
 #label-hud.show{opacity:1;pointer-events:auto}
-#label-tag{font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:#5de0f8;margin-bottom:6px}
-#label-name{font-size:1.9rem;font-weight:600;cursor:pointer;line-height:1;position:relative;display:inline-block}
+#label-tag{font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:#5de0f8;margin-bottom:5px}
+#label-name{font-size:1.75rem;font-weight:600;cursor:pointer;line-height:1;position:relative;display:inline-block}
 #label-name::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:2px;background:#5de0f8;transition:width .3s}
 #label-name:hover::after{width:100%}
-#label-sub{font-size:.8rem;color:rgba(255,255,255,.5);margin-top:8px;max-width:240px;line-height:1.5;font-weight:300;font-family:sans-serif}
-#label-cta{display:inline-block;margin-top:12px;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:#f5a623;border:1px solid #f5a623;padding:5px 12px;cursor:pointer;transition:background .2s,color .2s;pointer-events:auto}
+#label-sub{font-size:.78rem;color:rgba(255,255,255,.5);margin-top:7px;line-height:1.5;font-weight:300;font-family:sans-serif}
+#label-cta{display:inline-block;margin-top:10px;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:#f5a623;border:1px solid #f5a623;padding:5px 14px;cursor:pointer;transition:background .2s,color .2s;pointer-events:auto}
 #label-cta:hover{background:#f5a623;color:#000}
-#dots{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);display:flex;gap:8px;opacity:0;transition:opacity .6s}
+
+/* Dots - bottom center */
+#dots{position:absolute;bottom:3.2rem;left:50%;transform:translateX(-50%);display:flex;gap:8px;opacity:0;transition:opacity .6s}
 #dots.show{opacity:1}
 .dot{width:7px;height:7px;border-radius:50%;border:1px solid rgba(93,224,248,.4);transition:background .3s}
 .dot.active{background:#5de0f8;border-color:#5de0f8}
-#hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.3);opacity:0;transition:opacity .6s}
+
+/* Hint */
+#hint{position:absolute;bottom:1.6rem;left:50%;transform:translateX(-50%);font-size:.55rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.28);opacity:0;transition:opacity .6s;white-space:nowrap}
 #hint.show{opacity:1}
-#launch-hint{position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.55);animation:pulse 2s ease-in-out infinite}
+
+/* Launch hint */
+#launch-hint{position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.55);animation:pulse 2s ease-in-out infinite;white-space:nowrap}
 @keyframes pulse{0%,100%{opacity:.3}50%{opacity:.9}}
+
+/* Page overlay */
 #overlay{position:fixed;inset:0;z-index:100;background:rgba(4,8,20,0);backdrop-filter:blur(0px);pointer-events:none;transition:background .5s,backdrop-filter .5s;display:flex;align-items:center;justify-content:center}
 #overlay.open{background:rgba(4,8,20,.93);backdrop-filter:blur(10px);pointer-events:auto}
 #page{max-width:660px;width:90%;opacity:0;transform:translateY(28px);transition:opacity .4s .2s,transform .4s .2s;padding:2.8rem;border:1px solid rgba(93,224,248,.15);position:relative;max-height:80vh;overflow-y:auto}
@@ -50,24 +75,32 @@ body{overflow:hidden;background:#000;font-family:'Courier New',monospace;color:#
 <canvas id="c"></canvas>
 <div id="hud">
   <div id="name"><h1>Your Name</h1><p>Aerospace Engineer</p></div>
-  <div id="arrows">
+
+  <!-- Arrows pinned to screen edges -->
+  <div id="arr-left">
     <button class="arr-btn" id="btn-l" aria-label="Previous">
       <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
+  </div>
+  <div id="arr-right">
     <button class="arr-btn" id="btn-r" aria-label="Next">
       <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
     </button>
   </div>
+
+  <!-- Section info at bottom center -->
   <div id="label-hud">
     <div id="label-tag"></div>
     <div id="label-name"></div>
     <div id="label-sub"></div>
     <div id="label-cta">Open section &rarr;</div>
   </div>
+
   <div id="dots"></div>
   <div id="hint">arrow keys to navigate &nbsp;&bull;&nbsp; enter to open</div>
   <div id="launch-hint">Click anywhere to launch</div>
 </div>
+
 <div id="overlay">
   <div id="page">
     <button id="close-btn">&#x2715; Close</button>
@@ -79,21 +112,21 @@ body{overflow:hidden;background:#000;font-family:'Courier New',monospace;color:#
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-// ── SECTIONS DATA ────────────────────────────────────────────────────────────
+// ── DATA ─────────────────────────────────────────────────────────────────────
 var SECTIONS = [
-  { tag:'Mission Brief', name:'About Me', sub:'Who I am and what drives me.',
+  { tag:'Mission Brief', name:'About Me',   sub:'Who I am and what drives me.',
     angle: 0,
     body:'<p>Hi, I\'m <strong style="color:#fff">Your Name</strong> - an aerospace engineer specializing in [propulsion / structures / avionics / systems engineering].</p><p>I\'ve spent my career working on [launch vehicles / satellites / defense systems]. Driven by building things that work at the edge of what\'s physically possible.</p><p>Outside engineering, I [hobby or interest].</p>' },
-  { tag:'Flight Log', name:'Experience', sub:'Missions and roles I have been part of.',
+  { tag:'Flight Log',    name:'Experience', sub:'Missions and roles I have been part of.',
     angle: Math.PI * 2 / 5,
     body:'<p><strong style="color:#fff">Senior Aerospace Engineer</strong> - Company Name (2021-Present)<br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Key responsibilities and impact. What systems did you own?</span></p><br/><p><strong style="color:#fff">Aerospace Engineer II</strong> - Previous Company (2018-2021)<br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">What you contributed - tests passed, launches supported.</span></p><br/><p><strong style="color:#fff">Engineering Intern</strong> - Earlier Company (2017)<br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Brief description of your internship.</span></p>' },
-  { tag:'Payload Bay', name:'Projects', sub:'Technical work I am proud of.',
+  { tag:'Payload Bay',   name:'Projects',   sub:'Technical work I am proud of.',
     angle: Math.PI * 4 / 5,
-    body:'<p><strong style="color:#fff">Project One</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Goal, your role, outcome. E.g. designed a thrust structure for a LOX/kerosene engine - met mass budget within 3%.</span></p><br/><p><strong style="color:#fff">Project Two</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Link to papers, GitHub repos, or writeups if available.</span></p><br/><p><strong style="color:#fff">Project Three</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Side projects, research, academic work, personal builds all count.</span></p>' },
-  { tag:'Systems Check', name:'Skills', sub:'Tools, disciplines, and methods.',
+    body:'<p><strong style="color:#fff">Project One</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Goal, your role, outcome. E.g. designed a thrust structure for a LOX/kerosene engine.</span></p><br/><p><strong style="color:#fff">Project Two</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Link to papers, GitHub repos, or writeups if available.</span></p><br/><p><strong style="color:#fff">Project Three</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Side projects, research, academic work, personal builds all count.</span></p>' },
+  { tag:'Systems Check', name:'Skills',     sub:'Tools, disciplines, and methods.',
     angle: Math.PI * 6 / 5,
     body:'<p><strong style="color:#fff">Disciplines</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Structural analysis - Propulsion - GNC - Systems engineering - Thermal management</span></p><br/><p><strong style="color:#fff">Tools and Software</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">MATLAB - Simulink - ANSYS - CATIA / SolidWorks - Python - STK</span></p><br/><p><strong style="color:#fff">Education</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">B.S./M.S. Aerospace Engineering - University Name</span></p>' },
-  { tag:'Ground Control', name:'Contact', sub:'Let us connect and build something.',
+  { tag:'Ground Control',name:'Contact',    sub:'Let us connect and build something.',
     angle: Math.PI * 8 / 5,
     body:'<p>Open to new opportunities, collaborations, and interesting problems in aerospace.</p><br/><p>Email: <a href="mailto:your@email.com" style="color:#5de0f8">your@email.com</a></p><p>LinkedIn: <a href="https://linkedin.com/in/yourprofile" target="_blank" style="color:#5de0f8">linkedin.com/in/yourprofile</a></p><p>GitHub: <a href="https://github.com/yourusername" target="_blank" style="color:#5de0f8">github.com/yourusername</a></p>' }
 ];
@@ -106,8 +139,12 @@ renderer.setClearColor(0x87ceeb);
 
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 2000);
-camera.position.set(0, 2, 13);
-camera.lookAt(0, 1, 0);
+
+// Camera pivot follows rocket during launch — no snap at transition
+var camOffsetY = 2.0;   // offset above rocket center
+var camOffsetZ = 13.0;  // distance back
+camera.position.set(0, camOffsetY, camOffsetZ);
+camera.lookAt(0, 0, 0);
 
 window.addEventListener('resize', function() {
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -128,169 +165,186 @@ scene.add(rim);
 var rocket = new THREE.Group();
 scene.add(rocket);
 
-var white  = new THREE.MeshPhongMaterial({ color: 0xe8eef5, shininess: 90 });
-var dark   = new THREE.MeshPhongMaterial({ color: 0x1a2840, shininess: 50 });
-var metal  = new THREE.MeshPhongMaterial({ color: 0x8899aa, shininess: 150 });
-var cyan   = new THREE.MeshPhongMaterial({ color: 0x5de0f8, shininess: 200, emissive: 0x0a1a22 });
-var red    = new THREE.MeshPhongMaterial({ color: 0xc13a2a, shininess: 60 });
-var black  = new THREE.MeshPhongMaterial({ color: 0x111111, shininess: 30 });
+var matWhite = new THREE.MeshPhongMaterial({ color: 0xe8eef5, shininess: 90 });
+var matDark  = new THREE.MeshPhongMaterial({ color: 0x1a2840, shininess: 50 });
+var matMetal = new THREE.MeshPhongMaterial({ color: 0x8899aa, shininess: 150 });
+var matCyan  = new THREE.MeshPhongMaterial({ color: 0x5de0f8, shininess: 200, emissive: 0x0a1a22 });
+var matRed   = new THREE.MeshPhongMaterial({ color: 0xc13a2a, shininess: 60 });
 
-// Main body - tall and slender
-var body = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.40, 6.0, 32), white);
+// Body
+var body = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.40, 6.0, 32), matWhite);
 body.position.y = 3.0;
 rocket.add(body);
 
-// Upper section (slightly narrower)
-var upper = new THREE.Mesh(new THREE.CylinderGeometry(0.30, 0.36, 1.5, 32), white);
+// Upper section
+var upper = new THREE.Mesh(new THREE.CylinderGeometry(0.30, 0.36, 1.5, 32), matWhite);
 upper.position.y = 6.75;
 rocket.add(upper);
 
 // Nose cone
-var nose = new THREE.Mesh(new THREE.ConeGeometry(0.30, 2.5, 32), white);
+var nose = new THREE.Mesh(new THREE.ConeGeometry(0.30, 2.5, 32), matWhite);
 nose.position.y = 8.25;
 rocket.add(nose);
 
 // Nose tip
-var tip = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.4, 16), dark);
+var tip = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.4, 16), matDark);
 tip.position.y = 9.45;
 rocket.add(tip);
 
 // Interstage ring
-var ring1 = new THREE.Mesh(new THREE.CylinderGeometry(0.41, 0.41, 0.15, 32), dark);
+var ring1 = new THREE.Mesh(new THREE.CylinderGeometry(0.41, 0.41, 0.15, 32), matDark);
 ring1.position.y = 6.0;
 rocket.add(ring1);
 
 // Accent stripes
-var stripeA = new THREE.Mesh(new THREE.CylinderGeometry(0.405, 0.405, 0.12, 32), cyan);
+var stripeA = new THREE.Mesh(new THREE.CylinderGeometry(0.405, 0.405, 0.12, 32), matCyan);
 stripeA.position.y = 4.5;
 rocket.add(stripeA);
-
-var stripeB = new THREE.Mesh(new THREE.CylinderGeometry(0.405, 0.405, 0.12, 32), red);
+var stripeB = new THREE.Mesh(new THREE.CylinderGeometry(0.405, 0.405, 0.12, 32), matRed);
 stripeB.position.y = 2.2;
 rocket.add(stripeB);
 
-// Payload fairing hint at top
-var fairing = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.30, 0.8, 32), dark);
+// Payload fairing
+var fairing = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.30, 0.8, 32), matDark);
 fairing.position.y = 7.25;
 rocket.add(fairing);
 
-// Window / sensor port
+// Window
 var winMat = new THREE.MeshPhongMaterial({ color: 0x5de0f8, shininess: 300, emissive: 0x081520, transparent: true, opacity: 0.9 });
 var win = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 16), winMat);
 win.position.set(0.40, 5.0, 0.0);
 rocket.add(win);
 
-// Engine section
-var engBell = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.50, 0.5, 32), dark);
+// Engine bell
+var engBell = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.50, 0.5, 32), matDark);
 engBell.position.y = 0.25;
 rocket.add(engBell);
 
-// Nozzle (open ended)
-var nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.34, 0.75, 24, 1, true), metal);
+// Nozzle
+var nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.34, 0.75, 24, 1, true), matMetal);
 nozzle.position.y = -0.38;
 rocket.add(nozzle);
 
 // Grid fins x4
-var finAngles = [0, Math.PI/2, Math.PI, Math.PI * 3/2];
+var finAngles = [0, Math.PI/2, Math.PI, Math.PI*3/2];
 for (var fi = 0; fi < 4; fi++) {
-  var finGroup = new THREE.Group();
-  var finBody = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.6, 0.5), dark);
-  finBody.position.set(0.54, 0, 0);
-  finGroup.add(finBody);
-  // Grid lines
+  var fg = new THREE.Group();
+  fg.add(function() {
+    var m = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.6, 0.5), matDark);
+    m.position.set(0.54, 0, 0); return m;
+  }());
   for (var gi = 0; gi < 3; gi++) {
-    var bar = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.5), metal);
-    bar.position.set(0.54, -0.2 + gi * 0.2, 0);
-    finGroup.add(bar);
+    var bar = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.5), matMetal);
+    bar.position.set(0.54, -0.2 + gi*0.2, 0);
+    fg.add(bar);
   }
-  finGroup.rotation.y = finAngles[fi];
-  finGroup.position.y = 0.55;
-  rocket.add(finGroup);
+  fg.rotation.y = finAngles[fi];
+  fg.position.y = 0.55;
+  rocket.add(fg);
 }
 
-// Landing legs x4 (folded)
+// Landing legs x4
 var legAngles = [Math.PI/4, Math.PI*3/4, Math.PI*5/4, Math.PI*7/4];
 for (var li = 0; li < 4; li++) {
-  var legGroup = new THREE.Group();
-  var legMesh = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.8, 0.04), dark);
-  legMesh.position.set(0.44, -0.1, 0);
-  legMesh.rotation.z = 0.28;
-  legGroup.add(legMesh);
-  legGroup.rotation.y = legAngles[li];
-  rocket.add(legGroup);
+  var lg = new THREE.Group();
+  var lm = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.8, 0.04), matDark);
+  lm.position.set(0.44, -0.1, 0);
+  lm.rotation.z = 0.28;
+  lg.add(lm);
+  lg.rotation.y = legAngles[li];
+  rocket.add(lg);
 }
 
-// ── HULL LABELS ──────────────────────────────────────────────────────────────
-for (var si = 0; si < SECTIONS.length; si++) {
-  (function(sec, i) {
-    var cvs = document.createElement('canvas');
-    cvs.width = 512;
-    cvs.height = 128;
-    var ctx = cvs.getContext('2d');
-    // Background panel
-    ctx.fillStyle = 'rgba(10,30,60,0.85)';
-    roundRect(ctx, 4, 4, 504, 120, 8);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(93,224,248,0.7)';
-    ctx.lineWidth = 2;
-    roundRect(ctx, 4, 4, 504, 120, 8);
-    ctx.stroke();
-    // Tag
-    ctx.fillStyle = 'rgba(93,224,248,0.9)';
-    ctx.font = '500 16px "Courier New"';
-    ctx.fillText(sec.tag.toUpperCase(), 20, 36);
-    // Name
+// ── HULL LABELS: vertical text like NASA on Saturn V ─────────────────────────
+// Each label is a tall narrow canvas with characters stacked top-to-bottom.
+// The plane is positioned on the cylinder surface and oriented vertically.
+
+function makeVerticalLabelTexture(name, tag) {
+  // Canvas is tall and narrow — characters run top to bottom
+  var cw = 96, ch = 512;
+  var cvs = document.createElement('canvas');
+  cvs.width = cw; cvs.height = ch;
+  var ctx = cvs.getContext('2d');
+
+  // Subtle background band
+  ctx.fillStyle = 'rgba(0,0,0,0)';
+  ctx.fillRect(0, 0, cw, ch);
+
+  // Draw each character of the section name, stacked vertically
+  // Big bold letters, top to bottom
+  var letters = name.toUpperCase().split('');
+  var fontSize = 54;
+  var spacing = ch / (letters.length + 1);
+  ctx.font = 'bold ' + fontSize + 'px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  // Drop shadow for depth
+  ctx.shadowColor = 'rgba(0,0,0,0.8)';
+  ctx.shadowBlur = 6;
+
+  for (var i = 0; i < letters.length; i++) {
+    var yPos = spacing * (i + 1);
+    // Letter fill
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 42px Arial';
-    ctx.fillText(sec.name, 20, 96);
+    ctx.fillText(letters[i], cw / 2, yPos);
+  }
 
-    var tex = new THREE.CanvasTexture(cvs);
+  // Small tag above letters
+  ctx.shadowBlur = 0;
+  ctx.font = '500 13px "Courier New"';
+  ctx.fillStyle = 'rgba(93,224,248,0.85)';
+  // Draw tag chars too if space, or just a top accent line
+  ctx.fillRect(cw/2 - 18, 4, 36, 2); // cyan top bar
+
+  return new THREE.CanvasTexture(cvs);
+}
+
+for (var si = 0; si < SECTIONS.length; si++) {
+  (function(sec) {
+    var tex = makeVerticalLabelTexture(sec.name, sec.tag);
+
+    // Plane: narrow width, tall height — sits flush on cylinder surface
+    var planeW = 0.28;
+    var planeH = 2.8;
     var plane = new THREE.Mesh(
-      new THREE.PlaneGeometry(2.0, 0.5),
-      new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide })
+      new THREE.PlaneGeometry(planeW, planeH),
+      new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, depthWrite: false })
     );
+
+    // Position on cylinder surface facing outward
     var a = sec.angle;
-    plane.position.set(Math.sin(a) * 0.42, 3.4, Math.cos(a) * 0.42);
+    var r = 0.42; // just outside cylinder radius (0.40)
+    plane.position.set(Math.sin(a) * r, 3.0, Math.cos(a) * r);
+    // Rotate to face outward from cylinder axis
     plane.rotation.y = -a;
+
     rocket.add(plane);
-  })(SECTIONS[si], si);
+  })(SECTIONS[si]);
 }
 
-function roundRect(ctx, x, y, w, h, r) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
-  ctx.closePath();
-}
-
-// ── FLAME ─────────────────────────────────────────────────────────────────────
+// ── FLAME ────────────────────────────────────────────────────────────────────
 var flameGroup = new THREE.Group();
 flameGroup.position.y = -0.75;
 rocket.add(flameGroup);
 
 var flameLayers = [
-  { r: 0.14, h: 0.9, col: 0xffffff, op: 0.95 },
-  { r: 0.20, h: 1.4, col: 0xffcc44, op: 0.75 },
-  { r: 0.26, h: 2.0, col: 0xff6600, op: 0.50 },
-  { r: 0.32, h: 2.8, col: 0xff2200, op: 0.25 }
+  { r:0.14, h:0.9,  col:0xffffff, op:0.95 },
+  { r:0.20, h:1.4,  col:0xffcc44, op:0.75 },
+  { r:0.26, h:2.0,  col:0xff6600, op:0.50 },
+  { r:0.32, h:2.8,  col:0xff2200, op:0.25 }
 ];
 var flameMeshes = [];
 for (var fli = 0; fli < flameLayers.length; fli++) {
   var fl = flameLayers[fli];
-  var fg = new THREE.ConeGeometry(fl.r, fl.h, 8);
-  var fm = new THREE.MeshBasicMaterial({ color: fl.col, transparent: true, opacity: fl.op });
-  var ff = new THREE.Mesh(fg, fm);
-  ff.rotation.x = Math.PI;
-  ff.position.y = -(fli * 0.2);
-  flameGroup.add(ff);
-  flameMeshes.push({ mesh: ff, mat: fm, baseOp: fl.op });
+  var fg2 = new THREE.Mesh(
+    new THREE.ConeGeometry(fl.r, fl.h, 8),
+    new THREE.MeshBasicMaterial({ color: fl.col, transparent: true, opacity: fl.op })
+  );
+  fg2.rotation.x = Math.PI;
+  fg2.position.y = -(fli * 0.2);
+  flameGroup.add(fg2);
+  flameMeshes.push({ mesh: fg2, mat: fg2.material, baseOp: fl.op });
 }
 flameGroup.visible = false;
 
@@ -299,7 +353,7 @@ var padGroup = new THREE.Group();
 scene.add(padGroup);
 
 var ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(80, 80),
+  new THREE.PlaneGeometry(100, 100),
   new THREE.MeshPhongMaterial({ color: 0x2a2a2a })
 );
 ground.rotation.x = -Math.PI / 2;
@@ -313,83 +367,66 @@ var pad = new THREE.Mesh(
 pad.position.y = -1.88;
 padGroup.add(pad);
 
-// Gantry tower arms
-var gantryOffsets = [[2.2, 0], [-2.2, 0], [0, 2.2], [0, -2.2]];
-for (var gi2 = 0; gi2 < gantryOffsets.length; gi2++) {
-  var gx = gantryOffsets[gi2][0];
-  var gz = gantryOffsets[gi2][1];
+// Gantry towers
+var gantryPos = [[2.2,0],[-2.2,0],[0,2.2],[0,-2.2]];
+for (var gi2 = 0; gi2 < gantryPos.length; gi2++) {
+  var gx = gantryPos[gi2][0], gz = gantryPos[gi2][1];
   var tower = new THREE.Mesh(
     new THREE.BoxGeometry(0.1, 4.5, 0.1),
     new THREE.MeshPhongMaterial({ color: 0x556677 })
   );
   tower.position.set(gx, 0.35, gz);
   padGroup.add(tower);
-  // Horizontal arm
-  var arm = new THREE.Mesh(
-    new THREE.BoxGeometry(Math.abs(gx) > 0 ? Math.abs(gx) : 2.2, 0.08, Math.abs(gz) > 0 ? Math.abs(gz) : 0.08),
-    new THREE.MeshPhongMaterial({ color: 0x667788 })
-  );
-  arm.position.set(gx / 2, 2.0, gz / 2);
-  padGroup.add(arm);
 }
 
-// ── STARS ─────────────────────────────────────────────────────────────────────
+// ── STARS ────────────────────────────────────────────────────────────────────
 var starGeo = new THREE.BufferGeometry();
 var starCount = 4000;
 var starPos = new Float32Array(starCount * 3);
-for (var i = 0; i < starCount * 3; i++) {
-  starPos[i] = (Math.random() - 0.5) * 1600;
-}
+for (var i = 0; i < starCount * 3; i++) starPos[i] = (Math.random() - 0.5) * 1600;
 starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
 var starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 1.5, sizeAttenuation: true, transparent: true, opacity: 0.0 });
 scene.add(new THREE.Points(starGeo, starMat));
 
-// ── CLOUDS ────────────────────────────────────────────────────────────────────
+// ── CLOUDS ───────────────────────────────────────────────────────────────────
 var cloudGroup = new THREE.Group();
 scene.add(cloudGroup);
-var cloudMat = new THREE.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: 0.6 });
 for (var ci = 0; ci < 20; ci++) {
-  var cx = (Math.random() - 0.5) * 80;
-  var cy = 14 + Math.random() * 10;
-  var cz = (Math.random() - 0.5) * 80 - 10;
+  var cx = (Math.random()-0.5)*80, cy = 14 + Math.random()*10, cz = (Math.random()-0.5)*80 - 10;
   for (var cj = 0; cj < 4; cj++) {
     var puff = new THREE.Mesh(
-      new THREE.SphereGeometry(1.5 + Math.random() * 2, 7, 5),
-      cloudMat.clone()
+      new THREE.SphereGeometry(1.5 + Math.random()*2, 7, 5),
+      new THREE.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: 0.6 })
     );
-    puff.position.set(cx + (Math.random()-0.5)*4, cy + (Math.random()-0.5)*0.5, cz + (Math.random()-0.5)*3);
+    puff.position.set(cx+(Math.random()-.5)*4, cy+(Math.random()-.5)*0.5, cz+(Math.random()-.5)*3);
     puff.scale.y = 0.3;
     cloudGroup.add(puff);
   }
 }
 cloudGroup.visible = false;
 
-// ── METEORS ───────────────────────────────────────────────────────────────────
+// ── METEORS ──────────────────────────────────────────────────────────────────
 var meteors = [];
 function spawnMeteor() {
   var g = new THREE.Group();
   var len = 1.5 + Math.random() * 3;
-  var mg = new THREE.CylinderGeometry(0.025, 0.005, len, 4);
   var mm = new THREE.MeshBasicMaterial({ color: 0xffdd88, transparent: true, opacity: 0.85 });
-  var m = new THREE.Mesh(mg, mm);
+  var m = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.005, len, 4), mm);
   m.rotation.z = Math.PI / 2;
   g.add(m);
-  // tail glow
-  var tg = new THREE.CylinderGeometry(0.04, 0.0, len * 1.5, 4);
   var tm = new THREE.MeshBasicMaterial({ color: 0xff8833, transparent: true, opacity: 0.3 });
-  var tail = new THREE.Mesh(tg, tm);
+  var tail = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.0, len*1.5, 4), tm);
   tail.rotation.z = Math.PI / 2;
   tail.position.x = len * 0.5;
   g.add(tail);
-
-  g.position.set(25 + Math.random() * 15, 15 + Math.random() * 25, -15 - Math.random() * 30);
-  var spd = 0.35 + Math.random() * 0.45;
-  g.userData = { vx: -spd, vy: -spd * 0.45, mat: mm, tmat: tm, life: 0, maxLife: 110 };
+  g.position.set(25 + Math.random()*15, 15 + Math.random()*25, -15 - Math.random()*30);
+  var spd = 0.35 + Math.random()*0.45;
+  g.userData = { vx: -spd, vy: -spd*0.45, mat: mm, tmat: tm, life: 0, maxLife: 110 };
   scene.add(g);
   meteors.push(g);
 }
 
-// ── SKY COLORS ────────────────────────────────────────────────────────────────
+// ── SKY COLORS ───────────────────────────────────────────────────────────────
 var skyDay   = new THREE.Color(0x5ba3d9);
 var skyHigh  = new THREE.Color(0x0d1b3e);
 var skySpace = new THREE.Color(0x020810);
@@ -405,7 +442,7 @@ var meteorTimer = 0;
 
 rocket.position.y = -1.85;
 
-// ── DOTS ──────────────────────────────────────────────────────────────────────
+// ── DOTS ─────────────────────────────────────────────────────────────────────
 var dotsEl = document.getElementById('dots');
 for (var di = 0; di < SECTIONS.length; di++) {
   var dot = document.createElement('div');
@@ -426,34 +463,34 @@ updateLabel(0);
 
 function showOrbitUI() {
   document.getElementById('name').style.opacity = '1';
-  document.getElementById('arrows').classList.add('show');
+  document.getElementById('arr-left').classList.add('show');
+  document.getElementById('arr-right').classList.add('show');
   document.getElementById('label-hud').classList.add('show');
   document.getElementById('dots').classList.add('show');
   document.getElementById('hint').classList.add('show');
   document.getElementById('launch-hint').style.display = 'none';
 }
 
-// ── NAVIGATION ────────────────────────────────────────────────────────────────
+// ── NAVIGATION ───────────────────────────────────────────────────────────────
 function rotate(dir) {
   if (navBusy || phase !== 'orbit') return;
   navBusy = true;
   var lh = document.getElementById('label-hud');
   lh.style.opacity = '0';
-  lh.style.transform = 'translateY(-50%) translateX(' + (dir * 12) + 'px)';
+  lh.style.transform = 'translateX(calc(-50% + ' + (dir * 14) + 'px))';
   currentSection = (currentSection + dir + SECTIONS.length) % SECTIONS.length;
   targetRotY = -SECTIONS[currentSection].angle;
   setTimeout(function() {
     updateLabel(currentSection);
     lh.style.transition = 'opacity .45s, transform .45s';
     lh.style.opacity = '1';
-    lh.style.transform = 'translateY(-50%) translateX(0)';
+    lh.style.transform = 'translateX(-50%)';
     navBusy = false;
   }, 380);
 }
 
 document.getElementById('btn-l').addEventListener('click', function() { rotate(-1); });
 document.getElementById('btn-r').addEventListener('click', function() { rotate(1); });
-
 document.addEventListener('keydown', function(e) {
   if (e.key === 'ArrowLeft')  rotate(-1);
   if (e.key === 'ArrowRight') rotate(1);
@@ -461,7 +498,7 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Enter' && phase === 'orbit') openPage();
 });
 
-// ── LAUNCH ────────────────────────────────────────────────────────────────────
+// ── LAUNCH ───────────────────────────────────────────────────────────────────
 document.getElementById('c').addEventListener('click', function() {
   if (phase === 'prelaunch') {
     phase = 'launching';
@@ -490,7 +527,7 @@ document.getElementById('label-name').addEventListener('click', openPage);
 document.getElementById('label-cta').addEventListener('click', openPage);
 document.getElementById('close-btn').addEventListener('click', closePage);
 
-// ── HELPERS ───────────────────────────────────────────────────────────────────
+// ── HELPERS ──────────────────────────────────────────────────────────────────
 function lerp(a, b, t) { return a + (b - a) * t; }
 function lerpAngle(a, b, t) {
   var d = b - a;
@@ -500,7 +537,7 @@ function lerpAngle(a, b, t) {
 }
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
-// ── ANIMATE ───────────────────────────────────────────────────────────────────
+// ── ANIMATE ──────────────────────────────────────────────────────────────────
 var clock = new THREE.Clock();
 
 function animate() {
@@ -513,16 +550,19 @@ function animate() {
     var fl = 0.88 + Math.sin(elapsed * 30) * 0.12;
     flameGroup.scale.set(fl, 0.85 + Math.sin(elapsed * 25) * 0.18, fl);
     for (var fli = 0; fli < flameMeshes.length; fli++) {
-      flameMeshes[fli].mat.opacity = flameMeshes[fli].baseOp * (0.8 + Math.random() * 0.2);
+      flameMeshes[fli].mat.opacity = flameMeshes[fli].baseOp * (0.78 + Math.random() * 0.22);
     }
   }
 
   // PRELAUNCH
   if (phase === 'prelaunch') {
     rocket.position.y = -1.85 + Math.sin(elapsed * 0.9) * 0.025;
+    // Camera stays fixed at initial position
+    camera.position.set(0, camOffsetY, camOffsetZ);
+    camera.lookAt(0, rocket.position.y + 1.5, 0);
   }
 
-  // LAUNCHING
+  // LAUNCHING ─ camera is parented to rocket's Y, never snaps
   if (phase === 'launching') {
     launchT += dt;
     var t = launchT;
@@ -530,13 +570,16 @@ function animate() {
     // Accelerating ascent
     rocket.position.y = -1.85 + t * t * 0.75;
 
-    // Camera follows rocket upward
-    var targetCamY = 2 + clamp(rocket.position.y * 0.55, 0, 30);
-    camera.position.y = lerp(camera.position.y, targetCamY, 0.04);
-    camera.position.z = lerp(camera.position.z, 10, 0.015);
-    camera.lookAt(0, rocket.position.y, 0);
+    // Camera smoothly tracks rocket — offset is constant, no snap ever
+    // Gradually pull back slightly and reduce Y offset so rocket fills frame
+    var zOffset = lerp(camOffsetZ, 10.5, clamp(t / 6.0, 0, 1));
+    var yOffset = lerp(camOffsetY, 1.2, clamp(t / 6.0, 0, 1));
+    camera.position.x = 0;
+    camera.position.z = zOffset;
+    camera.position.y = rocket.position.y + yOffset;
+    camera.lookAt(rocket.position.x, rocket.position.y + 1.0, rocket.position.z);
 
-    // Sky fades from blue to space black
+    // Sky transitions blue → indigo → black
     var skyT = clamp(t / 7.0, 0, 1);
     var skyCol = new THREE.Color();
     if (skyT < 0.5) {
@@ -549,41 +592,45 @@ function animate() {
     // Stars fade in
     starMat.opacity = clamp(skyT * 1.3, 0, 1);
 
-    // Clouds drift past and fade
+    // Clouds drift downward past camera
     for (var ci2 = 0; ci2 < cloudGroup.children.length; ci2++) {
       cloudGroup.children[ci2].position.y -= dt * (0.8 + t * 0.12);
       cloudGroup.children[ci2].material.opacity = Math.max(0, 0.6 - t * 0.08);
     }
 
-    // Launchpad recedes
+    // Launchpad recedes below
     padGroup.position.y = -rocket.position.y * 0.45;
     padGroup.scale.setScalar(Math.max(0.01, 1.0 - t * 0.12));
 
-    // Enter orbit
-    if (t > 8.0) {
+    // Transition to orbit — no position snap, camera is already correct
+    if (t > 8.5) {
       phase = 'orbit';
       padGroup.visible = false;
       cloudGroup.visible = false;
       renderer.setClearColor(skySpace);
       starMat.opacity = 1.0;
-      rocket.position.set(0, 0, 0);
-      camera.position.set(0, 1.5, 10);
-      camera.lookAt(0, 1.5, 0);
+
+      // Move rocket to origin but bring camera with it — no visible jump
+      var rocketY = rocket.position.y;
+      rocket.position.y = 0;
+      camera.position.y -= rocketY; // compensate so camera doesn't jump
+
       showOrbitUI();
     }
   }
 
   // ORBIT
   if (phase === 'orbit') {
-    // Gentle float
     rocket.position.y = Math.sin(elapsed * 0.5) * 0.12;
 
-    // Smooth rotation toward selected section
+    // Smooth Y rotation to face active section
     rotY = lerpAngle(rotY, targetRotY, 0.055);
     rocket.rotation.y = rotY;
 
-    // Subtle camera drift
-    camera.position.x = Math.sin(elapsed * 0.12) * 0.18;
+    // Gently drift camera back to ideal orbit position
+    camera.position.x = lerp(camera.position.x, Math.sin(elapsed * 0.12) * 0.18, 0.02);
+    camera.position.y = lerp(camera.position.y, 1.5, 0.018);
+    camera.position.z = lerp(camera.position.z, 10.0, 0.018);
     camera.lookAt(0, 1.2, 0);
 
     // Meteors
@@ -597,9 +644,9 @@ function animate() {
       met.userData.life++;
       met.position.x += met.userData.vx;
       met.position.y += met.userData.vy;
-      var lifeRatio = met.userData.life / met.userData.maxLife;
-      met.userData.mat.opacity = 0.85 * (1 - lifeRatio);
-      met.userData.tmat.opacity = 0.3 * (1 - lifeRatio);
+      var lr = met.userData.life / met.userData.maxLife;
+      met.userData.mat.opacity = 0.85 * (1 - lr);
+      met.userData.tmat.opacity = 0.3 * (1 - lr);
       if (met.userData.life >= met.userData.maxLife) {
         scene.remove(met);
         meteors.splice(mi, 1);
