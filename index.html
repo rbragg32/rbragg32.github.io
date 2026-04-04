@@ -7,98 +7,102 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{overflow:hidden;background:#000;font-family:'Courier New',monospace;color:#fff}
-#c{display:block;width:100vw;height:100vh}
+#c{display:block;width:100vw;height:100vh;cursor:pointer}
+#c.orbit{cursor:default}
+
+/* ── LOADING SCREEN ── */
+#loader{
+  position:fixed;inset:0;z-index:200;
+  background:#020810;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.4rem;
+  transition:opacity .8s ease;
+}
+#loader.hidden{opacity:0;pointer-events:none;}
+#loader-title{font-size:.75rem;letter-spacing:.4em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+#loader-bar-wrap{width:220px;height:2px;background:rgba(255,255,255,.1);border-radius:1px;overflow:hidden}
+#loader-bar{height:100%;width:0%;background:#5de0f8;transition:width .25s ease;border-radius:1px}
+#loader-pct{font-size:.6rem;letter-spacing:.18em;color:#5de0f8}
+#loader-status{font-size:.55rem;letter-spacing:.15em;color:rgba(255,255,255,.35);text-transform:uppercase}
+
+/* ── HUD ── */
 #hud{position:fixed;inset:0;pointer-events:none;z-index:10}
+#name{position:absolute;top:2rem;left:50%;transform:translateX(-50%);text-align:center;opacity:0;transition:opacity 1.2s;white-space:nowrap}
+#name h1{font-size:.82rem;letter-spacing:.42em;text-transform:uppercase;font-weight:300;color:rgba(255,255,255,.85)}
+#name p{font-size:.54rem;letter-spacing:.26em;color:#5de0f8;margin-top:5px;text-transform:uppercase}
 
-/* Name banner - top center */
-#name{position:absolute;top:2rem;left:50%;transform:translateX(-50%);text-align:center;opacity:0;transition:opacity 1s;white-space:nowrap}
-#name h1{font-size:.85rem;letter-spacing:.4em;text-transform:uppercase;font-weight:300;color:rgba(255,255,255,.8)}
-#name p{font-size:.55rem;letter-spacing:.25em;color:#5de0f8;margin-top:4px;text-transform:uppercase}
-
-/* Arrows - pinned to left and right edges, vertically centered */
-#arr-left{position:absolute;left:2rem;top:50%;transform:translateY(-50%);opacity:0;transition:opacity .6s;pointer-events:none}
-#arr-right{position:absolute;right:2rem;top:50%;transform:translateY(-50%);opacity:0;transition:opacity .6s;pointer-events:none}
+#arr-left{position:absolute;left:1.8rem;top:50%;transform:translateY(-50%);opacity:0;transition:opacity .7s;pointer-events:none}
+#arr-right{position:absolute;right:1.8rem;top:50%;transform:translateY(-50%);opacity:0;transition:opacity .7s;pointer-events:none}
 #arr-left.show,#arr-right.show{opacity:1;pointer-events:auto}
-.arr-btn{width:52px;height:52px;border:1px solid rgba(93,224,248,.5);background:rgba(93,224,248,.08);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s;pointer-events:auto}
-.arr-btn:hover{background:rgba(93,224,248,.25)}
+.arr-btn{width:52px;height:52px;border:1px solid rgba(93,224,248,.45);background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s,border-color .2s;backdrop-filter:blur(4px)}
+.arr-btn:hover{background:rgba(93,224,248,.18);border-color:rgba(93,224,248,.8)}
 .arr-btn svg{width:22px;height:22px;stroke:#5de0f8;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-/* Section label panel - bottom center, above dots */
-#label-hud{
-  position:absolute;
-  bottom:5.5rem;
-  left:50%;
-  transform:translateX(-50%);
-  text-align:center;
-  opacity:0;
-  transition:opacity .5s,transform .5s;
-  pointer-events:none;
-  white-space:nowrap;
-}
+#label-hud{position:absolute;bottom:5.8rem;left:50%;transform:translateX(-50%);text-align:center;opacity:0;transition:opacity .5s;pointer-events:none;white-space:nowrap}
 #label-hud.show{opacity:1;pointer-events:auto}
-#label-tag{font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:#5de0f8;margin-bottom:5px}
-#label-name{font-size:1.75rem;font-weight:600;cursor:pointer;line-height:1;position:relative;display:inline-block}
+#label-tag{font-size:.56rem;letter-spacing:.24em;text-transform:uppercase;color:#5de0f8;margin-bottom:5px}
+#label-name{font-size:1.8rem;font-weight:600;cursor:pointer;line-height:1;display:inline-block;position:relative}
 #label-name::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:2px;background:#5de0f8;transition:width .3s}
 #label-name:hover::after{width:100%}
-#label-sub{font-size:.78rem;color:rgba(255,255,255,.5);margin-top:7px;line-height:1.5;font-weight:300;font-family:sans-serif}
-#label-cta{display:inline-block;margin-top:10px;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:#f5a623;border:1px solid #f5a623;padding:5px 14px;cursor:pointer;transition:background .2s,color .2s;pointer-events:auto}
-#label-cta:hover{background:#f5a623;color:#000}
+#label-sub{font-size:.78rem;color:rgba(255,255,255,.48);margin-top:7px;line-height:1.5;font-family:sans-serif;font-weight:300}
+#label-cta{display:inline-block;margin-top:11px;font-size:.63rem;letter-spacing:.16em;text-transform:uppercase;color:#f5a623;border:1px solid rgba(245,166,35,.6);padding:5px 16px;cursor:pointer;transition:background .2s,color .2s,border-color .2s;pointer-events:auto;backdrop-filter:blur(4px)}
+#label-cta:hover{background:#f5a623;color:#000;border-color:#f5a623}
 
-/* Dots - bottom center */
-#dots{position:absolute;bottom:3.2rem;left:50%;transform:translateX(-50%);display:flex;gap:8px;opacity:0;transition:opacity .6s}
+#dots{position:absolute;bottom:3.4rem;left:50%;transform:translateX(-50%);display:flex;gap:8px;opacity:0;transition:opacity .7s}
 #dots.show{opacity:1}
-.dot{width:7px;height:7px;border-radius:50%;border:1px solid rgba(93,224,248,.4);transition:background .3s}
+.dot{width:6px;height:6px;border-radius:50%;border:1px solid rgba(93,224,248,.35);transition:background .3s,border-color .3s}
 .dot.active{background:#5de0f8;border-color:#5de0f8}
 
-/* Hint */
-#hint{position:absolute;bottom:1.6rem;left:50%;transform:translateX(-50%);font-size:.55rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.28);opacity:0;transition:opacity .6s;white-space:nowrap}
+#hint{position:absolute;bottom:1.8rem;left:50%;transform:translateX(-50%);font-size:.53rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.25);opacity:0;transition:opacity .7s;white-space:nowrap}
 #hint.show{opacity:1}
+#launch-hint{position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);font-size:.63rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.55);animation:pulse 2.2s ease-in-out infinite;white-space:nowrap;pointer-events:none}
+@keyframes pulse{0%,100%{opacity:.28}50%{opacity:.85}}
+#rotate-hint{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(93,224,248,.55);opacity:0;transition:opacity .8s;white-space:nowrap;pointer-events:none;text-align:center}
+#rotate-hint.show{opacity:1}
 
-/* Launch hint */
-#launch-hint{position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.55);animation:pulse 2s ease-in-out infinite;white-space:nowrap}
-@keyframes pulse{0%,100%{opacity:.3}50%{opacity:.9}}
+/* ── MODEL DEBUG (shown briefly, auto-hides) ── */
+#debug{position:absolute;top:1rem;right:1rem;font-size:.55rem;color:rgba(255,255,255,.35);line-height:1.8;text-align:right;opacity:0;transition:opacity .5s}
+#debug.show{opacity:1}
 
-/* Page overlay */
-#overlay{position:fixed;inset:0;z-index:100;background:rgba(4,8,20,0);backdrop-filter:blur(0px);pointer-events:none;transition:background .5s,backdrop-filter .5s;display:flex;align-items:center;justify-content:center}
-#overlay.open{background:rgba(4,8,20,.93);backdrop-filter:blur(10px);pointer-events:auto}
-#page{max-width:660px;width:90%;opacity:0;transform:translateY(28px);transition:opacity .4s .2s,transform .4s .2s;padding:2.8rem;border:1px solid rgba(93,224,248,.15);position:relative;max-height:80vh;overflow-y:auto}
+/* ── OVERLAY ── */
+#overlay{position:fixed;inset:0;z-index:100;background:rgba(3,7,18,0);backdrop-filter:blur(0px);pointer-events:none;transition:background .5s,backdrop-filter .5s;display:flex;align-items:center;justify-content:center}
+#overlay.open{background:rgba(3,7,18,.94);backdrop-filter:blur(12px);pointer-events:auto}
+#page{max-width:660px;width:90%;opacity:0;transform:translateY(26px);transition:opacity .4s .15s,transform .4s .15s;padding:2.8rem;border:1px solid rgba(93,224,248,.14);position:relative;max-height:82vh;overflow-y:auto;background:rgba(5,12,28,.6)}
 #overlay.open #page{opacity:1;transform:none}
-#pg-tag{font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:#5de0f8;margin-bottom:.8rem}
-#pg-title{font-size:2.5rem;font-weight:200;line-height:1.1;margin-bottom:1.2rem}
-#pg-body{font-size:.92rem;font-weight:300;color:rgba(255,255,255,.7);line-height:1.85;font-family:sans-serif}
+#pg-tag{font-size:.58rem;letter-spacing:.24em;text-transform:uppercase;color:#5de0f8;margin-bottom:.85rem}
+#pg-title{font-size:2.4rem;font-weight:200;line-height:1.1;margin-bottom:1.3rem}
+#pg-body{font-size:.91rem;font-weight:300;color:rgba(255,255,255,.72);line-height:1.9;font-family:sans-serif}
 #pg-body p+p{margin-top:.9rem}
-#close-btn{position:absolute;top:1rem;right:1.2rem;font-size:.65rem;letter-spacing:.15em;color:rgba(255,255,255,.4);cursor:pointer;border:1px solid rgba(255,255,255,.15);padding:4px 10px;background:none;text-transform:uppercase;font-family:'Courier New',monospace}
+#close-btn{position:absolute;top:1rem;right:1.2rem;font-size:.62rem;letter-spacing:.15em;color:rgba(255,255,255,.38);cursor:pointer;border:1px solid rgba(255,255,255,.14);padding:4px 10px;background:none;text-transform:uppercase;font-family:'Courier New',monospace;transition:color .2s,border-color .2s}
 #close-btn:hover{color:#fff;border-color:rgba(255,255,255,.5)}
 </style>
 </head>
 <body>
+
+<!-- Loading screen -->
+<div id="loader">
+  <div id="loader-title">Initializing Mission Systems</div>
+  <div id="loader-bar-wrap"><div id="loader-bar"></div></div>
+  <div id="loader-pct">0%</div>
+  <div id="loader-status">Loading vehicle model...</div>
+</div>
+
 <canvas id="c"></canvas>
+
 <div id="hud">
   <div id="name"><h1>Your Name</h1><p>Aerospace Engineer</p></div>
-
-  <!-- Arrows pinned to screen edges -->
-  <div id="arr-left">
-    <button class="arr-btn" id="btn-l" aria-label="Previous">
-      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-    </button>
-  </div>
-  <div id="arr-right">
-    <button class="arr-btn" id="btn-r" aria-label="Next">
-      <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-    </button>
-  </div>
-
-  <!-- Section info at bottom center -->
+  <div id="arr-left"><button class="arr-btn" id="btn-l" aria-label="Previous"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button></div>
+  <div id="arr-right"><button class="arr-btn" id="btn-r" aria-label="Next"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button></div>
   <div id="label-hud">
     <div id="label-tag"></div>
     <div id="label-name"></div>
     <div id="label-sub"></div>
     <div id="label-cta">Open section &rarr;</div>
   </div>
-
   <div id="dots"></div>
   <div id="hint">arrow keys to navigate &nbsp;&bull;&nbsp; enter to open</div>
-  <div id="launch-hint">Click anywhere to launch</div>
+  <div id="launch-hint">Click to launch</div>
+  <div id="rotate-hint">Use arrow keys to rotate the rocket</div>
+  <div id="debug"></div>
 </div>
 
 <div id="overlay">
@@ -111,552 +115,467 @@ body{overflow:hidden;background:#000;font-family:'Courier New',monospace;color:#
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script>
-// ── DATA ─────────────────────────────────────────────────────────────────────
+// ── SECTIONS ─────────────────────────────────────────────────────────────────
 var SECTIONS = [
-  { tag:'Mission Brief', name:'About Me',   sub:'Who I am and what drives me.',
-    angle: 0,
-    body:'<p>Hi, I\'m <strong style="color:#fff">Your Name</strong> - an aerospace engineer specializing in [propulsion / structures / avionics / systems engineering].</p><p>I\'ve spent my career working on [launch vehicles / satellites / defense systems]. Driven by building things that work at the edge of what\'s physically possible.</p><p>Outside engineering, I [hobby or interest].</p>' },
-  { tag:'Flight Log',    name:'Experience', sub:'Missions and roles I have been part of.',
-    angle: Math.PI * 2 / 5,
-    body:'<p><strong style="color:#fff">Senior Aerospace Engineer</strong> - Company Name (2021-Present)<br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Key responsibilities and impact. What systems did you own?</span></p><br/><p><strong style="color:#fff">Aerospace Engineer II</strong> - Previous Company (2018-2021)<br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">What you contributed - tests passed, launches supported.</span></p><br/><p><strong style="color:#fff">Engineering Intern</strong> - Earlier Company (2017)<br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Brief description of your internship.</span></p>' },
-  { tag:'Payload Bay',   name:'Projects',   sub:'Technical work I am proud of.',
-    angle: Math.PI * 4 / 5,
-    body:'<p><strong style="color:#fff">Project One</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Goal, your role, outcome. E.g. designed a thrust structure for a LOX/kerosene engine.</span></p><br/><p><strong style="color:#fff">Project Two</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Link to papers, GitHub repos, or writeups if available.</span></p><br/><p><strong style="color:#fff">Project Three</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Side projects, research, academic work, personal builds all count.</span></p>' },
-  { tag:'Systems Check', name:'Skills',     sub:'Tools, disciplines, and methods.',
-    angle: Math.PI * 6 / 5,
-    body:'<p><strong style="color:#fff">Disciplines</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Structural analysis - Propulsion - GNC - Systems engineering - Thermal management</span></p><br/><p><strong style="color:#fff">Tools and Software</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">MATLAB - Simulink - ANSYS - CATIA / SolidWorks - Python - STK</span></p><br/><p><strong style="color:#fff">Education</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">B.S./M.S. Aerospace Engineering - University Name</span></p>' },
-  { tag:'Ground Control',name:'Contact',    sub:'Let us connect and build something.',
-    angle: Math.PI * 8 / 5,
+  { tag:'Mission Brief', name:'About Me',   sub:'Who I am and what drives me.',           angle:0,
+    body:'<p>Hi, I\'m <strong style="color:#fff">Your Name</strong> — an aerospace engineer specializing in [propulsion / structures / avionics / systems engineering].</p><p>I\'ve spent my career working on [launch vehicles / satellites / defense systems]. Driven by building things that work at the edge of what\'s physically possible.</p><p>Outside engineering, I [hobby or interest].</p>' },
+  { tag:'Flight Log',    name:'Experience', sub:'Missions and roles I have been part of.', angle:Math.PI*2/5,
+    body:'<p><strong style="color:#fff">Senior Aerospace Engineer</strong> — Company Name (2021–Present)<br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Key responsibilities and impact. What systems did you own?</span></p><br/><p><strong style="color:#fff">Aerospace Engineer II</strong> — Previous Company (2018–2021)<br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">What you contributed — tests passed, launches supported.</span></p><br/><p><strong style="color:#fff">Engineering Intern</strong> — Earlier Company (2017)<br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Brief description of your internship.</span></p>' },
+  { tag:'Payload Bay',   name:'Projects',   sub:'Technical work I am proud of.',           angle:Math.PI*4/5,
+    body:'<p><strong style="color:#fff">Project One</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Goal, your role, outcome.</span></p><br/><p><strong style="color:#fff">Project Two</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Link to papers, GitHub repos, or writeups.</span></p><br/><p><strong style="color:#fff">Project Three</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Side projects, research, academic work.</span></p>' },
+  { tag:'Systems Check', name:'Skills',     sub:'Tools, disciplines, and methods.',        angle:Math.PI*6/5,
+    body:'<p><strong style="color:#fff">Disciplines</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Structural analysis · Propulsion · GNC · Systems engineering · Thermal management</span></p><br/><p><strong style="color:#fff">Tools &amp; Software</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">MATLAB · Simulink · ANSYS · CATIA / SolidWorks · Python · STK</span></p><br/><p><strong style="color:#fff">Education</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">B.S./M.S. Aerospace Engineering — University Name</span></p>' },
+  { tag:'Ground Control', name:'Contact',   sub:'Let us connect and build something.',     angle:Math.PI*8/5,
     body:'<p>Open to new opportunities, collaborations, and interesting problems in aerospace.</p><br/><p>Email: <a href="mailto:your@email.com" style="color:#5de0f8">your@email.com</a></p><p>LinkedIn: <a href="https://linkedin.com/in/yourprofile" target="_blank" style="color:#5de0f8">linkedin.com/in/yourprofile</a></p><p>GitHub: <a href="https://github.com/yourusername" target="_blank" style="color:#5de0f8">github.com/yourusername</a></p>' }
 ];
 
 // ── RENDERER ─────────────────────────────────────────────────────────────────
-var renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true });
+var renderer = new THREE.WebGLRenderer({canvas:document.getElementById('c'), antialias:true});
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setClearColor(0x87ceeb);
+renderer.setClearColor(0x7ab8e0);
+renderer.outputEncoding = THREE.sRGBEncoding; // correct color for GLB textures
+renderer.physicallyCorrectLights = true;
 
 var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 2000);
-
-// Camera pivot follows rocket during launch — no snap at transition
-var camOffsetY = 2.0;   // offset above rocket center
-var camOffsetZ = 13.0;  // distance back
-camera.position.set(0, camOffsetY, camOffsetZ);
-camera.lookAt(0, 0, 0);
+var camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 2000);
+camera.position.set(0, 2.5, 13);
+camera.lookAt(0, 2.0, 0);
 
 window.addEventListener('resize', function() {
   renderer.setSize(window.innerWidth, window.innerHeight);
-  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.aspect = window.innerWidth/window.innerHeight;
   camera.updateProjectionMatrix();
 });
 
 // ── LIGHTS ───────────────────────────────────────────────────────────────────
-scene.add(new THREE.AmbientLight(0x334466, 0.7));
-var sun = new THREE.DirectionalLight(0xfff5e0, 2.5);
-sun.position.set(6, 10, 6);
+// Stronger lights to bring out GLB textures properly
+scene.add(new THREE.AmbientLight(0x8899bb, 1.2));
+var sun = new THREE.DirectionalLight(0xfff8e8, 3.5);
+sun.position.set(8, 12, 6);
 scene.add(sun);
-var rim = new THREE.DirectionalLight(0x5de0f8, 0.5);
-rim.position.set(-5, 2, -5);
-scene.add(rim);
+var fill = new THREE.DirectionalLight(0xaaddff, 0.8);
+fill.position.set(-6, 2, -4);
+scene.add(fill);
+var back = new THREE.DirectionalLight(0x334455, 0.5);
+back.position.set(0, -5, -8);
+scene.add(back);
 
-// ── ROCKET ───────────────────────────────────────────────────────────────────
+// ── ROCKET GROUP (stays at fixed Y always) ────────────────────────────────────
 var rocket = new THREE.Group();
 scene.add(rocket);
+var rocketBaseY = 0.28;
+rocket.position.y = rocketBaseY;
 
-var matWhite = new THREE.MeshPhongMaterial({ color: 0xe8eef5, shininess: 90 });
-var matDark  = new THREE.MeshPhongMaterial({ color: 0x1a2840, shininess: 50 });
-var matMetal = new THREE.MeshPhongMaterial({ color: 0x8899aa, shininess: 150 });
-var matCyan  = new THREE.MeshPhongMaterial({ color: 0x5de0f8, shininess: 200, emissive: 0x0a1a22 });
-var matRed   = new THREE.MeshPhongMaterial({ color: 0xc13a2a, shininess: 60 });
+// ── LOAD GLB MODEL ────────────────────────────────────────────────────────────
+var modelLoaded = false;
+var loaderBar   = document.getElementById('loader-bar');
+var loaderPct   = document.getElementById('loader-pct');
+var loaderStatus= document.getElementById('loader-status');
+var loaderEl    = document.getElementById('loader');
+var debugEl     = document.getElementById('debug');
 
-// Body
-var body = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.40, 6.0, 32), matWhite);
-body.position.y = 3.0;
-rocket.add(body);
+var loader = new THREE.GLTFLoader();
+loader.load(
+  'NewGlenn.glb',
 
-// Upper section
-var upper = new THREE.Mesh(new THREE.CylinderGeometry(0.30, 0.36, 1.5, 32), matWhite);
-upper.position.y = 6.75;
-rocket.add(upper);
+  // ── ON LOAD ──
+  function(gltf) {
+    var model = gltf.scene;
 
-// Nose cone
-var nose = new THREE.Mesh(new THREE.ConeGeometry(0.30, 2.5, 32), matWhite);
-nose.position.y = 8.25;
-rocket.add(nose);
+    // Auto-fit: measure bounding box and scale/center model automatically
+    var box = new THREE.Box3().setFromObject(model);
+    var size = new THREE.Vector3();
+    var center = new THREE.Vector3();
+    box.getSize(size);
+    box.getCenter(center);
 
-// Nose tip
-var tip = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.4, 16), matDark);
-tip.position.y = 9.45;
-rocket.add(tip);
+    // Target height: 8 units (fills the view nicely)
+    var targetH = 8.0;
+    var scale = targetH / Math.max(size.x, size.y, size.z);
+    model.scale.setScalar(scale);
 
-// Interstage ring
-var ring1 = new THREE.Mesh(new THREE.CylinderGeometry(0.41, 0.41, 0.15, 32), matDark);
-ring1.position.y = 6.0;
-rocket.add(ring1);
+    // Re-measure after scale
+    box.setFromObject(model);
+    box.getCenter(center);
+    box.getSize(size);
 
-// Accent stripes
-var stripeA = new THREE.Mesh(new THREE.CylinderGeometry(0.405, 0.405, 0.12, 32), matCyan);
-stripeA.position.y = 4.5;
-rocket.add(stripeA);
-var stripeB = new THREE.Mesh(new THREE.CylinderGeometry(0.405, 0.405, 0.12, 32), matRed);
-stripeB.position.y = 2.2;
-rocket.add(stripeB);
+    // Center horizontally, sit base at y=0 within rocket group
+    model.position.x = -center.x;
+    model.position.z = -center.z;
+    model.position.y = -box.min.y; // base sits at rocket group origin
 
-// Payload fairing
-var fairing = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.30, 0.8, 32), matDark);
-fairing.position.y = 7.25;
-rocket.add(fairing);
+    // Fix orientation: GLB models vary — try Y-up first.
+    // If rocket appears sideways when you load, uncomment one of these:
+    // model.rotation.x = -Math.PI / 2;  // Z-up source (common in CAD)
+    // model.rotation.z =  Math.PI / 2;  // X-axis pointing up
 
-// Window
-var winMat = new THREE.MeshPhongMaterial({ color: 0x5de0f8, shininess: 300, emissive: 0x081520, transparent: true, opacity: 0.9 });
-var win = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 16), winMat);
-win.position.set(0.40, 5.0, 0.0);
-rocket.add(win);
+    rocket.add(model);
+    modelLoaded = true;
 
-// Engine bell
-var engBell = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.50, 0.5, 32), matDark);
-engBell.position.y = 0.25;
-rocket.add(engBell);
+    // Show debug info briefly so you can tune if needed
+    debugEl.innerHTML =
+      'Model size: ' + size.x.toFixed(2) + ' x ' + size.y.toFixed(2) + ' x ' + size.z.toFixed(2) + '<br>' +
+      'Applied scale: ' + scale.toFixed(4) + '<br>' +
+      'Meshes: ' + (function(n,o){o.traverse(function(c){if(c.isMesh)n++;});return n;})(0,model);
+    debugEl.classList.add('show');
+    setTimeout(function(){ debugEl.classList.remove('show'); }, 5000);
 
-// Nozzle
-var nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.34, 0.75, 24, 1, true), matMetal);
-nozzle.position.y = -0.38;
-rocket.add(nozzle);
+    // Hide loader
+    loaderStatus.textContent = 'Vehicle ready';
+    loaderBar.style.width = '100%';
+    loaderPct.textContent = '100%';
+    setTimeout(function(){
+      loaderEl.classList.add('hidden');
+      setTimeout(function(){ loaderEl.style.display='none'; }, 900);
+    }, 400);
 
-// Grid fins x4
-var finAngles = [0, Math.PI/2, Math.PI, Math.PI*3/2];
-for (var fi = 0; fi < 4; fi++) {
-  var fg = new THREE.Group();
-  fg.add(function() {
-    var m = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.6, 0.5), matDark);
-    m.position.set(0.54, 0, 0); return m;
-  }());
-  for (var gi = 0; gi < 3; gi++) {
-    var bar = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.5), matMetal);
-    bar.position.set(0.54, -0.2 + gi*0.2, 0);
-    fg.add(bar);
+    // Add flame and decals now that model is placed
+    buildFlameAndDecals();
+  },
+
+  // ── ON PROGRESS ──
+  function(xhr) {
+    if(xhr.lengthComputable) {
+      var pct = Math.round(xhr.loaded / xhr.total * 100);
+      loaderBar.style.width = pct + '%';
+      loaderPct.textContent = pct + '%';
+      if(pct > 30)  loaderStatus.textContent = 'Parsing geometry...';
+      if(pct > 70)  loaderStatus.textContent = 'Loading textures...';
+      if(pct > 90)  loaderStatus.textContent = 'Finalizing...';
+    }
+  },
+
+  // ── ON ERROR ──
+  function(err) {
+    console.error('GLB load error:', err);
+    loaderStatus.textContent = 'Error loading model — check filename & repo';
+    loaderPct.textContent = '!';
+    loaderBar.style.background = '#c13a2a';
+    // Still hide loader after delay and show fallback geometry
+    setTimeout(function(){
+      loaderEl.classList.add('hidden');
+      setTimeout(function(){ loaderEl.style.display='none'; }, 900);
+    }, 2000);
+    buildFallbackRocket();
+    buildFlameAndDecals();
+    modelLoaded = true;
   }
-  fg.rotation.y = finAngles[fi];
-  fg.position.y = 0.55;
-  rocket.add(fg);
+);
+
+// ── FALLBACK GEOMETRY (shown if GLB fails to load) ───────────────────────────
+function buildFallbackRocket() {
+  var mW = new THREE.MeshPhongMaterial({color:0xedf2f8,shininess:100});
+  var mD = new THREE.MeshPhongMaterial({color:0x182030,shininess:60});
+  var mM = new THREE.MeshPhongMaterial({color:0x7a8fa0,shininess:180});
+  rocket.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(0.36,0.40,6.0,32),mW),{position:{x:0,y:3,z:0}}));
+  rocket.add(Object.assign(new THREE.Mesh(new THREE.ConeGeometry(0.30,3.0,32),mW),{position:{x:0,y:8.5,z:0}}));
+  rocket.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.36,0.8,24,1,true),mM),{position:{x:0,y:-0.4,z:0}}));
 }
 
-// Landing legs x4
-var legAngles = [Math.PI/4, Math.PI*3/4, Math.PI*5/4, Math.PI*7/4];
-for (var li = 0; li < 4; li++) {
-  var lg = new THREE.Group();
-  var lm = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.8, 0.04), matDark);
-  lm.position.set(0.44, -0.1, 0);
-  lm.rotation.z = 0.28;
-  lg.add(lm);
-  lg.rotation.y = legAngles[li];
-  rocket.add(lg);
-}
+// ── FLAME + DECALS (built after model loads so position is known) ─────────────
+var flameGroup, flameMeshes;
+function buildFlameAndDecals() {
 
-// ── HULL LABELS: vertical text like NASA on Saturn V ─────────────────────────
-// Each label is a tall narrow canvas with characters stacked top-to-bottom.
-// The plane is positioned on the cylinder surface and oriented vertically.
+  // Flame — positioned at base of rocket group
+  flameGroup = new THREE.Group();
+  flameGroup.position.y = 0.0; // bottom of rocket group origin
+  rocket.add(flameGroup);
 
-function makeVerticalLabelTexture(name, tag) {
-  // Canvas is tall and narrow — characters run top to bottom
-  var cw = 96, ch = 512;
-  var cvs = document.createElement('canvas');
-  cvs.width = cw; cvs.height = ch;
-  var ctx = cvs.getContext('2d');
-
-  // Subtle background band
-  ctx.fillStyle = 'rgba(0,0,0,0)';
-  ctx.fillRect(0, 0, cw, ch);
-
-  // Draw each character of the section name, stacked vertically
-  // Big bold letters, top to bottom
-  var letters = name.toUpperCase().split('');
-  var fontSize = 54;
-  var spacing = ch / (letters.length + 1);
-  ctx.font = 'bold ' + fontSize + 'px Arial';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-
-  // Drop shadow for depth
-  ctx.shadowColor = 'rgba(0,0,0,0.8)';
-  ctx.shadowBlur = 6;
-
-  for (var i = 0; i < letters.length; i++) {
-    var yPos = spacing * (i + 1);
-    // Letter fill
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(letters[i], cw / 2, yPos);
-  }
-
-  // Small tag above letters
-  ctx.shadowBlur = 0;
-  ctx.font = '500 13px "Courier New"';
-  ctx.fillStyle = 'rgba(93,224,248,0.85)';
-  // Draw tag chars too if space, or just a top accent line
-  ctx.fillRect(cw/2 - 18, 4, 36, 2); // cyan top bar
-
-  return new THREE.CanvasTexture(cvs);
-}
-
-for (var si = 0; si < SECTIONS.length; si++) {
-  (function(sec) {
-    var tex = makeVerticalLabelTexture(sec.name, sec.tag);
-
-    // Plane: narrow width, tall height — sits flush on cylinder surface
-    var planeW = 0.28;
-    var planeH = 2.8;
-    var plane = new THREE.Mesh(
-      new THREE.PlaneGeometry(planeW, planeH),
-      new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, depthWrite: false })
+  var flameDefs = [
+    {r:0.13,h:0.9, col:0xffffff,op:0.95},
+    {r:0.20,h:1.6, col:0xffee88,op:0.80},
+    {r:0.27,h:2.4, col:0xff8800,op:0.55},
+    {r:0.34,h:3.4, col:0xff3300,op:0.28},
+    {r:0.40,h:4.2, col:0xcc1100,op:0.12}
+  ];
+  flameMeshes = [];
+  for(var i=0;i<flameDefs.length;i++){
+    var fd=flameDefs[i];
+    var fm=new THREE.Mesh(
+      new THREE.ConeGeometry(fd.r,fd.h,10),
+      new THREE.MeshBasicMaterial({color:fd.col,transparent:true,opacity:fd.op})
     );
+    fm.rotation.x=Math.PI;
+    fm.position.y=-(i*0.22);
+    flameGroup.add(fm);
+    flameMeshes.push({mat:fm.material,base:fd.op});
+  }
+  flameGroup.visible=false;
 
-    // Position on cylinder surface facing outward
-    var a = sec.angle;
-    var r = 0.42; // just outside cylinder radius (0.40)
-    plane.position.set(Math.sin(a) * r, 3.0, Math.cos(a) * r);
-    // Rotate to face outward from cylinder axis
-    plane.rotation.y = -a;
+  // Decals — vertical text on hull
+  var bodyRadius = 0.44; // slightly proud of model surface
+  var bodyMidY   = 3.0;  // vertical center of body section
 
-    rocket.add(plane);
-  })(SECTIONS[si]);
+  for(var si=0;si<SECTIONS.length;si++){
+    (function(sec){
+      var cw=1024, ch=72;
+      var cvs=document.createElement('canvas');
+      cvs.width=cw; cvs.height=ch;
+      var ctx=cvs.getContext('2d');
+      ctx.clearRect(0,0,cw,ch);
+      ctx.font='900 52px "Arial Narrow",Arial';
+      ctx.textAlign='left';
+      ctx.textBaseline='middle';
+      var txt=sec.name.toUpperCase();
+      var tw=ctx.measureText(txt).width;
+      var sx=(cw-tw)/2;
+      ctx.shadowColor='rgba(0,0,0,0.4)';
+      ctx.shadowBlur=4; ctx.shadowOffsetX=1; ctx.shadowOffsetY=1;
+      ctx.fillStyle='rgba(18,18,22,0.93)';
+      ctx.fillText(txt,sx,ch/2);
+      ctx.shadowBlur=0; ctx.shadowOffsetX=0; ctx.shadowOffsetY=0;
+      ctx.strokeStyle='rgba(93,224,248,0.7)';
+      ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(sx-4,ch-7); ctx.lineTo(sx+tw+4,ch-7); ctx.stroke();
+
+      var tex=new THREE.CanvasTexture(cvs);
+      var plane=new THREE.Mesh(
+        new THREE.PlaneGeometry(2.8,0.22),
+        new THREE.MeshBasicMaterial({map:tex,transparent:true,side:THREE.DoubleSide,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1})
+      );
+      var a=sec.angle;
+      plane.position.set(Math.sin(a)*bodyRadius, bodyMidY, Math.cos(a)*bodyRadius);
+      plane.rotation.y=-a;
+      plane.rotation.z=Math.PI/2;
+      rocket.add(plane);
+    })(SECTIONS[si]);
+  }
 }
 
-// ── FLAME ────────────────────────────────────────────────────────────────────
-var flameGroup = new THREE.Group();
-flameGroup.position.y = -0.75;
-rocket.add(flameGroup);
+// ── LAUNCHPAD WORLD (descends during launch) ──────────────────────────────────
+var world = new THREE.Group();
+scene.add(world);
 
-var flameLayers = [
-  { r:0.14, h:0.9,  col:0xffffff, op:0.95 },
-  { r:0.20, h:1.4,  col:0xffcc44, op:0.75 },
-  { r:0.26, h:2.0,  col:0xff6600, op:0.50 },
-  { r:0.32, h:2.8,  col:0xff2200, op:0.25 }
-];
-var flameMeshes = [];
-for (var fli = 0; fli < flameLayers.length; fli++) {
-  var fl = flameLayers[fli];
-  var fg2 = new THREE.Mesh(
-    new THREE.ConeGeometry(fl.r, fl.h, 8),
-    new THREE.MeshBasicMaterial({ color: fl.col, transparent: true, opacity: fl.op })
-  );
-  fg2.rotation.x = Math.PI;
-  fg2.position.y = -(fli * 0.2);
-  flameGroup.add(fg2);
-  flameMeshes.push({ mesh: fg2, mat: fg2.material, baseOp: fl.op });
+var ground=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.MeshPhongMaterial({color:0x1e2420}));
+ground.rotation.x=-Math.PI/2; world.add(ground);
+
+var apron=new THREE.Mesh(new THREE.CircleGeometry(12,32),new THREE.MeshPhongMaterial({color:0x2e2e2e}));
+apron.rotation.x=-Math.PI/2; apron.position.y=0.01; world.add(apron);
+
+var pad=new THREE.Mesh(new THREE.CylinderGeometry(2.2,2.2,0.28,32),new THREE.MeshPhongMaterial({color:0x3a3a3a}));
+pad.position.y=0.14; world.add(pad);
+
+var exhaustGlowMat=new THREE.MeshBasicMaterial({color:0xff6600,transparent:true,opacity:0,side:THREE.DoubleSide});
+var exhaustGlow=new THREE.Mesh(new THREE.PlaneGeometry(3,3),exhaustGlowMat);
+exhaustGlow.rotation.x=-Math.PI/2; exhaustGlow.position.y=0.02; world.add(exhaustGlow);
+
+var gantryMat=new THREE.MeshPhongMaterial({color:0x445566});
+var gPos=[[2.4,0],[-2.4,0],[0,2.4],[0,-2.4]];
+for(var gi=0;gi<gPos.length;gi++){
+  var gt=new THREE.Mesh(new THREE.BoxGeometry(0.12,5.5,0.12),gantryMat);
+  gt.position.set(gPos[gi][0],2.75,gPos[gi][1]); world.add(gt);
 }
-flameGroup.visible = false;
 
-// ── LAUNCHPAD ────────────────────────────────────────────────────────────────
-var padGroup = new THREE.Group();
-scene.add(padGroup);
-
-var ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(100, 100),
-  new THREE.MeshPhongMaterial({ color: 0x2a2a2a })
-);
-ground.rotation.x = -Math.PI / 2;
-ground.position.y = -2.0;
-padGroup.add(ground);
-
-var pad = new THREE.Mesh(
-  new THREE.CylinderGeometry(2.0, 2.0, 0.25, 32),
-  new THREE.MeshPhongMaterial({ color: 0x444455 })
-);
-pad.position.y = -1.88;
-padGroup.add(pad);
-
-// Gantry towers
-var gantryPos = [[2.2,0],[-2.2,0],[0,2.2],[0,-2.2]];
-for (var gi2 = 0; gi2 < gantryPos.length; gi2++) {
-  var gx = gantryPos[gi2][0], gz = gantryPos[gi2][1];
-  var tower = new THREE.Mesh(
-    new THREE.BoxGeometry(0.1, 4.5, 0.1),
-    new THREE.MeshPhongMaterial({ color: 0x556677 })
-  );
-  tower.position.set(gx, 0.35, gz);
-  padGroup.add(tower);
+var cloudMat=new THREE.MeshPhongMaterial({color:0xffffff,transparent:true,opacity:0.65});
+var cloudGroup=new THREE.Group(); world.add(cloudGroup);
+for(var ci=0;ci<22;ci++){
+  var cx=(Math.random()-.5)*90, cy=16+Math.random()*12, cz=(Math.random()-.5)*90-15;
+  for(var cj=0;cj<5;cj++){
+    var puff=new THREE.Mesh(new THREE.SphereGeometry(1.4+Math.random()*2.2,8,6),cloudMat.clone());
+    puff.position.set(cx+(Math.random()-.5)*5,cy+(Math.random()-.5)*0.6,cz+(Math.random()-.5)*4);
+    puff.scale.y=0.32; cloudGroup.add(puff);
+  }
 }
 
 // ── STARS ────────────────────────────────────────────────────────────────────
-var starGeo = new THREE.BufferGeometry();
-var starCount = 4000;
-var starPos = new Float32Array(starCount * 3);
-for (var i = 0; i < starCount * 3; i++) starPos[i] = (Math.random() - 0.5) * 1600;
-starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-var starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 1.5, sizeAttenuation: true, transparent: true, opacity: 0.0 });
-scene.add(new THREE.Points(starGeo, starMat));
-
-// ── CLOUDS ───────────────────────────────────────────────────────────────────
-var cloudGroup = new THREE.Group();
-scene.add(cloudGroup);
-for (var ci = 0; ci < 20; ci++) {
-  var cx = (Math.random()-0.5)*80, cy = 14 + Math.random()*10, cz = (Math.random()-0.5)*80 - 10;
-  for (var cj = 0; cj < 4; cj++) {
-    var puff = new THREE.Mesh(
-      new THREE.SphereGeometry(1.5 + Math.random()*2, 7, 5),
-      new THREE.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: 0.6 })
-    );
-    puff.position.set(cx+(Math.random()-.5)*4, cy+(Math.random()-.5)*0.5, cz+(Math.random()-.5)*3);
-    puff.scale.y = 0.3;
-    cloudGroup.add(puff);
-  }
-}
-cloudGroup.visible = false;
+var starGeo=new THREE.BufferGeometry();
+var sPos=new Float32Array(5000*3);
+for(var i=0;i<5000*3;i++) sPos[i]=(Math.random()-.5)*1800;
+starGeo.setAttribute('position',new THREE.BufferAttribute(sPos,3));
+var starMat=new THREE.PointsMaterial({color:0xffffff,size:1.4,sizeAttenuation:true,transparent:true,opacity:0});
+scene.add(new THREE.Points(starGeo,starMat));
 
 // ── METEORS ──────────────────────────────────────────────────────────────────
-var meteors = [];
-function spawnMeteor() {
-  var g = new THREE.Group();
-  var len = 1.5 + Math.random() * 3;
-  var mm = new THREE.MeshBasicMaterial({ color: 0xffdd88, transparent: true, opacity: 0.85 });
-  var m = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.005, len, 4), mm);
-  m.rotation.z = Math.PI / 2;
-  g.add(m);
-  var tm = new THREE.MeshBasicMaterial({ color: 0xff8833, transparent: true, opacity: 0.3 });
-  var tail = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.0, len*1.5, 4), tm);
-  tail.rotation.z = Math.PI / 2;
-  tail.position.x = len * 0.5;
-  g.add(tail);
-  g.position.set(25 + Math.random()*15, 15 + Math.random()*25, -15 - Math.random()*30);
-  var spd = 0.35 + Math.random()*0.45;
-  g.userData = { vx: -spd, vy: -spd*0.45, mat: mm, tmat: tm, life: 0, maxLife: 110 };
-  scene.add(g);
-  meteors.push(g);
+var meteors=[];
+function spawnMeteor(){
+  var g=new THREE.Group();
+  var len=2.0+Math.random()*3.5;
+  var mm=new THREE.MeshBasicMaterial({color:0xffee99,transparent:true,opacity:0.9});
+  var m=new THREE.Mesh(new THREE.CylinderGeometry(0.022,0.004,len,4),mm);
+  m.rotation.z=Math.PI/2; g.add(m);
+  var tm=new THREE.MeshBasicMaterial({color:0xff9944,transparent:true,opacity:0.35});
+  var tail=new THREE.Mesh(new THREE.CylinderGeometry(0.038,0.0,len*2,4),tm);
+  tail.rotation.z=Math.PI/2; tail.position.x=len*0.6; g.add(tail);
+  g.position.set(28+Math.random()*18,10+Math.random()*22,-12-Math.random()*28);
+  var spd=0.3+Math.random()*0.5;
+  g.userData={vx:-spd,vy:-spd*0.38,mat:mm,tmat:tm,life:0,maxLife:130};
+  scene.add(g); meteors.push(g);
 }
 
-// ── SKY COLORS ───────────────────────────────────────────────────────────────
-var skyDay   = new THREE.Color(0x5ba3d9);
-var skyHigh  = new THREE.Color(0x0d1b3e);
-var skySpace = new THREE.Color(0x020810);
+// ── SKY ──────────────────────────────────────────────────────────────────────
+var skyDay  =new THREE.Color(0x7ab8e0);
+var skyDusk =new THREE.Color(0x0e1e42);
+var skySpace=new THREE.Color(0x020810);
 
 // ── STATE ────────────────────────────────────────────────────────────────────
-var phase = 'prelaunch';
-var launchT = 0;
-var currentSection = 0;
-var targetRotY = 0;
-var rotY = 0;
-var navBusy = false;
-var meteorTimer = 0;
-
-rocket.position.y = -1.85;
+var phase='prelaunch', launchT=0, worldDescendSpeed=0;
+var currentSection=0, targetRotY=0, rotY=0;
+var navBusy=false, meteorTimer=0, rotationEnabled=false;
 
 // ── DOTS ─────────────────────────────────────────────────────────────────────
-var dotsEl = document.getElementById('dots');
-for (var di = 0; di < SECTIONS.length; di++) {
-  var dot = document.createElement('div');
-  dot.className = 'dot' + (di === 0 ? ' active' : '');
+var dotsEl=document.getElementById('dots');
+for(var di=0;di<SECTIONS.length;di++){
+  var dot=document.createElement('div');
+  dot.className='dot'+(di===0?' active':'');
   dotsEl.appendChild(dot);
 }
-
-function updateLabel(idx) {
-  var s = SECTIONS[idx];
-  document.getElementById('label-tag').textContent = s.tag;
-  document.getElementById('label-name').textContent = s.name;
-  document.getElementById('label-sub').textContent = s.sub;
-  document.querySelectorAll('.dot').forEach(function(d, i) {
-    d.classList.toggle('active', i === idx);
-  });
+function updateLabel(idx){
+  var s=SECTIONS[idx];
+  document.getElementById('label-tag').textContent=s.tag;
+  document.getElementById('label-name').textContent=s.name;
+  document.getElementById('label-sub').textContent=s.sub;
+  document.querySelectorAll('.dot').forEach(function(d,i){d.classList.toggle('active',i===idx);});
 }
 updateLabel(0);
 
-function showOrbitUI() {
-  document.getElementById('name').style.opacity = '1';
+function showOrbitUI(){
+  document.getElementById('name').style.opacity='1';
   document.getElementById('arr-left').classList.add('show');
   document.getElementById('arr-right').classList.add('show');
   document.getElementById('label-hud').classList.add('show');
   document.getElementById('dots').classList.add('show');
   document.getElementById('hint').classList.add('show');
-  document.getElementById('launch-hint').style.display = 'none';
+  document.getElementById('rotate-hint').classList.remove('show');
+  document.getElementById('c').classList.add('orbit');
 }
 
 // ── NAVIGATION ───────────────────────────────────────────────────────────────
-function rotate(dir) {
-  if (navBusy || phase !== 'orbit') return;
-  navBusy = true;
-  var lh = document.getElementById('label-hud');
-  lh.style.opacity = '0';
-  lh.style.transform = 'translateX(calc(-50% + ' + (dir * 14) + 'px))';
-  currentSection = (currentSection + dir + SECTIONS.length) % SECTIONS.length;
-  targetRotY = -SECTIONS[currentSection].angle;
-  setTimeout(function() {
+function rotate(dir){
+  if(navBusy||!rotationEnabled) return;
+  navBusy=true;
+  var lh=document.getElementById('label-hud');
+  if(lh.classList.contains('show')){ lh.style.opacity='0'; }
+  currentSection=(currentSection+dir+SECTIONS.length)%SECTIONS.length;
+  targetRotY=-SECTIONS[currentSection].angle;
+  setTimeout(function(){
     updateLabel(currentSection);
-    lh.style.transition = 'opacity .45s, transform .45s';
-    lh.style.opacity = '1';
-    lh.style.transform = 'translateX(-50%)';
-    navBusy = false;
-  }, 380);
+    lh.style.transition='opacity .45s';
+    lh.style.opacity='1';
+    navBusy=false;
+  },340);
 }
-
-document.getElementById('btn-l').addEventListener('click', function() { rotate(-1); });
-document.getElementById('btn-r').addEventListener('click', function() { rotate(1); });
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'ArrowLeft')  rotate(-1);
-  if (e.key === 'ArrowRight') rotate(1);
-  if (e.key === 'Escape')     closePage();
-  if (e.key === 'Enter' && phase === 'orbit') openPage();
+document.getElementById('btn-l').addEventListener('click',function(){rotate(-1);});
+document.getElementById('btn-r').addEventListener('click',function(){rotate(1);});
+document.addEventListener('keydown',function(e){
+  if(e.key==='ArrowLeft')  rotate(-1);
+  if(e.key==='ArrowRight') rotate(1);
+  if(e.key==='Escape')     closePage();
+  if(e.key==='Enter'&&phase==='orbit') openPage();
 });
 
 // ── LAUNCH ───────────────────────────────────────────────────────────────────
-document.getElementById('c').addEventListener('click', function() {
-  if (phase === 'prelaunch') {
-    phase = 'launching';
-    flameGroup.visible = true;
-    cloudGroup.visible = true;
-    document.getElementById('launch-hint').style.display = 'none';
+document.getElementById('c').addEventListener('click',function(){
+  if(phase==='prelaunch'&&modelLoaded){
+    phase='launching';
+    if(flameGroup) flameGroup.visible=true;
+    rotationEnabled=true;
+    document.getElementById('launch-hint').style.display='none';
+    document.getElementById('rotate-hint').classList.add('show');
+    document.getElementById('arr-left').classList.add('show');
+    document.getElementById('arr-right').classList.add('show');
   }
 });
 
 // ── PAGE OVERLAY ─────────────────────────────────────────────────────────────
-function openPage() {
-  if (phase !== 'orbit') return;
-  var s = SECTIONS[currentSection];
-  document.getElementById('pg-tag').textContent = s.tag;
-  document.getElementById('pg-title').textContent = s.name;
-  document.getElementById('pg-body').innerHTML = s.body;
+function openPage(){
+  if(phase!=='orbit') return;
+  var s=SECTIONS[currentSection];
+  document.getElementById('pg-tag').textContent=s.tag;
+  document.getElementById('pg-title').textContent=s.name;
+  document.getElementById('pg-body').innerHTML=s.body;
   document.getElementById('overlay').classList.add('open');
 }
-function closePage() {
-  document.getElementById('overlay').classList.remove('open');
-}
-document.getElementById('overlay').addEventListener('click', function(e) {
-  if (e.target === document.getElementById('overlay')) closePage();
-});
-document.getElementById('label-name').addEventListener('click', openPage);
-document.getElementById('label-cta').addEventListener('click', openPage);
-document.getElementById('close-btn').addEventListener('click', closePage);
+function closePage(){ document.getElementById('overlay').classList.remove('open'); }
+document.getElementById('overlay').addEventListener('click',function(e){ if(e.target===document.getElementById('overlay'))closePage(); });
+document.getElementById('label-name').addEventListener('click',openPage);
+document.getElementById('label-cta').addEventListener('click',openPage);
+document.getElementById('close-btn').addEventListener('click',closePage);
 
 // ── HELPERS ──────────────────────────────────────────────────────────────────
-function lerp(a, b, t) { return a + (b - a) * t; }
-function lerpAngle(a, b, t) {
-  var d = b - a;
-  while (d >  Math.PI) d -= Math.PI * 2;
-  while (d < -Math.PI) d += Math.PI * 2;
-  return a + d * t;
-}
-function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+function lerp(a,b,t){return a+(b-a)*t;}
+function lerpAngle(a,b,t){var d=b-a;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;return a+d*t;}
+function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
+function easeInOut(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}
 
 // ── ANIMATE ──────────────────────────────────────────────────────────────────
-var clock = new THREE.Clock();
-
-function animate() {
+var clock=new THREE.Clock();
+function animate(){
   requestAnimationFrame(animate);
-  var dt = clock.getDelta();
-  var elapsed = clock.getElapsedTime();
+  var dt=clock.getDelta();
+  var t=clock.getElapsedTime();
 
-  // Flame flicker
-  if (flameGroup.visible) {
-    var fl = 0.88 + Math.sin(elapsed * 30) * 0.12;
-    flameGroup.scale.set(fl, 0.85 + Math.sin(elapsed * 25) * 0.18, fl);
-    for (var fli = 0; fli < flameMeshes.length; fli++) {
-      flameMeshes[fli].mat.opacity = flameMeshes[fli].baseOp * (0.78 + Math.random() * 0.22);
-    }
-  }
-
-  // PRELAUNCH
-  if (phase === 'prelaunch') {
-    rocket.position.y = -1.85 + Math.sin(elapsed * 0.9) * 0.025;
-    // Camera stays fixed at initial position
-    camera.position.set(0, camOffsetY, camOffsetZ);
-    camera.lookAt(0, rocket.position.y + 1.5, 0);
-  }
-
-  // LAUNCHING ─ camera is parented to rocket's Y, never snaps
-  if (phase === 'launching') {
-    launchT += dt;
-    var t = launchT;
-
-    // Accelerating ascent
-    rocket.position.y = -1.85 + t * t * 0.75;
-
-    // Camera smoothly tracks rocket — offset is constant, no snap ever
-    // Gradually pull back slightly and reduce Y offset so rocket fills frame
-    var zOffset = lerp(camOffsetZ, 10.5, clamp(t / 6.0, 0, 1));
-    var yOffset = lerp(camOffsetY, 1.2, clamp(t / 6.0, 0, 1));
-    camera.position.x = 0;
-    camera.position.z = zOffset;
-    camera.position.y = rocket.position.y + yOffset;
-    camera.lookAt(rocket.position.x, rocket.position.y + 1.0, rocket.position.z);
-
-    // Sky transitions blue → indigo → black
-    var skyT = clamp(t / 7.0, 0, 1);
-    var skyCol = new THREE.Color();
-    if (skyT < 0.5) {
-      skyCol.lerpColors(skyDay, skyHigh, skyT * 2);
-    } else {
-      skyCol.lerpColors(skyHigh, skySpace, (skyT - 0.5) * 2);
-    }
-    renderer.setClearColor(skyCol);
-
-    // Stars fade in
-    starMat.opacity = clamp(skyT * 1.3, 0, 1);
-
-    // Clouds drift downward past camera
-    for (var ci2 = 0; ci2 < cloudGroup.children.length; ci2++) {
-      cloudGroup.children[ci2].position.y -= dt * (0.8 + t * 0.12);
-      cloudGroup.children[ci2].material.opacity = Math.max(0, 0.6 - t * 0.08);
-    }
-
-    // Launchpad recedes below
-    padGroup.position.y = -rocket.position.y * 0.45;
-    padGroup.scale.setScalar(Math.max(0.01, 1.0 - t * 0.12));
-
-    // Transition to orbit — no position snap, camera is already correct
-    if (t > 8.5) {
-      phase = 'orbit';
-      padGroup.visible = false;
-      cloudGroup.visible = false;
-      renderer.setClearColor(skySpace);
-      starMat.opacity = 1.0;
-
-      // Move rocket to origin but bring camera with it — no visible jump
-      var rocketY = rocket.position.y;
-      rocket.position.y = 0;
-      camera.position.y -= rocketY; // compensate so camera doesn't jump
-
-      showOrbitUI();
-    }
-  }
-
-  // ORBIT
-  if (phase === 'orbit') {
-    rocket.position.y = Math.sin(elapsed * 0.5) * 0.12;
-
-    // Smooth Y rotation to face active section
-    rotY = lerpAngle(rotY, targetRotY, 0.055);
-    rocket.rotation.y = rotY;
-
-    // Gently drift camera back to ideal orbit position
-    camera.position.x = lerp(camera.position.x, Math.sin(elapsed * 0.12) * 0.18, 0.02);
-    camera.position.y = lerp(camera.position.y, 1.5, 0.018);
-    camera.position.z = lerp(camera.position.z, 10.0, 0.018);
-    camera.lookAt(0, 1.2, 0);
-
-    // Meteors
-    meteorTimer += dt;
-    if (meteorTimer > 2.0 + Math.random() * 4.0) {
-      spawnMeteor();
-      meteorTimer = 0;
-    }
-    for (var mi = meteors.length - 1; mi >= 0; mi--) {
-      var met = meteors[mi];
-      met.userData.life++;
-      met.position.x += met.userData.vx;
-      met.position.y += met.userData.vy;
-      var lr = met.userData.life / met.userData.maxLife;
-      met.userData.mat.opacity = 0.85 * (1 - lr);
-      met.userData.tmat.opacity = 0.3 * (1 - lr);
-      if (met.userData.life >= met.userData.maxLife) {
-        scene.remove(met);
-        meteors.splice(mi, 1);
+  if(flameGroup&&flameGroup.visible){
+    var fl=0.86+Math.sin(t*32)*0.14;
+    flameGroup.scale.set(fl,0.82+Math.sin(t*26)*0.20,fl);
+    if(flameMeshes){
+      for(var fi=0;fi<flameMeshes.length;fi++){
+        flameMeshes[fi].mat.opacity=flameMeshes[fi].base*(0.75+Math.random()*0.25);
       }
     }
   }
 
-  renderer.render(scene, camera);
-}
+  if(rotationEnabled){
+    rotY=lerpAngle(rotY,targetRotY,0.06);
+    rocket.rotation.y=rotY;
+  }
 
+  if(phase==='prelaunch'){
+    rocket.position.y=rocketBaseY+Math.sin(t*0.9)*0.025;
+    camera.position.set(0,2.5,13);
+    camera.lookAt(0,2.0,0);
+  }
+
+  if(phase==='launching'){
+    launchT+=dt;
+    var lt=launchT;
+    rocket.position.y=rocketBaseY;
+    worldDescendSpeed=lt*lt*0.60;
+    world.position.y-=worldDescendSpeed*dt;
+    exhaustGlowMat.opacity=clamp(1.0-lt*0.4,0,0.55);
+    var skyT=clamp(lt/7.5,0,1);
+    var skyCol=new THREE.Color();
+    if(skyT<0.5){ skyCol.lerpColors(skyDay,skyDusk,skyT*2); }
+    else         { skyCol.lerpColors(skyDusk,skySpace,(skyT-0.5)*2); }
+    renderer.setClearColor(skyCol);
+    starMat.opacity=clamp(skyT*1.4,0,1);
+    camera.position.z=lerp(13,11.5,easeInOut(clamp(lt/6.0,0,1)));
+    camera.lookAt(0,2.5,0);
+    if(lt>9.0){
+      phase='orbit';
+      world.visible=false;
+      if(flameGroup) flameGroup.visible=false;
+      renderer.setClearColor(skySpace);
+      starMat.opacity=1.0;
+      exhaustGlowMat.opacity=0;
+      showOrbitUI();
+    }
+  }
+
+  if(phase==='orbit'){
+    rocket.position.y=Math.sin(t*0.5)*0.13;
+    camera.position.x=lerp(camera.position.x,Math.sin(t*0.11)*0.22,0.015);
+    camera.position.y=lerp(camera.position.y,2.5,0.012);
+    camera.position.z=lerp(camera.position.z,11.5,0.012);
+    camera.lookAt(0,1.8,0);
+    meteorTimer+=dt;
+    if(meteorTimer>2.2+Math.random()*4.5){spawnMeteor();meteorTimer=0;}
+    for(var mi=meteors.length-1;mi>=0;mi--){
+      var met=meteors[mi];
+      met.userData.life++;
+      met.position.x+=met.userData.vx;
+      met.position.y+=met.userData.vy;
+      var lr=met.userData.life/met.userData.maxLife;
+      met.userData.mat.opacity=0.9*(1-lr);
+      met.userData.tmat.opacity=0.35*(1-lr);
+      if(met.userData.life>=met.userData.maxLife){scene.remove(met);meteors.splice(mi,1);}
+    }
+  }
+
+  renderer.render(scene,camera);
+}
 animate();
 </script>
 </body>
