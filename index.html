@@ -184,39 +184,72 @@ loader.load(
   function(gltf) {
     var model = gltf.scene;
 
-    // Auto-fit: measure bounding box and scale/center model automatically
-    var box = new THREE.Box3().setFromObject(model);
-    var size = new THREE.Vector3();
-    var center = new THREE.Vector3();
-    box.getSize(size);
-    box.getCenter(center);
+    // ── STEP 1: Collect all meshes sorted by volume (largest = main body) ──
+    var meshInfos = [];
+    model.traverse(function(child) {
+      if (child.isMesh) {
+        var mb = new THREE.Box3().setFromObject(child);
+        var ms = new THREE.Vector3();
+        mb.getSize(ms);
+        meshInfos.push({ name: child.name||'(unnamed)', box: mb, size: ms, vol: ms.x*ms.y*ms.z });
+      }
+    });
+    meshInfos.sort(function(a,b){ return b.vol - a.vol; });
 
-    // Target height: 8 units (fills the view nicely)
+    // ── STEP 2: Scale by full model height ──
+    var fullBox = new THREE.Box3().setFromObject(model);
+    var fullSize = new THREE.Vector3();
+    fullBox.getSize(fullSize);
     var targetH = 8.0;
-    var scale = targetH / Math.max(size.x, size.y, size.z);
+    var scale = targetH / fullSize.y;
     model.scale.setScalar(scale);
 
-    // Re-measure after scale
-    box.setFromObject(model);
-    box.getCenter(center);
-    box.getSize(size);
+    // ── STEP 3: Re-measure after scale ──
+    fullBox.setFromObject(model);
+    fullBox.getSize(fullSize);
 
-    // Center horizontally, sit base at y=0 within rocket group
-    model.position.x = -center.x;
-    model.position.z = -center.z;
-    model.position.y = -box.min.y; // base sits at rocket group origin
+    // ── STEP 4: Use LARGEST mesh XZ center as rotation pivot ──
+    // Prevents fins/nozzles/off-center parts from skewing the pivot
+    var pivotBox = new THREE.Box3().setFromObject(meshInfos[0] ? meshInfos[0].box.clone().applyMatrix4(model.matrixWorld) : fullBox);
+    pivotBox.setFromObject(model); // fallback: just use scaled full box
+    // Find the tallest mesh (main body cylinder by height) for XZ pivot
+    var tallest = meshInfos[0];
+    for (var ti=0; ti<meshInfos.length; ti++) {
+      if (meshInfos[ti].size.y > tallest.size.y) tallest = meshInfos[ti];
+    }
+    var bodyBox = new THREE.Box3().setFromObject(tallest.box ? model : model);
+    // Re-traverse to find tallest mesh object for proper world box
+    var tallestMesh = null;
+    var tallestH = 0;
+    model.traverse(function(child) {
+      if (child.isMesh) {
+        var tb = new THREE.Box3().setFromObject(child);
+        var ts = new THREE.Vector3(); tb.getSize(ts);
+        if (ts.y > tallestH) { tallestH = ts.y; tallestMesh = child; bodyBox = tb; }
+      }
+    });
+    var bodyCenter = new THREE.Vector3();
+    bodyBox.getCenter(bodyCenter);
 
-    // Y-up confirmed — no rotation correction needed
+    // Center X/Z on tallest mesh (main cylinder), sit full model base at y=0
+    model.position.x = -bodyCenter.x;
+    model.position.z = -bodyCenter.z;
+    model.position.y = -fullBox.min.y;
+
     rocket.add(model);
     modelLoaded = true;
 
-    // Show debug info briefly so you can tune if needed
-    debugEl.innerHTML =
-      'Model size: ' + size.x.toFixed(2) + ' x ' + size.y.toFixed(2) + ' x ' + size.z.toFixed(2) + '<br>' +
-      'Applied scale: ' + scale.toFixed(4) + '<br>' +
-      'Meshes: ' + (function(n,o){o.traverse(function(c){if(c.isMesh)n++;});return n;})(0,model);
+    // Debug: list top 8 meshes by volume
+    var dbLines = ['<b>Meshes (' + meshInfos.length + ' total)</b>'];
+    for (var di2=0; di2<Math.min(meshInfos.length,8); di2++) {
+      var me = meshInfos[di2];
+      dbLines.push((di2+1) + '. ' + me.name + ' &mdash; ' + me.size.x.toFixed(1)+'x'+me.size.y.toFixed(1)+'x'+me.size.z.toFixed(1));
+    }
+    dbLines.push('Scale: ' + scale.toFixed(4));
+    dbLines.push('Pivot: ' + (tallestMesh ? tallestMesh.name||'unnamed' : 'full box'));
+    debugEl.innerHTML = dbLines.join('<br>');
     debugEl.classList.add('show');
-    setTimeout(function(){ debugEl.classList.remove('show'); }, 5000);
+    setTimeout(function(){ debugEl.classList.remove('show'); }, 10000);
 
     // Hide loader
     loaderStatus.textContent = 'Vehicle ready';
@@ -276,7 +309,7 @@ function buildFlameAndDecals() {
 
   // Flame — positioned at base of rocket group
   flameGroup = new THREE.Group();
-  flameGroup.position.y = 0.0; // bottom of rocket group origin
+  flameGroup.position.y = -0.3; // just below engine base
   rocket.add(flameGroup);
 
   var flameDefs = [
@@ -300,9 +333,10 @@ function buildFlameAndDecals() {
   }
   flameGroup.visible=false;
 
-  // Decals — vertical text on hull
-  var bodyRadius = 0.44; // slightly proud of model surface
-  var bodyMidY   = 3.0;  // vertical center of body section
+  // Decals — placed on the clean upper second stage, above Blue Origin branding
+  // New Glenn: lower black stage has BO logo/flag, upper white stage is clean
+  var bodyRadius = 0.30; // upper stage is narrower
+  var bodyMidY   = 6.5;  // upper stage vertical midpoint
 
   for(var si=0;si<SECTIONS.length;si++){
     (function(sec){
