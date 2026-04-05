@@ -184,70 +184,61 @@ loader.load(
   function(gltf) {
     var model = gltf.scene;
 
-    // ── STEP 1: Collect all meshes sorted by volume (largest = main body) ──
-    var meshInfos = [];
+    // ── Add to scene first so Three.js computes world matrices ──
+    rocket.add(model);
+
+    // ── Force matrix update before any measurement ──
+    model.updateMatrixWorld(true);
+
+    // ── STEP 1: Measure full bounding box using geometry directly (no world matrix needed) ──
+    var fullBox = new THREE.Box3();
+    var posAttr, v = new THREE.Vector3();
     model.traverse(function(child) {
-      if (child.isMesh) {
-        var mb = new THREE.Box3().setFromObject(child);
-        var ms = new THREE.Vector3();
-        mb.getSize(ms);
-        meshInfos.push({ name: child.name||'(unnamed)', box: mb, size: ms, vol: ms.x*ms.y*ms.z });
+      if (child.isMesh && child.geometry) {
+        child.geometry.computeBoundingBox();
+        var gb = child.geometry.boundingBox;
+        if (gb) {
+          // expand using local vertex positions — safe without world matrix
+          fullBox.expandByPoint(gb.min);
+          fullBox.expandByPoint(gb.max);
+        }
       }
     });
-    meshInfos.sort(function(a,b){ return b.vol - a.vol; });
 
-    // ── STEP 2: Scale by full model height ──
-    var fullBox = new THREE.Box3().setFromObject(model);
     var fullSize = new THREE.Vector3();
     fullBox.getSize(fullSize);
+
+    // Guard against degenerate box
+    var maxDim = Math.max(fullSize.x, fullSize.y, fullSize.z);
+    if (maxDim === 0) maxDim = 1;
+
+    // ── STEP 2: Scale so tallest dimension = 8 units ──
     var targetH = 8.0;
-    var scale = targetH / fullSize.y;
+    var scale = targetH / maxDim;
     model.scale.setScalar(scale);
+    model.updateMatrixWorld(true);
 
-    // ── STEP 3: Re-measure after scale ──
-    fullBox.setFromObject(model);
-    fullBox.getSize(fullSize);
+    // ── STEP 3: Re-measure in world space now that matrices are valid ──
+    var worldBox = new THREE.Box3().setFromObject(rocket);
+    var worldSize = new THREE.Vector3();
+    var worldCenter = new THREE.Vector3();
+    worldBox.getSize(worldSize);
+    worldBox.getCenter(worldCenter);
 
-    // ── STEP 4: Use LARGEST mesh XZ center as rotation pivot ──
-    // Prevents fins/nozzles/off-center parts from skewing the pivot
-    var pivotBox = new THREE.Box3().setFromObject(meshInfos[0] ? meshInfos[0].box.clone().applyMatrix4(model.matrixWorld) : fullBox);
-    pivotBox.setFromObject(model); // fallback: just use scaled full box
-    // Find the tallest mesh (main body cylinder by height) for XZ pivot
-    var tallest = meshInfos[0];
-    for (var ti=0; ti<meshInfos.length; ti++) {
-      if (meshInfos[ti].size.y > tallest.size.y) tallest = meshInfos[ti];
-    }
-    var bodyBox = new THREE.Box3().setFromObject(tallest.box ? model : model);
-    // Re-traverse to find tallest mesh object for proper world box
-    var tallestMesh = null;
-    var tallestH = 0;
-    model.traverse(function(child) {
-      if (child.isMesh) {
-        var tb = new THREE.Box3().setFromObject(child);
-        var ts = new THREE.Vector3(); tb.getSize(ts);
-        if (ts.y > tallestH) { tallestH = ts.y; tallestMesh = child; bodyBox = tb; }
-      }
-    });
-    var bodyCenter = new THREE.Vector3();
-    bodyBox.getCenter(bodyCenter);
+    // ── STEP 4: Shift model so XZ center = 0 and base sits at y=0 ──
+    model.position.x = -worldCenter.x;
+    model.position.z = -worldCenter.z;
+    model.position.y = rocket.position.y - worldBox.min.y;
+    model.updateMatrixWorld(true);
 
-    // Center X/Z on tallest mesh (main cylinder), sit full model base at y=0
-    model.position.x = -bodyCenter.x;
-    model.position.z = -bodyCenter.z;
-    model.position.y = -fullBox.min.y;
-
-    rocket.add(model);
     modelLoaded = true;
 
-    // Debug: list top 8 meshes by volume
-    var dbLines = ['<b>Meshes (' + meshInfos.length + ' total)</b>'];
-    for (var di2=0; di2<Math.min(meshInfos.length,8); di2++) {
-      var me = meshInfos[di2];
-      dbLines.push((di2+1) + '. ' + me.name + ' &mdash; ' + me.size.x.toFixed(1)+'x'+me.size.y.toFixed(1)+'x'+me.size.z.toFixed(1));
-    }
-    dbLines.push('Scale: ' + scale.toFixed(4));
-    dbLines.push('Pivot: ' + (tallestMesh ? tallestMesh.name||'unnamed' : 'full box'));
-    debugEl.innerHTML = dbLines.join('<br>');
+    // Debug readout
+    debugEl.innerHTML =
+      'Raw size: ' + fullSize.x.toFixed(2) + ' x ' + fullSize.y.toFixed(2) + ' x ' + fullSize.z.toFixed(2) + '<br>' +
+      'World size: ' + worldSize.x.toFixed(2) + ' x ' + worldSize.y.toFixed(2) + ' x ' + worldSize.z.toFixed(2) + '<br>' +
+      'Scale: ' + scale.toFixed(4) + '<br>' +
+      'Center offset: x=' + worldCenter.x.toFixed(2) + ' z=' + worldCenter.z.toFixed(2);
     debugEl.classList.add('show');
     setTimeout(function(){ debugEl.classList.remove('show'); }, 10000);
 
