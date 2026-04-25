@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PRESSURE // NOMINAL — A Test Engineer's Game</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Cinzel:wght@600;900&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:       #060503;
+  --bg2:      #0d0a06;
+  --amber:    #e8920a;
+  --amber-d:  #a85f05;
+  --amber-lo: rgba(232,146,10,0.10);
+  --amber-md: rgba(232,146,10,0.22);
+  --amber-hi: rgba(232,146,10,0.55);
+  --red:      #c43b1a;
+  --green:    #4db87a;
+  --blue:     #5ab4d4;
+  --text:     #f0ddb8;
+  --dim:      rgba(240,221,184,0.52);
+  --lo:       rgba(240,221,184,0.26);
+  --border:   rgba(232,146,10,0.20);
+  --mono:     'Share Tech Mono', monospace;
+  --display:  'Cinzel', serif;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--mono);}
+
+/* SCANLINES */
+body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;
+  background:repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(0,0,0,0.13) 2px,rgba(0,0,0,0.13) 3px);
+}
+body::before{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 50%,rgba(0,0,0,0.6) 100%);
+}
+
+/* ── SCREENS ── */
+.screen{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);}
+.screen.hidden{display:none;}
+
+/* ── TITLE SCREEN ── */
+#screen-title{gap:0;}
+.title-eyebrow{font-size:.6rem;letter-spacing:.38em;color:var(--amber-d);text-transform:uppercase;margin-bottom:1.2rem;animation:fadeIn .8s .2s both;}
+.title-main{font-family:var(--display);font-size:clamp(2.4rem,6vw,4.2rem);font-weight:900;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--text);text-shadow:0 0 40px rgba(232,146,10,.5),0 0 80px rgba(232,146,10,.2);
+  animation:fadeIn .8s .4s both;line-height:1;}
+.title-slash{color:var(--amber);}
+.title-sub{font-size:.72rem;letter-spacing:.28em;color:var(--amber-d);margin-top:.8rem;text-transform:uppercase;animation:fadeIn .8s .6s both;}
+.title-divider{width:220px;height:1px;background:linear-gradient(to right,transparent,var(--amber),transparent);margin:2rem 0;animation:fadeIn .8s .7s both;}
+.title-desc{font-size:.72rem;color:var(--dim);line-height:2;text-align:center;max-width:480px;animation:fadeIn .8s .8s both;letter-spacing:.06em;}
+.title-missions{display:flex;flex-direction:column;gap:.5rem;margin-top:2rem;width:400px;animation:fadeIn .8s 1s both;}
+.mission-btn{padding:.9rem 1.4rem;border:1px solid var(--border);background:var(--bg2);cursor:pointer;
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);
+  text-align:left;transition:all .18s;display:flex;align-items:center;gap:1rem;position:relative;overflow:hidden;}
+.mission-btn::before{content:'';position:absolute;left:0;top:0;width:0;height:100%;background:var(--amber-lo);border-left:2px solid var(--amber);transition:width .18s;}
+.mission-btn:hover{color:var(--text);border-color:var(--amber-hi);}
+.mission-btn:hover::before{width:100%;}
+.mission-btn.locked{opacity:.35;cursor:not-allowed;}
+.mission-btn.locked::before{display:none;}
+.m-num{color:var(--amber-d);font-size:.58rem;width:1.4rem;flex-shrink:0;}
+.m-info{display:flex;flex-direction:column;gap:.18rem;}
+.m-name{color:var(--text);font-size:.72rem;}
+.m-diff{font-size:.54rem;color:var(--lo);letter-spacing:.14em;}
+.m-badge{margin-left:auto;font-size:.5rem;letter-spacing:.14em;padding:.18rem .5rem;border:1px solid;flex-shrink:0;}
+.m-badge.easy{color:var(--green);border-color:rgba(77,184,122,.4);}
+.m-badge.medium{color:var(--amber);border-color:var(--amber-hi);}
+.m-badge.hard{color:var(--red);border-color:rgba(196,59,26,.5);}
+.title-footer{position:absolute;bottom:1.4rem;font-size:.52rem;letter-spacing:.18em;color:var(--lo);}
+
+/* ── BRIEFING SCREEN ── */
+#screen-brief{gap:0;padding:2rem;}
+.brief-header{font-family:var(--display);font-size:1.4rem;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--text);text-shadow:0 0 20px rgba(232,146,10,.3);margin-bottom:.4rem;}
+.brief-mission{font-size:.6rem;letter-spacing:.3em;color:var(--amber);text-transform:uppercase;margin-bottom:1.6rem;}
+.brief-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;width:700px;max-width:90vw;margin-bottom:1.6rem;}
+.brief-block{border:1px solid var(--border);background:var(--bg2);padding:1.2rem;}
+.brief-block-title{font-size:.56rem;letter-spacing:.26em;color:var(--amber-d);text-transform:uppercase;margin-bottom:.8rem;padding-bottom:.5rem;border-bottom:1px solid var(--border);}
+.brief-row{display:flex;justify-content:space-between;font-size:.64rem;color:var(--dim);padding:.22rem 0;letter-spacing:.06em;}
+.brief-row span{color:var(--text);}
+.brief-objective{width:700px;max-width:90vw;border:1px solid var(--border);background:var(--bg2);padding:1.2rem;margin-bottom:1.6rem;}
+.brief-objective-title{font-size:.56rem;letter-spacing:.26em;color:var(--amber-d);text-transform:uppercase;margin-bottom:.8rem;}
+.brief-objective p{font-size:.66rem;color:var(--dim);line-height:1.9;letter-spacing:.04em;}
+.brief-keys{width:700px;max-width:90vw;display:flex;gap:1rem;margin-bottom:1.8rem;flex-wrap:wrap;}
+.key-item{display:flex;align-items:center;gap:.5rem;font-size:.58rem;color:var(--lo);}
+.key{background:var(--bg2);border:1px solid var(--border);padding:.18rem .55rem;font-size:.6rem;color:var(--text);min-width:1.8rem;text-align:center;}
+.brief-btn{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+  padding:.8rem 2.4rem;border:1px solid var(--amber-hi);background:var(--amber-lo);color:var(--amber);
+  cursor:pointer;transition:all .18s;}
+.brief-btn:hover{background:var(--amber-md);color:var(--text);}
+
+/* ── GAME SCREEN ── */
+#screen-game{flex-direction:row;align-items:stretch;padding:0;}
+
+/* Top bar */
+#topbar{position:fixed;top:0;left:0;right:0;z-index:200;height:42px;background:rgba(6,5,3,.96);
+  border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 1.2rem;gap:1.6rem;}
+#topbar-mission{font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--amber);}
+#topbar-status{font-size:.64rem;letter-spacing:.1em;color:var(--dim);}
+#topbar-status.nominal{color:var(--green);}
+#topbar-status.caution{color:var(--amber);}
+#topbar-status.abort{color:var(--red);}
+.tb-sep{width:1px;height:20px;background:var(--border);}
+#topbar-time{font-size:.66rem;color:var(--dim);margin-left:auto;}
+#topbar-score{font-size:.64rem;color:var(--amber-d);}
+#topbar-abort-btn{font-family:var(--mono);font-size:.52rem;letter-spacing:.16em;text-transform:uppercase;
+  padding:.28rem .8rem;border:1px solid rgba(196,59,26,.4);color:var(--red);background:none;cursor:pointer;transition:all .15s;}
+#topbar-abort-btn:hover{background:rgba(196,59,26,.15);}
+
+/* Main layout */
+#game-layout{display:flex;width:100%;height:100%;padding-top:42px;}
+
+/* Schematic canvas area */
+#schematic-wrap{flex:1;position:relative;overflow:hidden;}
+#schematic-canvas{display:block;width:100%;height:100%;}
+
+/* Right panel */
+#right-panel{width:240px;flex-shrink:0;background:rgba(6,5,3,.97);border-left:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;}
+
+.rp-section{padding:.9rem 1rem;border-bottom:1px solid var(--border);}
+.rp-title{font-size:.52rem;letter-spacing:.26em;text-transform:uppercase;color:var(--amber-d);margin-bottom:.7rem;}
+
+/* Gauges */
+.gauge-row{display:flex;align-items:center;gap:.6rem;margin-bottom:.55rem;}
+.gauge-label{font-size:.56rem;color:var(--lo);letter-spacing:.06em;width:60px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.gauge-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06);position:relative;}
+.gauge-bar{height:100%;transition:width .25s,background .25s;}
+.gauge-bar.ok{background:var(--green);}
+.gauge-bar.warn{background:var(--amber);}
+.gauge-bar.crit{background:var(--red);}
+.gauge-val{font-size:.54rem;color:var(--dim);width:44px;text-align:right;flex-shrink:0;}
+
+/* Component list */
+.comp-row{display:flex;align-items:center;gap:.5rem;padding:.28rem 0;border-bottom:1px solid rgba(255,255,255,.03);cursor:pointer;transition:background .15s;border-radius:2px;}
+.comp-row:hover{background:var(--amber-lo);}
+.comp-row.selected{background:var(--amber-lo);outline:1px solid var(--border);}
+.comp-key{font-size:.54rem;color:var(--amber-d);width:1.2rem;text-align:center;flex-shrink:0;}
+.comp-name{font-size:.56rem;color:var(--dim);flex:1;letter-spacing:.04em;}
+.comp-state{font-size:.52rem;padding:.1rem .38rem;border:1px solid;}
+.comp-state.open{color:var(--green);border-color:rgba(77,184,122,.4);}
+.comp-state.closed{color:var(--red);border-color:rgba(196,59,26,.4);}
+.comp-state.auto{color:var(--amber);border-color:var(--amber-hi);}
+.comp-state.nominal{color:var(--green);border-color:rgba(77,184,122,.4);}
+.comp-state.fault{color:var(--red);border-color:rgba(196,59,26,.5);animation:blink .6s step-end infinite;}
+
+/* Event log */
+#event-log{flex:1;overflow-y:auto;padding:.6rem .8rem;display:flex;flex-direction:column;gap:0;}
+#event-log::-webkit-scrollbar{width:3px;}
+#event-log::-webkit-scrollbar-thumb{background:var(--border);}
+.log-entry{font-size:.54rem;line-height:1.7;color:var(--lo);letter-spacing:.04em;padding:.12rem 0;border-bottom:1px solid rgba(255,255,255,.02);}
+.log-entry.warn{color:var(--amber);}
+.log-entry.crit{color:var(--red);}
+.log-entry.good{color:var(--green);}
+.log-time{color:var(--amber-d);margin-right:.4rem;}
+
+/* Selected component detail */
+#comp-detail{padding:.9rem 1rem;border-top:1px solid var(--border);min-height:130px;background:rgba(0,0,0,.3);}
+#comp-detail-title{font-size:.58rem;letter-spacing:.18em;color:var(--amber);text-transform:uppercase;margin-bottom:.6rem;}
+#comp-detail-body{font-size:.56rem;color:var(--dim);line-height:1.8;letter-spacing:.04em;}
+.detail-row{display:flex;justify-content:space-between;padding:.1rem 0;}
+.detail-row span{color:var(--text);}
+.detail-action{margin-top:.6rem;display:flex;gap:.4rem;flex-wrap:wrap;}
+.action-btn{font-family:var(--mono);font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;
+  padding:.24rem .6rem;border:1px solid var(--border);background:none;color:var(--dim);cursor:pointer;transition:all .15s;}
+.action-btn:hover{border-color:var(--amber-hi);color:var(--amber);background:var(--amber-lo);}
+.action-btn.danger:hover{border-color:rgba(196,59,26,.6);color:var(--red);background:rgba(196,59,26,.1);}
+
+/* ── RESULT SCREEN ── */
+#screen-result{gap:0;text-align:center;}
+.result-outcome{font-family:var(--display);font-size:clamp(2rem,5vw,3.4rem);font-weight:900;letter-spacing:.12em;
+  text-transform:uppercase;margin-bottom:.6rem;animation:fadeIn .6s both;}
+.result-outcome.success{color:var(--green);text-shadow:0 0 30px rgba(77,184,122,.5);}
+.result-outcome.failure{color:var(--red);text-shadow:0 0 30px rgba(196,59,26,.5);}
+.result-sub{font-size:.64rem;letter-spacing:.22em;color:var(--dim);text-transform:uppercase;animation:fadeIn .6s .2s both;}
+.result-divider{width:180px;height:1px;background:linear-gradient(to right,transparent,var(--amber),transparent);margin:1.6rem auto;animation:fadeIn .6s .3s both;}
+.result-stats{display:grid;grid-template-columns:1fr 1fr;gap:1rem;width:440px;max-width:90vw;margin:0 auto 1.6rem;animation:fadeIn .6s .4s both;}
+.rstat{border:1px solid var(--border);background:var(--bg2);padding:1rem;}
+.rstat-num{font-family:var(--display);font-size:1.6rem;font-weight:600;color:var(--amber);}
+.rstat-lbl{font-size:.54rem;letter-spacing:.16em;color:var(--lo);text-transform:uppercase;margin-top:.2rem;}
+.result-report{width:440px;max-width:90vw;border:1px solid var(--border);background:var(--bg2);padding:1.2rem;
+  text-align:left;margin:0 auto 1.6rem;animation:fadeIn .6s .5s both;}
+.result-report-title{font-size:.54rem;letter-spacing:.26em;color:var(--amber-d);text-transform:uppercase;margin-bottom:.7rem;}
+.result-report-body{font-size:.6rem;color:var(--dim);line-height:1.9;}
+.result-btns{display:flex;gap:.8rem;animation:fadeIn .6s .6s both;}
+.result-btn{font-family:var(--mono);font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;
+  padding:.7rem 1.6rem;border:1px solid var(--border);background:var(--bg2);color:var(--dim);cursor:pointer;transition:all .18s;}
+.result-btn:hover{border-color:var(--amber-hi);color:var(--amber);background:var(--amber-lo);}
+.result-btn.primary{border-color:var(--amber-hi);color:var(--amber);background:var(--amber-lo);}
+.result-btn.primary:hover{background:var(--amber-md);}
+
+/* Anomaly flash */
+#anomaly-flash{position:fixed;inset:0;z-index:5000;pointer-events:none;opacity:0;
+  background:rgba(196,59,26,.18);transition:opacity .1s;}
+#anomaly-flash.show{opacity:1;}
+
+/* Keyboard hint bar */
+#keyhints{position:fixed;bottom:0;left:0;right:240px;z-index:200;height:28px;
+  background:rgba(6,5,3,.97);border-top:1px solid var(--border);
+  display:flex;align-items:center;padding:0 1.2rem;gap:1.4rem;}
+.kh{font-size:.5rem;letter-spacing:.12em;color:var(--lo);display:flex;align-items:center;gap:.35rem;}
+.kh .key{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:.06rem .35rem;font-size:.52rem;color:var(--dim);}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+@keyframes flashRed{0%,100%{background:transparent;}50%{background:rgba(196,59,26,.25);}}
+</style>
+</head>
+<body>
+
+<!-- ── ANOMALY FLASH ── -->
+<div id="anomaly-flash"></div>
+
+<!-- ════════════════════════════════════════════
+     TITLE SCREEN
+════════════════════════════════════════════ -->
+<div class="screen" id="screen-title">
+  <div class="title-eyebrow">Valcor Engineering // Test Operations Simulation</div>
+  <div class="title-main">PRESSURE<span class="title-slash"> //</span><br>NOMINAL</div>
+  <div class="title-sub">A Test Engineer's Game</div>
+  <div class="title-divider"></div>
+  <div class="title-desc">
+    Manage pressurized fluid control systems through live acceptance tests.<br>
+    Keep every parameter within spec. Don't let it blow.
+  </div>
+  <div class="title-missions">
+    <button class="mission-btn" onclick="G.startBrief(0)">
+      <span class="m-num">01</span>
+      <span class="m-info">
+        <span class="m-name">VULCAN CENTAUR — PRESSURANT LOAD</span>
+        <span class="m-diff">GHe pressurization system · 4 valves · 2 regulators</span>
+      </span>
+      <span class="m-badge easy">STANDARD</span>
+    </button>
+    <button class="mission-btn" onclick="G.startBrief(1)">
+      <span class="m-num">02</span>
+      <span class="m-info">
+        <span class="m-name">EXOMARS RFM — DESCENT BURN PREP</span>
+        <span class="m-diff">Hydrazine descent system · 5 valves · 3 regulators · thermal</span>
+      </span>
+      <span class="m-badge medium">ADVANCED</span>
+    </button>
+    <button class="mission-btn" onclick="G.startBrief(2)">
+      <span class="m-num">03</span>
+      <span class="m-info">
+        <span class="m-name">WILDCARD — ANOMALY RESPONSE DRILL</span>
+        <span class="m-diff">Unknown system · cascading failures · time pressure</span>
+      </span>
+      <span class="m-badge hard">CRITICAL</span>
+    </button>
+  </div>
+  <div class="title-footer">rbragg32.github.io · PRESSURE // NOMINAL v1.0</div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     BRIEFING SCREEN
+════════════════════════════════════════════ -->
+<div class="screen hidden" id="screen-brief">
+  <div class="brief-mission" id="brief-mission-tag"></div>
+  <div class="brief-header" id="brief-title"></div>
+  <div class="brief-grid">
+    <div class="brief-block">
+      <div class="brief-block-title">System Parameters</div>
+      <div id="brief-params"></div>
+    </div>
+    <div class="brief-block">
+      <div class="brief-block-title">Test Limits</div>
+      <div id="brief-limits"></div>
+    </div>
+  </div>
+  <div class="brief-objective">
+    <div class="brief-objective-title">Mission Objective</div>
+    <p id="brief-objective-text"></p>
+  </div>
+  <div class="brief-keys">
+    <div class="key-item"><span class="key">1-9</span> Select component</div>
+    <div class="key-item"><span class="key">Space</span> Toggle valve open/close</div>
+    <div class="key-item"><span class="key">↑↓</span> Adjust regulator setpoint</div>
+    <div class="key-item"><span class="key">R</span> Reset selected component</div>
+    <div class="key-item"><span class="key">Esc</span> Abort test</div>
+    <div class="key-item"><span class="key">Click</span> Select component on schematic</div>
+  </div>
+  <button class="brief-btn" id="brief-start-btn">INITIATE TEST SEQUENCE →</button>
+</div>
+
+<!-- ════════════════════════════════════════════
+     GAME SCREEN
+════════════════════════════════════════════ -->
+<div class="screen hidden" id="screen-game">
+  <div id="topbar">
+    <span id="topbar-mission">MISSION</span>
+    <div class="tb-sep"></div>
+    <span id="topbar-status">NOMINAL</span>
+    <div class="tb-sep"></div>
+    <span id="topbar-score">SCORE: 0</span>
+    <span id="topbar-time" style="margin-left:auto;">T+00:00</span>
+    <div class="tb-sep"></div>
+    <button id="topbar-abort-btn" onclick="G.abortTest('Manual abort by operator.')">ABORT TEST</button>
+  </div>
+
+  <div id="game-layout">
+    <div id="schematic-wrap">
+      <canvas id="schematic-canvas"></canvas>
+    </div>
+
+    <div id="right-panel">
+      <!-- Pressure gauges -->
+      <div class="rp-section">
+        <div class="rp-title">System Pressures</div>
+        <div id="gauge-list"></div>
+      </div>
+
+      <!-- Component list -->
+      <div class="rp-section" style="flex:1;overflow-y:auto;">
+        <div class="rp-title">Components <span style="color:var(--lo);font-size:.48rem;">(click or press key)</span></div>
+        <div id="comp-list"></div>
+      </div>
+
+      <!-- Event log -->
+      <div class="rp-section" style="padding-bottom:.4rem;">
+        <div class="rp-title">Event Log</div>
+      </div>
+      <div id="event-log"></div>
+
+      <!-- Selected component detail -->
+      <div id="comp-detail">
+        <div id="comp-detail-title">No Component Selected</div>
+        <div id="comp-detail-body"><div style="color:var(--lo);font-size:.58rem;">Click a component on the schematic or press its key number.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="keyhints">
+    <div class="kh"><span class="key">1-9</span> Select</div>
+    <div class="kh"><span class="key">Space</span> Toggle valve</div>
+    <div class="kh"><span class="key">↑↓</span> Regulator ±0.5 psi</div>
+    <div class="kh"><span class="key">Shift+↑↓</span> ±5 psi</div>
+    <div class="kh"><span class="key">R</span> Reset</div>
+    <div class="kh"><span class="key">Esc</span> Abort</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     RESULT SCREEN
+════════════════════════════════════════════ -->
+<div class="screen hidden" id="screen-result">
+  <div class="result-outcome" id="result-outcome">TEST COMPLETE</div>
+  <div class="result-sub" id="result-sub"></div>
+  <div class="result-divider"></div>
+  <div class="result-stats" id="result-stats"></div>
+  <div class="result-report">
+    <div class="result-report-title">// Incident Report</div>
+    <div class="result-report-body" id="result-report-body"></div>
+  </div>
+  <div class="result-btns">
+    <button class="result-btn primary" id="result-retry">RETRY MISSION</button>
+    <button class="result-btn" onclick="G.showTitle()">MISSION SELECT</button>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+//  MISSION DEFINITIONS
+// ════════════════════════════════════════════════════════════════════════════
+var MISSIONS = [
+
+// ── MISSION 0: VULCAN CENTAUR ─────────────────────────────────────────────
+{
+  id: 0,
+  tag: 'ULA · VULCAN CENTAUR',
+  name: 'Pressurant Load Acceptance Test',
+  duration: 180,  // seconds
+  difficulty: 'STANDARD',
+  objective: 'Load the GHe pressurant system to flight pressure and hold for 120 seconds within spec. Open isolation valves in sequence, bring regulators to setpoint, verify downstream pressure, and maintain through test completion. Any limit exceedance triggers an automatic abort.',
+  params: [
+    {k:'Fluid',         v:'GHe (Gaseous Helium)'},
+    {k:'Source pressure',v:'4500 psi'},
+    {k:'Target outlet', v:'315 psi'},
+    {k:'Hold duration', v:'120 sec'},
+    {k:'Temp range',    v:'-40°C to +60°C'},
+  ],
+  limits: [
+    {k:'Max system pressure', v:'3200 psi'},
+    {k:'Outlet spec (min)',   v:'300 psi'},
+    {k:'Outlet spec (max)',   v:'330 psi'},
+    {k:'Leak rate (max)',     v:'1×10⁻³ sccs'},
+    {k:'Regulator drift (max)',v:'±5 psi/min'},
+  ],
+  // Nodes: id, label, type(valve/regulator/sensor/tank/junction), x,y (0-1 normalized)
+  nodes: [
+    {id:'TANK',  label:'GHe SOURCE',  type:'tank',       x:.05, y:.42, pressure:4500},
+    {id:'IV1',   label:'ISO VALVE 1', type:'valve',      x:.22, y:.42, key:'1', state:'closed'},
+    {id:'REG1',  label:'REG-1',       type:'regulator',  x:.38, y:.42, key:'2', setpoint:315, pressIn:0, pressOut:0, drift:0},
+    {id:'SEN1',  label:'PT-101',      type:'sensor',     x:.50, y:.42, key:'3', reading:0},
+    {id:'IV2',   label:'ISO VALVE 2', type:'valve',      x:.62, y:.42, key:'4', state:'closed'},
+    {id:'TANK2', label:'FLIGHT TANK', type:'tank',       x:.80, y:.42, pressure:0, isTarget:true},
+    {id:'RV1',   label:'RELIEF VLV',  type:'relief',     x:.50, y:.22, key:'5', liftP:350},
+    {id:'SEN2',  label:'PT-102',      type:'sensor',     x:.80, y:.28, key:'6', reading:0},
+    {id:'PD1',   label:'BURST DISC',  type:'burstdisc',  x:.80, y:.60, key:'7', burstP:380},
+    {id:'VV1',   label:'VENT VALVE',  type:'valve',      x:.62, y:.62, key:'8', state:'closed'},
+  ],
+  pipes: [
+    {from:'TANK', to:'IV1'},{from:'IV1',to:'REG1'},{from:'REG1',to:'SEN1'},
+    {from:'SEN1',to:'IV2'},{from:'IV2',to:'TANK2'},
+    {from:'SEN1',to:'RV1',branch:true},{from:'SEN1',to:'VV1',branch:true},
+    {from:'TANK2',to:'SEN2'},{from:'TANK2',to:'PD1'},
+  ],
+  // Anomalies: time (sec), type, targetId, description
+  anomalies: [
+    {t:40,  type:'drift',   id:'REG1', val:8,   msg:'REG-1 setpoint drift detected — check outlet pressure'},
+    {t:90,  type:'leak',    id:'IV2',  val:.002, msg:'Possible leak signature at IV2 — verify isolation'},
+    {t:130, type:'spike',   id:'TANK', val:200,  msg:'Source pressure transient — monitor system response'},
+  ],
+  successCondition: function(state) {
+    // PT-102 must be 300-330 psi for 120 consecutive seconds
+    return state.holdTime >= 120;
+  },
+},
+
+// ── MISSION 1: EXOMARS ────────────────────────────────────────────────────
+{
+  id: 1,
+  tag: 'ESA · EXOMARS RFM',
+  name: 'Descent Propulsion Pre-Fire Acceptance Test',
+  duration: 240,
+  difficulty: 'ADVANCED',
+  objective: 'Validate the descent propulsion pressure regulation system for the ExoMars Rosalind Franklin landing platform. Sequence fuel isolation, pressurize the hydrazine feed lines through dual redundant regulators, verify thrust chamber inlet pressure, and hold within descent spec. Thermal compensation is active — regulate pressurant temperature or regulator setpoints will drift.',
+  params: [
+    {k:'Fuel',          v:'N₂H₄ (Hydrazine)'},
+    {k:'Pressurant',    v:'GN₂ (Gaseous Nitrogen)'},
+    {k:'Feed pressure', v:'200–220 psi'},
+    {k:'Thrust chambers',v:'4 × 400N engines'},
+    {k:'Thermal range', v:'+15°C to +35°C'},
+  ],
+  limits: [
+    {k:'Feed press (min)',   v:'200 psi'},
+    {k:'Feed press (max)',   v:'220 psi'},
+    {k:'REG delta (max)',    v:'8 psi'},
+    {k:'Thermal margin',    v:'±10°C'},
+    {k:'Hold duration',     v:'90 sec'},
+  ],
+  nodes: [
+    {id:'TANK',  label:'GN₂ SUPPLY',   type:'tank',      x:.06, y:.38, pressure:3000},
+    {id:'IV1',   label:'MAIN ISO',     type:'valve',     x:.20, y:.38, key:'1', state:'closed'},
+    {id:'REG1',  label:'REG-A',        type:'regulator', x:.34, y:.28, key:'2', setpoint:210, pressIn:0, pressOut:0, drift:0},
+    {id:'REG2',  label:'REG-B',        type:'regulator', x:.34, y:.50, key:'3', setpoint:210, pressIn:0, pressOut:0, drift:0},
+    {id:'CV1',   label:'CHECK-A',      type:'valve',     x:.50, y:.28, key:'4', state:'open', isCheck:true},
+    {id:'CV2',   label:'CHECK-B',      type:'valve',     x:.50, y:.50, key:'5', state:'open', isCheck:true},
+    {id:'MAN',   label:'MANIFOLD',     type:'junction',  x:.64, y:.38},
+    {id:'SEN1',  label:'PT-201',       type:'sensor',    x:.64, y:.22, key:'6', reading:0},
+    {id:'IV2',   label:'FUEL ISO',     type:'valve',     x:.78, y:.38, key:'7', state:'closed'},
+    {id:'FUEL',  label:'HYDRAZINE',    type:'tank',      x:.92, y:.38, pressure:0, isTarget:true},
+    {id:'HTR',   label:'HEATER',       type:'heater',    x:.64, y:.58, key:'8', active:false, temp:18},
+    {id:'RV1',   label:'RELIEF',       type:'relief',    x:.20, y:.20, key:'9', liftP:260},
+  ],
+  pipes: [
+    {from:'TANK',to:'IV1'},{from:'IV1',to:'REG1'},{from:'IV1',to:'REG2'},
+    {from:'REG1',to:'CV1'},{from:'REG2',to:'CV2'},
+    {from:'CV1',to:'MAN'},{from:'CV2',to:'MAN'},
+    {from:'MAN',to:'SEN1'},{from:'MAN',to:'IV2'},{from:'IV2',to:'FUEL'},
+    {from:'MAN',to:'HTR'},{from:'IV1',to:'RV1',branch:true},
+  ],
+  anomalies: [
+    {t:30,  type:'thermal', id:'HTR',  val:-8,  msg:'System temp dropping — thermal margin at risk'},
+    {t:70,  type:'drift',   id:'REG1', val:12,  msg:'REG-A drift — dual regulator delta exceeding spec'},
+    {t:120, type:'spike',   id:'TANK', val:400, msg:'GN₂ supply surge — check regulators and relief'},
+    {t:170, type:'drift',   id:'REG2', val:-6,  msg:'REG-B outlet dropping — verify setpoint'},
+  ],
+  successCondition: function(state) { return state.holdTime >= 90; },
+},
+
+// ── MISSION 2: WILDCARD ───────────────────────────────────────────────────
+{
+  id: 2,
+  tag: 'ANOMALY RESPONSE DRILL // CLASSIFIED SYSTEM',
+  name: 'Cascading Failure Response',
+  duration: 150,
+  difficulty: 'CRITICAL',
+  objective: 'An unplanned anomaly sequence is in progress on a classified propulsion test article. System identity is restricted. Multiple simultaneous failures are expected. Your objective: prevent catastrophic overpressure by isolating failure points, managing regulators under degraded conditions, and maintaining at least one clean downstream pressure reading within safe limits. Score is based purely on time survived and parameters held in-spec.',
+  params: [
+    {k:'System',       v:'[RESTRICTED]'},
+    {k:'Fluid',        v:'[RESTRICTED]'},
+    {k:'Source press', v:'[RESTRICTED]'},
+    {k:'Safe limit',   v:'< 500 psi downstream'},
+    {k:'Time goal',    v:'Survive 120 sec'},
+  ],
+  limits: [
+    {k:'Downstream max', v:'500 psi HARD LIMIT'},
+    {k:'Any single PT',  v:'< 450 psi warning'},
+    {k:'Regulator',      v:'Any position acceptable'},
+    {k:'Valves',         v:'Your call'},
+    {k:'Objective',      v:'DO NOT LET IT BLOW'},
+  ],
+  nodes: [
+    {id:'TANK',  label:'SOURCE',    type:'tank',      x:.06, y:.38, pressure:2800},
+    {id:'IV1',   label:'ISO-1',     type:'valve',     x:.18, y:.38, key:'1', state:'open'},
+    {id:'REG1',  label:'REG-1',     type:'regulator', x:.30, y:.38, key:'2', setpoint:300, pressIn:0, pressOut:0, drift:0},
+    {id:'IV2',   label:'ISO-2',     type:'valve',     x:.44, y:.28, key:'3', state:'open'},
+    {id:'IV3',   label:'ISO-3',     type:'valve',     x:.44, y:.50, key:'4', state:'open'},
+    {id:'SEN1',  label:'PT-A',      type:'sensor',    x:.58, y:.28, key:'5', reading:0},
+    {id:'SEN2',  label:'PT-B',      type:'sensor',    x:.58, y:.50, key:'6', reading:0},
+    {id:'REG2',  label:'REG-2',     type:'regulator', x:.70, y:.38, key:'7', setpoint:200, pressIn:0, pressOut:0, drift:0},
+    {id:'IV4',   label:'VENT',      type:'valve',     x:.82, y:.24, key:'8', state:'closed'},
+    {id:'TANK2', label:'ARTICLE',   type:'tank',      x:.90, y:.38, pressure:0, isTarget:true},
+    {id:'RV1',   label:'RELIEF',    type:'relief',    x:.30, y:.20, key:'9', liftP:420},
+  ],
+  pipes: [
+    {from:'TANK',to:'IV1'},{from:'IV1',to:'REG1'},{from:'REG1',to:'IV2'},{from:'REG1',to:'IV3'},
+    {from:'IV2',to:'SEN1'},{from:'IV3',to:'SEN2'},
+    {from:'SEN1',to:'REG2'},{from:'SEN2',to:'REG2'},{from:'REG2',to:'TANK2'},
+    {from:'TANK2',to:'IV4'},{from:'REG1',to:'RV1',branch:true},
+  ],
+  anomalies: [
+    {t:5,  type:'drift',  id:'REG1', val:80,  msg:'ANOMALY: REG-1 runaway — immediate action required'},
+    {t:20, type:'stuck',  id:'IV2',  val:0,   msg:'ANOMALY: ISO-2 stuck — valve not responding'},
+    {t:45, type:'spike',  id:'TANK', val:600, msg:'ANOMALY: Source pressure surge — check all limits'},
+    {t:65, type:'drift',  id:'REG2', val:50,  msg:'ANOMALY: REG-2 drifting high — downstream at risk'},
+    {t:90, type:'leak',   id:'IV3',  val:.01, msg:'ANOMALY: Leak path detected at ISO-3'},
+    {t:110,type:'spike',  id:'TANK', val:300, msg:'ANOMALY: Second surge — multiple limits at risk'},
+  ],
+  successCondition: function(state) { return state.elapsed >= 120 && !state.blownUp; },
+},
+];
+
+// ════════════════════════════════════════════════════════════════════════════
+//  GAME ENGINE
+// ════════════════════════════════════════════════════════════════════════════
+var G = (function() {
+  var state = {};
+  var mission = null;
+  var tickInterval = null;
+  var canvas, ctx;
+  var nodeRects = {}; // id -> {x,y,w,h} in canvas pixels
+
+  // ── SCREEN MANAGEMENT ──────────────────────────────────────────────────
+  function showScreen(id) {
+    ['screen-title','screen-brief','screen-game','screen-result'].forEach(function(s) {
+      document.getElementById(s).classList.toggle('hidden', s !== id);
+    });
+  }
+
+  function showTitle() { showScreen('screen-title'); }
+
+  // ── BRIEFING ───────────────────────────────────────────────────────────
+  function startBrief(idx) {
+    mission = JSON.parse(JSON.stringify(MISSIONS[idx]));
+    // restore function references
+    mission.successCondition = MISSIONS[idx].successCondition;
+
+    document.getElementById('brief-mission-tag').textContent = mission.tag;
+    document.getElementById('brief-title').textContent = mission.name;
+    document.getElementById('brief-objective-text').textContent = mission.objective;
+
+    var pp = document.getElementById('brief-params');
+    pp.innerHTML = mission.params.map(function(r) {
+      return '<div class="brief-row">' + r.k + '<span>' + r.v + '</span></div>';
+    }).join('');
+
+    var lp = document.getElementById('brief-limits');
+    lp.innerHTML = mission.limits.map(function(r) {
+      return '<div class="brief-row">' + r.k + '<span>' + r.v + '</span></div>';
+    }).join('');
+
+    document.getElementById('brief-start-btn').onclick = function() { startGame(); };
+    showScreen('screen-brief');
+  }
+
+  // ── GAME START ─────────────────────────────────────────────────────────
+  function startGame() {
+    // Deep clone mission nodes
+    mission = JSON.parse(JSON.stringify(MISSIONS[mission.id]));
+    mission.successCondition = MISSIONS[mission.id].successCondition;
+
+    state = {
+      elapsed:   0,
+      holdTime:  0,
+      score:     0,
+      selected:  null,
+      status:    'NOMINAL', // NOMINAL / CAUTION / ABORT
+      blownUp:   false,
+      anomalyQueue: mission.anomalies.slice().sort(function(a,b){return a.t-b.t;}),
+      firedAnomalies: [],
+      abortReason: '',
+      interventions: 0,
+      limitViolations: 0,
+      nodes: {},
+    };
+
+    // Index nodes by id
+    mission.nodes.forEach(function(n) {
+      state.nodes[n.id] = JSON.parse(JSON.stringify(n));
+    });
+
+    showScreen('screen-game');
+    document.getElementById('topbar-mission').textContent = mission.tag + ' // ' + mission.name;
+
+    canvas = document.getElementById('schematic-canvas');
+    ctx = canvas.getContext('2d');
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    document.addEventListener('keydown', onKey);
+
+    buildGaugeList();
+    buildCompList();
+    renderCompDetail();
+    addLog('Test sequence initiated. All systems nominal.', 'good');
+    addLog('Mission: ' + mission.name, '');
+    addLog('Duration: ' + mission.duration + ' seconds. Good luck.', '');
+
+    // Tick at 10Hz
+    if (tickInterval) clearInterval(tickInterval);
+    tickInterval = setInterval(tick, 100);
+    drawSchematic();
+  }
+
+  // ── RESIZE ─────────────────────────────────────────────────────────────
+  function resizeCanvas() {
+    var wrap = document.getElementById('schematic-wrap');
+    canvas.width  = wrap.clientWidth;
+    canvas.height = wrap.clientHeight;
+    drawSchematic();
+  }
+
+  // ── TICK (100ms) ───────────────────────────────────────────────────────
+  function tick() {
+    if (state.status === 'ABORT') return;
+    state.elapsed += 0.1;
+
+    // Fire anomalies
+    while (state.anomalyQueue.length && state.anomalyQueue[0].t <= state.elapsed) {
+      var a = state.anomalyQueue.shift();
+      fireAnomaly(a);
+    }
+
+    // Simulate physics
+    simulatePressures();
+
+    // Check limits
+    checkLimits();
+
+    // Check success
+    if (mission.successCondition(state)) {
+      completeTest(true);
+      return;
+    }
+
+    // Time limit
+    if (state.elapsed >= mission.duration) {
+      completeTest(state.holdTime >= (mission.id === 2 ? 120 : (mission.id === 1 ? 90 : 120)));
+      return;
+    }
+
+    // Score: +1 per second in spec, -5 per violation
+    if (state.status === 'NOMINAL') state.score += 1;
+
+    updateTopBar();
+    buildGaugeList();
+    buildCompList();
+    renderCompDetail();
+    drawSchematic();
+  }
+
+  // ── PHYSICS SIMULATION ─────────────────────────────────────────────────
+  function simulatePressures() {
+    var ns = state.nodes;
+    var m  = mission.id;
+
+    // Source tank pressure (slight decay if valves open)
+    var srcOpen = ns['IV1'] && ns['IV1'].state === 'open';
+    if (srcOpen && ns['TANK'].pressure > 100) {
+      ns['TANK'].pressure -= (m === 2 ? 1.5 : 0.8);
+    }
+
+    // --- Propagate pressure downstream ---
+    if (!srcOpen) {
+      // Upstream of IV1 = tank. Downstream = 0 unless already charged
+      setDownstreamZero(ns, ['REG1','SEN1','IV2','SEN2','PT-101','PT-201']);
+    } else {
+      // Pressure after IV1 = tank pressure (minus minor losses)
+      var p1 = Math.max(0, ns['TANK'].pressure - 5);
+
+      // Mission-specific routing
+      if (m === 0) {
+        // Through REG1 then IV2 then TANK2
+        var regOut = regulatorOutput(ns['REG1'], p1);
+        ns['REG1'].pressIn  = p1;
+        ns['REG1'].pressOut = regOut;
+        if (ns['SEN1']) ns['SEN1'].reading = regOut;
+        var p2 = ns['IV2'].state === 'open' ? regOut : 0;
+        if (ns['TANK2']) {
+          if (p2 > ns['TANK2'].pressure) ns['TANK2'].pressure += (p2 - ns['TANK2'].pressure) * 0.08;
+          else if (p2 < ns['TANK2'].pressure - 2) ns['TANK2'].pressure -= 1;
+        }
+        if (ns['SEN2']) ns['SEN2'].reading = ns['TANK2'] ? ns['TANK2'].pressure : 0;
+
+        // Hold time: TANK2 in 300-330
+        var t2p = ns['TANK2'] ? ns['TANK2'].pressure : 0;
+        if (t2p >= 300 && t2p <= 330 && ns['IV2'].state === 'open') {
+          state.holdTime += 0.1;
+        } else {
+          state.holdTime = Math.max(0, state.holdTime - 0.05);
+        }
+
+      } else if (m === 1) {
+        // Dual regulator path
+        var rA = regulatorOutput(ns['REG1'], p1);
+        var rB = regulatorOutput(ns['REG2'], p1);
+        ns['REG1'].pressIn = p1; ns['REG1'].pressOut = rA;
+        ns['REG2'].pressIn = p1; ns['REG2'].pressOut = rB;
+        // Check valves: pass if open
+        var pA = (ns['CV1'] && ns['CV1'].state === 'open') ? rA : 0;
+        var pB = (ns['CV2'] && ns['CV2'].state === 'open') ? rB : 0;
+        var manifold = Math.max(pA, pB);
+        if (ns['SEN1']) ns['SEN1'].reading = manifold;
+        var fuel = ns['IV2'] && ns['IV2'].state === 'open' ? manifold : 0;
+        if (ns['FUEL']) {
+          if (fuel > ns['FUEL'].pressure) ns['FUEL'].pressure += (fuel - ns['FUEL'].pressure) * 0.06;
+          else if (fuel < ns['FUEL'].pressure - 2) ns['FUEL'].pressure -= 0.8;
+        }
+        // Thermal effect on regulator
+        if (ns['HTR']) {
+          if (ns['HTR'].active) ns['HTR'].temp = Math.min(35, ns['HTR'].temp + 0.15);
+          else ns['HTR'].temp = Math.max(5, ns['HTR'].temp - 0.05);
+          var tempDelta = ns['HTR'].temp - 25; // deviation from nominal
+          ns['REG1'].drift = (ns['REG1'].drift || 0) + tempDelta * 0.001;
+          ns['REG2'].drift = (ns['REG2'].drift || 0) + tempDelta * 0.001;
+        }
+        // Hold time: manifold 200-220
+        if (manifold >= 200 && manifold <= 220) state.holdTime += 0.1;
+        else state.holdTime = Math.max(0, state.holdTime - 0.05);
+
+      } else if (m === 2) {
+        // Wildcard: REG1 -> split IV2/IV3 -> sensors -> REG2 -> TANK2
+        var r1out = regulatorOutput(ns['REG1'], p1);
+        ns['REG1'].pressIn = p1; ns['REG1'].pressOut = r1out;
+        var pA2 = (ns['IV2'] && ns['IV2'].state === 'open') ? r1out : 0;
+        var pB2 = (ns['IV3'] && ns['IV3'].state === 'open') ? r1out : 0;
+        if (ns['SEN1']) ns['SEN1'].reading = pA2;
+        if (ns['SEN2']) ns['SEN2'].reading = pB2;
+        var midP = Math.max(pA2, pB2);
+        var r2out = regulatorOutput(ns['REG2'], midP);
+        ns['REG2'].pressIn = midP; ns['REG2'].pressOut = r2out;
+        if (ns['TANK2']) {
+          if (r2out > ns['TANK2'].pressure) ns['TANK2'].pressure += (r2out - ns['TANK2'].pressure) * 0.1;
+          else if (r2out < ns['TANK2'].pressure - 2) ns['TANK2'].pressure -= 1.5;
+          // Vent valve
+          if (ns['IV4'] && ns['IV4'].state === 'open') ns['TANK2'].pressure = Math.max(0, ns['TANK2'].pressure - 8);
+        }
+        state.holdTime += 0.1; // Just survive
+      }
+    }
+
+    // Relief valve logic: if upstream pressure exceeds lift, dump
+    mission.nodes.forEach(function(nd) {
+      if (nd.type === 'relief') {
+        var rNode = ns[nd.id];
+        // Find upstream pressure (rough: use REG1 or TANK output)
+        var upP = ns['TANK'] ? ns['TANK'].pressure : 0;
+        if (ns['REG1']) upP = Math.max(upP, ns['REG1'].pressOut || 0);
+        if (upP >= rNode.liftP) {
+          addLog('⚠ RELIEF VALVE ' + rNode.label + ' LIFTING — P=' + upP.toFixed(0) + ' psi', 'crit');
+          // Reduce pressure
+          if (ns['TANK']) ns['TANK'].pressure = Math.max(0, ns['TANK'].pressure - 40);
+          rNode._lifting = true;
+        } else {
+          rNode._lifting = false;
+        }
+      }
+    });
+
+    // Burst disc: if downstream over burstP, game over
+    mission.nodes.forEach(function(nd) {
+      if (nd.type === 'burstdisc') {
+        var bdNode = ns[nd.id];
+        var downP = ns['TANK2'] ? ns['TANK2'].pressure : (ns['FUEL'] ? ns['FUEL'].pressure : 0);
+        if (downP >= bdNode.burstP) {
+          state.blownUp = true;
+          abortTest('CATASTROPHIC: Burst disc activated at ' + downP.toFixed(0) + ' psi. Test article loss.');
+        }
+      }
+    });
+  }
+
+  function regulatorOutput(reg, pIn) {
+    if (!reg || pIn <= 0) return 0;
+    var sp = (reg.setpoint || 200) + (reg.drift || 0);
+    // Regulator maintains setpoint if pIn > setpoint, else passes pIn
+    var out = Math.min(pIn, sp);
+    // Add slight noise
+    out += (Math.random() - 0.5) * 1.2;
+    return Math.max(0, out);
+  }
+
+  function setDownstreamZero(ns, ids) {
+    ids.forEach(function(id) {
+      if (ns[id]) {
+        if (ns[id].reading !== undefined) ns[id].reading = Math.max(0, (ns[id].reading || 0) - 5);
+        if (ns[id].pressOut !== undefined) ns[id].pressOut = Math.max(0, (ns[id].pressOut || 0) - 5);
+        if (ns[id].pressure !== undefined && ns[id].isTarget) ns[id].pressure = Math.max(0, ns[id].pressure - 2);
+      }
+    });
+  }
+
+  // ── ANOMALY ENGINE ─────────────────────────────────────────────────────
+  function fireAnomaly(a) {
+    var node = state.nodes[a.id];
+    if (!node) return;
+
+    flashScreen();
+    addLog('⚠ ANOMALY: ' + a.msg, 'crit');
+
+    if (a.type === 'drift' && node.drift !== undefined) {
+      node.drift += a.val;
+    } else if (a.type === 'leak') {
+      // Increase apparent pressure drop
+      node._leaking = a.val;
+      addLog('  → Leak rate: ' + a.val.toFixed(3) + ' sccs', 'warn');
+    } else if (a.type === 'spike') {
+      if (state.nodes['TANK']) state.nodes['TANK'].pressure += a.val;
+      addLog('  → Source now: ' + (state.nodes['TANK'].pressure).toFixed(0) + ' psi', 'warn');
+    } else if (a.type === 'thermal') {
+      if (state.nodes['HTR']) state.nodes['HTR'].temp += a.val;
+    } else if (a.type === 'stuck') {
+      node._stuck = true;
+      addLog('  → Component not responding to commands', 'crit');
+    }
+    state.anomalyQueue = state.anomalyQueue.filter(function(x) { return x !== a; });
+  }
+
+  function flashScreen() {
+    var el = document.getElementById('anomaly-flash');
+    el.classList.add('show');
+    setTimeout(function() { el.classList.remove('show'); }, 220);
+  }
+
+  // ── LIMIT CHECKS ───────────────────────────────────────────────────────
+  function checkLimits() {
+    var ns = state.nodes;
+    var prevStatus = state.status;
+    state.status = 'NOMINAL';
+
+    // Mission-specific limit checks
+    if (mission.id === 0) {
+      var t2 = ns['TANK2'] ? ns['TANK2'].pressure : 0;
+      if (t2 > 330 || t2 < 250 && ns['IV2'] && ns['IV2'].state === 'open' && state.elapsed > 20) {
+        state.status = 'CAUTION';
+        if (t2 > 350) { abortTest('Outlet pressure exceeded 350 psi hard limit. P=' + t2.toFixed(0)); return; }
+      }
+      var src = ns['TANK'] ? ns['TANK'].pressure : 0;
+      if (src > 3200) { abortTest('Source pressure exceeded 3200 psi hard limit.'); return; }
+    }
+
+    if (mission.id === 1) {
+      var man = ns['SEN1'] ? ns['SEN1'].reading : 0;
+      if (man > 220) state.status = 'CAUTION';
+      if (man > 250) { abortTest('Manifold pressure exceeded 250 psi hard limit. P=' + man.toFixed(0)); return; }
+      if (man < 180 && state.elapsed > 30) state.status = 'CAUTION';
+      var dR = ns['REG1'] && ns['REG2'] ? Math.abs((ns['REG1'].pressOut||0) - (ns['REG2'].pressOut||0)) : 0;
+      if (dR > 8) { state.status = 'CAUTION'; addLog('REG delta = ' + dR.toFixed(1) + ' psi — exceeds spec', 'warn'); }
+      if (ns['HTR'] && (ns['HTR'].temp < 5 || ns['HTR'].temp > 45)) {
+        state.status = 'CAUTION';
+        if (ns['HTR'].temp < 0 || ns['HTR'].temp > 55) { abortTest('Thermal limit exceeded: ' + ns['HTR'].temp.toFixed(1) + '°C'); return; }
+      }
+    }
+
+    if (mission.id === 2) {
+      var s1 = ns['SEN1'] ? ns['SEN1'].reading : 0;
+      var s2 = ns['SEN2'] ? ns['SEN2'].reading : 0;
+      var art = ns['TANK2'] ? ns['TANK2'].pressure : 0;
+      if (s1 > 450 || s2 > 450 || art > 450) state.status = 'CAUTION';
+      if (s1 > 500) { abortTest('PT-A overpressure: ' + s1.toFixed(0) + ' psi — test article unsafe.'); return; }
+      if (s2 > 500) { abortTest('PT-B overpressure: ' + s2.toFixed(0) + ' psi — test article unsafe.'); return; }
+      if (art > 500) { abortTest('Article pressure exceeded 500 psi hard limit.'); return; }
+    }
+
+    if (state.status !== prevStatus) {
+      if (state.status === 'CAUTION') addLog('STATUS: CAUTION — parameter out of nominal range', 'warn');
+      if (state.status === 'NOMINAL' && prevStatus === 'CAUTION') addLog('STATUS: NOMINAL — parameters restored', 'good');
+    }
+  }
+
+  // ── CONTROLS ───────────────────────────────────────────────────────────
+  function onKey(e) {
+    if (state.status === 'ABORT') return;
+    var key = e.key;
+
+    // Number keys 1-9: select component
+    if (/^[1-9]$/.test(key)) {
+      var found = null;
+      mission.nodes.forEach(function(n) {
+        if (n.key === key) found = n.id;
+      });
+      if (found) selectNode(found);
+      return;
+    }
+
+    if (!state.selected) return;
+    var node = state.nodes[state.selected];
+    if (!node) return;
+
+    if (key === ' ') {
+      e.preventDefault();
+      if (node.type === 'valve') toggleValve(state.selected);
+      else if (node.type === 'heater') {
+        node.active = !node.active;
+        addLog(node.label + ' heater ' + (node.active ? 'ON' : 'OFF'), node.active ? 'good' : 'warn');
+        state.interventions++;
+      }
+    }
+
+    if (key === 'ArrowUp' || key === 'ArrowDown') {
+      e.preventDefault();
+      if (node.type === 'regulator') {
+        var delta = e.shiftKey ? 5 : 0.5;
+        if (key === 'ArrowDown') delta = -delta;
+        node.setpoint = Math.max(0, Math.min(5000, (node.setpoint || 0) + delta));
+        addLog(node.label + ' setpoint → ' + node.setpoint.toFixed(1) + ' psi', '');
+        state.interventions++;
+      }
+    }
+
+    if (key === 'r' || key === 'R') {
+      if (node.type === 'regulator') {
+        var orig = mission.nodes.find(function(n){return n.id===state.selected;});
+        if (orig) { node.setpoint = orig.setpoint; node.drift = 0; addLog(node.label + ' reset to nominal setpoint', 'good'); state.interventions++; }
+      }
+    }
+
+    if (key === 'Escape') { abortTest('Manual abort by operator.'); }
+  }
+
+  function toggleValve(id) {
+    var node = state.nodes[id];
+    if (!node || node.type !== 'valve') return;
+    if (node._stuck) { addLog(node.label + ' — STUCK. Not responding.', 'crit'); return; }
+    if (node.isCheck) { addLog(node.label + ' — Check valve: auto-operated only.', 'warn'); return; }
+    node.state = node.state === 'open' ? 'closed' : 'open';
+    addLog(node.label + ' → ' + node.state.toUpperCase(), node.state === 'open' ? 'good' : 'warn');
+    state.interventions++;
+  }
+
+  function selectNode(id) {
+    state.selected = id;
+    renderCompDetail();
+    buildCompList();
+    drawSchematic();
+  }
+
+  // ── ABORT / COMPLETE ───────────────────────────────────────────────────
+  function abortTest(reason) {
+    if (state.status === 'ABORT') return;
+    state.status = 'ABORT';
+    state.abortReason = reason;
+    clearInterval(tickInterval);
+    addLog('⚠ TEST ABORT: ' + reason, 'crit');
+    setTimeout(function() { showResult(false); }, 1200);
+  }
+
+  function completeTest(success) {
+    if (state.status === 'ABORT') return;
+    state.status = 'ABORT'; // prevent double-fire
+    clearInterval(tickInterval);
+    if (success) {
+      var bonus = Math.max(0, (mission.duration - state.elapsed) * 2);
+      var intBonus = Math.max(0, 200 - state.interventions * 5);
+      state.score += Math.round(bonus + intBonus);
+      addLog('TEST COMPLETE — All objectives met.', 'good');
+    } else {
+      addLog('TEST FAILED — Time expired without meeting success criteria.', 'crit');
+    }
+    setTimeout(function() { showResult(success); }, 800);
+  }
+
+  // ── RESULT SCREEN ──────────────────────────────────────────────────────
+  function showResult(success) {
+    document.getElementById('result-outcome').textContent = success ? 'TEST COMPLETE' : 'TEST ABORT';
+    document.getElementById('result-outcome').className = 'result-outcome ' + (success ? 'success' : 'failure');
+    document.getElementById('result-sub').textContent = success
+      ? mission.tag + ' — ACCEPTANCE TEST PASSED'
+      : mission.tag + ' — TEST SCRUBBED';
+
+    var elapsed = state.elapsed;
+    var mm = String(Math.floor(elapsed/60)).padStart(2,'0');
+    var ss = String(Math.floor(elapsed%60)).padStart(2,'0');
+
+    document.getElementById('result-stats').innerHTML = [
+      {n: state.score,              l:'Final Score'},
+      {n: mm+':'+ss,                l:'Test Duration'},
+      {n: Math.round(state.holdTime)+'s', l:'Time In Spec'},
+      {n: state.interventions,      l:'Interventions'},
+    ].map(function(s) {
+      return '<div class="rstat"><div class="rstat-num">' + s.n + '</div><div class="rstat-lbl">' + s.l + '</div></div>';
+    }).join('');
+
+    var report = success
+      ? 'Test conducted per procedure. All specified limits maintained through acceptance hold period. Component is eligible for flight certification review. No anomalies requiring disposition at this time.'
+      : 'Test scrubbed. Cause: ' + (state.abortReason || 'Parameter limit exceeded.') + ' All data retained for anomaly review. Recommend root cause investigation prior to re-test.';
+
+    document.getElementById('result-report-body').textContent = report;
+    document.getElementById('result-retry').onclick = function() { startBrief(mission.id); };
+
+    window.removeEventListener('resize', resizeCanvas);
+    document.removeEventListener('keydown', onKey);
+    showScreen('screen-result');
+  }
+
+  // ── UI BUILDERS ────────────────────────────────────────────────────────
+  function buildGaugeList() {
+    var ns = state.nodes;
+    var gauges = [];
+    mission.nodes.forEach(function(nd) {
+      var n = ns[nd.id];
+      if (!n) return;
+      var val = null, max = null, label = nd.label;
+      if (n.type === 'tank')       { val = n.pressure; max = mission.id===2 ? 3000 : 5000; }
+      if (n.type === 'sensor')     { val = n.reading;  max = mission.id===2 ? 600 : 500; }
+      if (n.type === 'regulator')  { val = n.pressOut; max = n.setpoint * 1.5; }
+      if (n.type === 'heater')     { val = n.temp; max = 60; label += ' °C'; }
+      if (val === null) return;
+      gauges.push({label:label, val:val, max:max});
+    });
+
+    var html = gauges.map(function(g) {
+      var pct = Math.min(100, Math.max(0, (g.val / g.max) * 100));
+      var cls = pct < 70 ? 'ok' : pct < 88 ? 'warn' : 'crit';
+      return '<div class="gauge-row">' +
+        '<div class="gauge-label">' + g.label + '</div>' +
+        '<div class="gauge-bar-wrap"><div class="gauge-bar ' + cls + '" style="width:' + pct.toFixed(1) + '%"></div></div>' +
+        '<div class="gauge-val">' + g.val.toFixed(0) + '</div>' +
+        '</div>';
+    }).join('');
+    document.getElementById('gauge-list').innerHTML = html;
+  }
+
+  function buildCompList() {
+    var ns = state.nodes;
+    var html = '';
+    mission.nodes.forEach(function(nd) {
+      var n = ns[nd.id];
+      if (!n || !nd.key) return;
+      var stateStr = '';
+      var stateCls = '';
+      if (n.type === 'valve')      { stateStr = n._stuck ? 'STUCK' : n.state.toUpperCase(); stateCls = n._stuck ? 'fault' : (n.state==='open'?'open':'closed'); }
+      if (n.type === 'regulator')  { stateStr = (n.pressOut||0).toFixed(0)+' psi'; stateCls = 'auto'; }
+      if (n.type === 'sensor')     { stateStr = (n.reading||0).toFixed(0)+' psi'; stateCls = 'nominal'; }
+      if (n.type === 'heater')     { stateStr = n.active?'ON':'OFF'; stateCls = n.active?'open':'closed'; }
+      if (n.type === 'relief')     { stateStr = n._lifting?'LIFTING':'CLOSED'; stateCls = n._lifting?'fault':'closed'; }
+      if (n.type === 'burstdisc')  { stateStr = 'INTACT'; stateCls = 'nominal'; }
+
+      var sel = state.selected === nd.id ? ' selected' : '';
+      html += '<div class="comp-row' + sel + '" onclick="G.selectNode(\'' + nd.id + '\')">' +
+              '<span class="comp-key">' + nd.key + '</span>' +
+              '<span class="comp-name">' + nd.label + '</span>' +
+              (stateStr ? '<span class="comp-state ' + stateCls + '">' + stateStr + '</span>' : '') +
+              '</div>';
+    });
+    document.getElementById('comp-list').innerHTML = html;
+  }
+
+  function renderCompDetail() {
+    if (!state.selected) return;
+    var nd = mission.nodes.find(function(n){return n.id===state.selected;});
+    var n  = state.nodes[state.selected];
+    if (!nd || !n) return;
+
+    document.getElementById('comp-detail-title').textContent = nd.label + ' (' + nd.type.toUpperCase() + ')';
+
+    var rows = [];
+    var actions = [];
+
+    if (n.type === 'valve') {
+      rows.push({k:'State',    v: n._stuck ? 'STUCK — not responding' : n.state.toUpperCase()});
+      rows.push({k:'Key',      v: nd.key + ' / Click'});
+      if (!n.isCheck) actions.push({label:'Toggle (Space)', fn:'G.toggleValve("'+nd.id+'")', cls:''});
+      if (n._stuck) rows.push({k:'Status', v:'ANOMALY DETECTED'});
+    }
+    if (n.type === 'regulator') {
+      rows.push({k:'Setpoint', v: (n.setpoint||0).toFixed(1) + ' psi'});
+      rows.push({k:'Inlet',    v: (n.pressIn||0).toFixed(1)  + ' psi'});
+      rows.push({k:'Outlet',   v: (n.pressOut||0).toFixed(1) + ' psi'});
+      rows.push({k:'Drift',    v: (n.drift||0).toFixed(2)    + ' psi'});
+      actions.push({label:'↑ SP +0.5', fn:'document.dispatchEvent(new KeyboardEvent("keydown",{key:"ArrowUp"}))', cls:''});
+      actions.push({label:'↓ SP -0.5', fn:'document.dispatchEvent(new KeyboardEvent("keydown",{key:"ArrowDown"}))', cls:''});
+      actions.push({label:'Reset (R)', fn:'document.dispatchEvent(new KeyboardEvent("keydown",{key:"r"}))', cls:''});
+    }
+    if (n.type === 'sensor') {
+      rows.push({k:'Reading', v:(n.reading||0).toFixed(2)+' psi'});
+      rows.push({k:'Status',  v:'AUTO'});
+    }
+    if (n.type === 'tank') {
+      rows.push({k:'Pressure', v:(n.pressure||0).toFixed(0)+' psi'});
+      rows.push({k:'Type',     v:n.isTarget?'Target vessel':'Supply source'});
+    }
+    if (n.type === 'heater') {
+      rows.push({k:'Temp',   v:(n.temp||0).toFixed(1)+'°C'});
+      rows.push({k:'State',  v:n.active?'ACTIVE':'STANDBY'});
+      actions.push({label:'Toggle (Space)', fn:'G.toggleHeater("'+nd.id+'")', cls:''});
+    }
+    if (n.type === 'relief') {
+      rows.push({k:'Lift pressure', v:n.liftP+' psi'});
+      rows.push({k:'Status', v:n._lifting?'LIFTING':'CLOSED'});
+    }
+    if (n.type === 'burstdisc') {
+      rows.push({k:'Burst pressure', v:n.burstP+' psi'});
+      rows.push({k:'Condition',      v:'INTACT'});
+    }
+
+    var html = rows.map(function(r) {
+      return '<div class="detail-row">' + r.k + '<span>' + r.v + '</span></div>';
+    }).join('');
+    if (actions.length) {
+      html += '<div class="detail-action">' + actions.map(function(a){
+        return '<button class="action-btn '+a.cls+'" onclick="'+a.fn+'">'+a.label+'</button>';
+      }).join('') + '</div>';
+    }
+    document.getElementById('comp-detail-body').innerHTML = html;
+  }
+
+  function addLog(msg, cls) {
+    var log = document.getElementById('event-log');
+    var el = document.createElement('div');
+    el.className = 'log-entry' + (cls ? ' ' + cls : '');
+    var t = state.elapsed || 0;
+    var ts = 'T+' + String(Math.floor(t/60)).padStart(2,'0') + ':' + String(Math.floor(t%60)).padStart(2,'0');
+    el.innerHTML = '<span class="log-time">' + ts + '</span>' + msg;
+    log.appendChild(el);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function updateTopBar() {
+    var t = state.elapsed;
+    var mm = String(Math.floor(t/60)).padStart(2,'0');
+    var ss = String(Math.floor(t%60)).padStart(2,'0');
+    document.getElementById('topbar-time').textContent = 'T+' + mm + ':' + ss;
+    document.getElementById('topbar-score').textContent = 'SCORE: ' + state.score;
+    var statusEl = document.getElementById('topbar-status');
+    statusEl.textContent = '● ' + state.status;
+    statusEl.className = state.status.toLowerCase();
+    if (state.status === 'NOMINAL' && state.holdTime > 0) {
+      statusEl.textContent += ' — HOLD ' + Math.floor(state.holdTime) + 's';
+    }
+  }
+
+  // ── P&ID SCHEMATIC RENDERER ────────────────────────────────────────────
+  function drawSchematic() {
+    if (!canvas || !ctx) return;
+    var W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    // Background grid
+    drawGrid(W, H);
+
+    var ns = state.nodes;
+    nodeRects = {};
+
+    // Compute pixel positions
+    var positions = {};
+    mission.nodes.forEach(function(nd) {
+      positions[nd.id] = {
+        x: nd.x * W,
+        y: nd.y * (H - 70) + 35
+      };
+    });
+
+    // Draw pipes first
+    ctx.lineWidth = 2.5;
+    mission.pipes.forEach(function(pipe) {
+      var a = positions[pipe.from];
+      var b = positions[pipe.to];
+      if (!a || !b) return;
+      var n = ns[pipe.from];
+      var pressured = isPressured(pipe.from, ns);
+      ctx.beginPath();
+      ctx.strokeStyle = pressured ? 'rgba(232,146,10,0.7)' : 'rgba(240,221,184,0.15)';
+      ctx.lineWidth = pressured ? 3 : 2;
+      if (pipe.branch) {
+        ctx.setLineDash([5, 4]);
+      } else {
+        ctx.setLineDash([]);
+      }
+      // Route with right angles
+      var mx = (a.x + b.x) / 2;
+      ctx.moveTo(a.x, a.y);
+      if (Math.abs(a.y - b.y) > 10) {
+        ctx.lineTo(mx, a.y);
+        ctx.lineTo(mx, b.y);
+        ctx.lineTo(b.x, b.y);
+      } else {
+        ctx.lineTo(b.x, b.y);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+    });
+
+    // Draw flow arrows on pressured pipes
+    mission.pipes.forEach(function(pipe) {
+      if (isPressured(pipe.from, ns)) {
+        var a = positions[pipe.from];
+        var b = positions[pipe.to];
+        if (!a || !b) return;
+        drawArrow(ctx, a, b);
+      }
+    });
+
+    // Draw nodes
+    mission.nodes.forEach(function(nd) {
+      var p = positions[nd.id];
+      var n = ns[nd.id];
+      if (!p || !n) return;
+      var sel = state.selected === nd.id;
+      drawNode(nd, n, p.x, p.y, sel, W, H);
+    });
+  }
+
+  function isPressured(id, ns) {
+    var n = ns[id];
+    if (!n) return false;
+    if (n.type === 'tank' && (n.pressure || 0) > 10) return true;
+    if (n.type === 'valve' && n.state === 'open') {
+      // Check if tank upstream has pressure
+      if (ns['TANK'] && ns['TANK'].pressure > 50 && ns['IV1'] && ns['IV1'].state === 'open') return true;
+    }
+    if (n.type === 'regulator' && (n.pressOut || 0) > 10) return true;
+    if (n.type === 'sensor' && (n.reading || 0) > 10) return true;
+    return false;
+  }
+
+  function drawArrow(ctx, a, b) {
+    var mx = (a.x + b.x) / 2;
+    var my = Math.abs(a.y - b.y) > 10 ? a.y : (a.y + b.y) / 2;
+    var dx = b.x - mx, dy = b.y - my;
+    var len = Math.sqrt(dx*dx+dy*dy);
+    if (len < 1) return;
+    var ux = dx/len, uy = dy/len;
+    var ax = mx + ux*12, ay = my + uy*12;
+    ctx.save();
+    ctx.fillStyle = 'rgba(232,146,10,0.5)';
+    ctx.beginPath();
+    ctx.moveTo(ax, ay);
+    ctx.lineTo(ax - ux*8 - uy*4, ay - uy*8 + ux*4);
+    ctx.lineTo(ax - ux*8 + uy*4, ay - uy*8 - ux*4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawGrid(W, H) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(232,146,10,0.04)';
+    ctx.lineWidth = 1;
+    var step = 40;
+    for (var x = 0; x < W; x += step) {
+      ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke();
+    }
+    for (var y = 0; y < H; y += step) {
+      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawNode(nd, n, x, y, sel, W, H) {
+    ctx.save();
+    var type = n.type;
+    var amber = '#e8920a';
+    var red = '#c43b1a';
+    var green = '#4db87a';
+    var dim = 'rgba(240,221,184,0.4)';
+
+    // Selection ring
+    if (sel) {
+      ctx.strokeStyle = 'rgba(232,146,10,0.6)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3,3]);
+      ctx.beginPath();
+      ctx.arc(x, y, 26, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    var fault = n._stuck || n._lifting;
+
+    if (type === 'tank') {
+      var filled = Math.min(1, (n.pressure||0) / 5000);
+      ctx.fillStyle = 'rgba(6,5,3,0.9)';
+      ctx.strokeStyle = n.isTarget ? 'rgba(232,146,10,0.5)' : 'rgba(240,221,184,0.25)';
+      ctx.lineWidth = sel ? 2 : 1.5;
+      roundRect(ctx, x-22, y-16, 44, 32, 3);
+      // Fill level
+      ctx.fillStyle = n.isTarget ? 'rgba(232,146,10,0.18)' : 'rgba(240,221,184,0.08)';
+      ctx.fillRect(x-21, y-15+32*(1-filled), 42, 30*filled);
+      ctx.strokeStyle = n.isTarget ? 'rgba(232,146,10,0.5)' : 'rgba(240,221,184,0.25)';
+      roundRect(ctx, x-22, y-16, 44, 32, 3);
+      drawLabel(ctx, nd.label, x, y+26, amber);
+      drawSubLabel(ctx, (n.pressure||0).toFixed(0)+' psi', x, y+36);
+    }
+
+    else if (type === 'valve') {
+      var col = fault ? red : (n.state==='open' ? green : 'rgba(240,221,184,0.3)');
+      ctx.fillStyle = 'rgba(6,5,3,0.9)';
+      ctx.strokeStyle = col;
+      ctx.lineWidth = sel ? 2.5 : 1.8;
+      // Standard P&ID gate valve symbol: two triangles
+      ctx.beginPath();
+      ctx.moveTo(x-14, y-12);
+      ctx.lineTo(x+14, y+12);
+      ctx.lineTo(x+14, y-12);
+      ctx.lineTo(x-14, y+12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      // Center dot
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, Math.PI*2);
+      ctx.fill();
+      // Key label
+      if (nd.key) {
+        ctx.fillStyle = amber;
+        ctx.font = '9px Share Tech Mono';
+        ctx.textAlign = 'center';
+        ctx.fillText('['+nd.key+']', x, y-18);
+      }
+      drawLabel(ctx, nd.label, x, y+22, col);
+      drawSubLabel(ctx, fault ? 'STUCK' : n.state.toUpperCase(), x, y+32);
+    }
+
+    else if (type === 'regulator') {
+      ctx.fillStyle = 'rgba(6,5,3,0.9)';
+      ctx.strokeStyle = fault ? red : amber;
+      ctx.lineWidth = sel ? 2.5 : 1.8;
+      // Circle with spring symbol inside
+      ctx.beginPath(); ctx.arc(x, y, 16, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+      // Spring zigzag
+      ctx.strokeStyle = fault ? red : 'rgba(232,146,10,0.6)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      var pts = [-8,-4,  -4,4,  0,-4,  4,4,  8,-4];
+      ctx.moveTo(x-8, y);
+      for (var i=0;i<pts.length;i+=2) ctx.lineTo(x+pts[i], y+pts[i+1]/2);
+      ctx.stroke();
+      if (nd.key) {
+        ctx.fillStyle = amber;
+        ctx.font = '9px Share Tech Mono';
+        ctx.textAlign = 'center';
+        ctx.fillText('['+nd.key+']', x, y-24);
+      }
+      drawLabel(ctx, nd.label, x, y+24, amber);
+      drawSubLabel(ctx, 'SP:'+(n.setpoint||0).toFixed(0)+' OUT:'+(n.pressOut||0).toFixed(0), x, y+34);
+    }
+
+    else if (type === 'sensor') {
+      var sVal = n.reading || 0;
+      var sCol = sVal > (mission.id===2?450:320) ? red : (sVal > (mission.id===2?380:315) ? amber : green);
+      ctx.fillStyle = 'rgba(6,5,3,0.9)';
+      ctx.strokeStyle = sCol;
+      ctx.lineWidth = sel ? 2 : 1.5;
+      ctx.beginPath(); ctx.arc(x, y, 12, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+      // Pressure dial pointer
+      ctx.save();
+      ctx.translate(x, y);
+      var angle = ((sVal / 500) * 0.8 - 0.4) * Math.PI;
+      ctx.rotate(angle);
+      ctx.strokeStyle = sCol;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-8); ctx.stroke();
+      ctx.restore();
+      if (nd.key) {
+        ctx.fillStyle = 'rgba(232,146,10,0.6)';
+        ctx.font = '9px Share Tech Mono';
+        ctx.textAlign = 'center';
+        ctx.fillText('['+nd.key+']', x, y-20);
+      }
+      drawLabel(ctx, nd.label, x, y+20, sCol);
+      drawSubLabel(ctx, sVal.toFixed(1)+' psi', x, y+30);
+    }
+
+    else if (type === 'junction') {
+      ctx.fillStyle = amber;
+      ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI*2); ctx.fill();
+      drawLabel(ctx, nd.label, x, y+18, dim);
+    }
+
+    else if (type === 'relief') {
+      var rCol = n._lifting ? red : dim;
+      ctx.fillStyle = 'rgba(6,5,3,0.9)';
+      ctx.strokeStyle = rCol;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(x, y-14); ctx.lineTo(x+12, y+10); ctx.lineTo(x-12, y+10); ctx.closePath();
+      ctx.fill(); ctx.stroke();
+      if (nd.key) {
+        ctx.fillStyle = 'rgba(232,146,10,0.5)';
+        ctx.font = '9px Share Tech Mono';
+        ctx.textAlign = 'center';
+        ctx.fillText('['+nd.key+']', x, y-20);
+      }
+      drawLabel(ctx, nd.label, x, y+20, rCol);
+      drawSubLabel(ctx, 'LIFT@'+n.liftP+'psi', x, y+30);
+    }
+
+    else if (type === 'burstdisc') {
+      ctx.strokeStyle = red;
+      ctx.lineWidth = 1.5;
+      ctx.fillStyle = 'rgba(6,5,3,0.9)';
+      ctx.beginPath(); ctx.arc(x, y, 10, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = 'rgba(196,59,26,0.5)';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(x-6,y-6); ctx.lineTo(x+6,y+6); ctx.moveTo(x+6,y-6); ctx.lineTo(x-6,y+6); ctx.stroke();
+      if (nd.key) {
+        ctx.fillStyle = 'rgba(196,59,26,0.7)';
+        ctx.font = '9px Share Tech Mono';
+        ctx.textAlign = 'center';
+        ctx.fillText('['+nd.key+']', x, y-18);
+      }
+      drawLabel(ctx, nd.label, x, y+18, 'rgba(196,59,26,0.7)');
+      drawSubLabel(ctx, 'BURST@'+n.burstP+'psi', x, y+28);
+    }
+
+    else if (type === 'heater') {
+      var hCol = n.active ? '#e87030' : dim;
+      ctx.fillStyle = 'rgba(6,5,3,0.9)';
+      ctx.strokeStyle = hCol;
+      ctx.lineWidth = 1.5;
+      roundRect(ctx, x-14, y-10, 28, 20, 3);
+      if (n.active) {
+        ctx.strokeStyle = 'rgba(232,140,48,0.5)';
+        ctx.lineWidth = 1;
+        for (var hi=0;hi<3;hi++) {
+          ctx.beginPath(); ctx.moveTo(x-8+hi*8, y+10); ctx.lineTo(x-8+hi*8, y+16); ctx.stroke();
+        }
+      }
+      if (nd.key) {
+        ctx.fillStyle = hCol;
+        ctx.font = '9px Share Tech Mono';
+        ctx.textAlign = 'center';
+        ctx.fillText('['+nd.key+']', x, y-18);
+      }
+      drawLabel(ctx, nd.label, x, y+22, hCol);
+      drawSubLabel(ctx, (n.temp||0).toFixed(1)+'°C', x, y+32);
+    }
+
+    // Store rect for click detection
+    nodeRects[nd.id] = {x:x-24, y:y-20, w:48, h:40};
+
+    ctx.restore();
+  }
+
+  function drawLabel(ctx, text, x, y, col) {
+    ctx.font = '9px Share Tech Mono';
+    ctx.fillStyle = col;
+    ctx.textAlign = 'center';
+    ctx.fillText(text, x, y);
+  }
+
+  function drawSubLabel(ctx, text, x, y) {
+    ctx.font = '8px Share Tech Mono';
+    ctx.fillStyle = 'rgba(240,221,184,0.35)';
+    ctx.textAlign = 'center';
+    ctx.fillText(text, x, y);
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x+r, y);
+    ctx.lineTo(x+w-r, y); ctx.arcTo(x+w, y, x+w, y+r, r);
+    ctx.lineTo(x+w, y+h-r); ctx.arcTo(x+w, y+h, x+w-r, y+h, r);
+    ctx.lineTo(x+r, y+h); ctx.arcTo(x, y+h, x, y+h-r, r);
+    ctx.lineTo(x, y+r); ctx.arcTo(x, y, x+r, y, r);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
+
+  // Canvas click
+  document.getElementById('schematic-canvas').addEventListener('click', function(e) {
+    var rect = canvas.getBoundingClientRect();
+    var mx = e.clientX - rect.left;
+    var my = e.clientY - rect.top;
+    var found = null;
+    Object.keys(nodeRects).forEach(function(id) {
+      var r = nodeRects[id];
+      if (mx >= r.x && mx <= r.x+r.w && my >= r.y && my <= r.y+r.h) found = id;
+    });
+    if (found) selectNode(found);
+  });
+
+  // Expose toggleHeater
+  function toggleHeater(id) {
+    var node = state.nodes[id];
+    if (!node) return;
+    node.active = !node.active;
+    addLog(node.label + ' heater ' + (node.active ? 'ON' : 'OFF'), node.active ? 'good' : 'warn');
+    state.interventions++;
+  }
+
+  return {
+    showTitle:    showTitle,
+    startBrief:   startBrief,
+    selectNode:   selectNode,
+    toggleValve:  toggleValve,
+    toggleHeater: toggleHeater,
+    abortTest:    abortTest,
+  };
+})();
+</script>
+</body>
+</html>

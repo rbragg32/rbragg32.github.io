@@ -3,600 +3,1598 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Your Name — Aerospace Portfolio</title>
+<title>BRAGG // RYAN — Aerospace Test Engineer</title>
+<meta name="description" content="Ryan Bragg — Test Engineer, Space Operations, Valcor Engineering. Pressure regulators for Vulcan Centaur and ESA ExoMars."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Cinzel:wght@400;600;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{overflow:hidden;background:#000;font-family:'Courier New',monospace;color:#fff}
-#c{display:block;width:100vw;height:100vh;cursor:pointer}
-#c.orbit{cursor:default}
-
-/* ── LOADING SCREEN ── */
-#loader{
-  position:fixed;inset:0;z-index:200;
-  background:#020810;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.4rem;
-  transition:opacity .8s ease;
+/* ── TOKENS ─────────────────────────────────────────────────────────────── */
+:root {
+  --bg:        #080604;
+  --bg2:       #0e0b07;
+  --amber:     #e8920a;
+  --amber-dim: #a85f05;
+  --amber-lo:  rgba(232,146,10,0.12);
+  --amber-md:  rgba(232,146,10,0.22);
+  --amber-hi:  rgba(232,146,10,0.55);
+  --red:       #c43b1a;
+  --text:      #f0ddb8;
+  --text-dim:  rgba(240,221,184,0.55);
+  --text-lo:   rgba(240,221,184,0.28);
+  --border:    rgba(232,146,10,0.18);
+  --border-hi: rgba(232,146,10,0.45);
+  --mono:      'Share Tech Mono', monospace;
+  --display:   'Cinzel', serif;
+  --body:      'DM Sans', sans-serif;
+  --scan-size: 3px;
 }
-#loader.hidden{opacity:0;pointer-events:none;}
-#loader-title{font-size:.75rem;letter-spacing:.4em;text-transform:uppercase;color:rgba(255,255,255,.6)}
-#loader-bar-wrap{width:220px;height:2px;background:rgba(255,255,255,.1);border-radius:1px;overflow:hidden}
-#loader-bar{height:100%;width:0%;background:#5de0f8;transition:width .25s ease;border-radius:1px}
-#loader-pct{font-size:.6rem;letter-spacing:.18em;color:#5de0f8}
-#loader-status{font-size:.55rem;letter-spacing:.15em;color:rgba(255,255,255,.35);text-transform:uppercase}
 
-/* ── HUD ── */
-#hud{position:fixed;inset:0;pointer-events:none;z-index:10}
-#name{position:absolute;top:2rem;left:50%;transform:translateX(-50%);text-align:center;opacity:0;transition:opacity 1.2s;white-space:nowrap}
-#name h1{font-size:.82rem;letter-spacing:.42em;text-transform:uppercase;font-weight:300;color:rgba(255,255,255,.85)}
-#name p{font-size:.54rem;letter-spacing:.26em;color:#5de0f8;margin-top:5px;text-transform:uppercase}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
 
-#arr-left{position:absolute;left:1.8rem;top:50%;transform:translateY(-50%);opacity:0;transition:opacity .7s;pointer-events:none}
-#arr-right{position:absolute;right:1.8rem;top:50%;transform:translateY(-50%);opacity:0;transition:opacity .7s;pointer-events:none}
-#arr-left.show,#arr-right.show{opacity:1;pointer-events:auto}
-.arr-btn{width:52px;height:52px;border:1px solid rgba(93,224,248,.45);background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s,border-color .2s;backdrop-filter:blur(4px)}
-.arr-btn:hover{background:rgba(93,224,248,.18);border-color:rgba(93,224,248,.8)}
-.arr-btn svg{width:22px;height:22px;stroke:#5de0f8;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  overflow-x: hidden;
+  cursor: default;
+  /* Custom amber crosshair cursor */
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='4' fill='none' stroke='%23e8920a' stroke-width='1.5'/%3E%3Cline x1='12' y1='2' x2='12' y2='8' stroke='%23e8920a' stroke-width='1'/%3E%3Cline x1='12' y1='16' x2='12' y2='22' stroke='%23e8920a' stroke-width='1'/%3E%3Cline x1='2' y1='12' x2='8' y2='12' stroke='%23e8920a' stroke-width='1'/%3E%3Cline x1='16' y1='12' x2='22' y2='12' stroke='%23e8920a' stroke-width='1'/%3E%3C/svg%3E") 12 12, crosshair;
+}
 
-#label-hud{position:absolute;bottom:5.8rem;left:50%;transform:translateX(-50%);text-align:center;opacity:0;transition:opacity .5s;pointer-events:none;white-space:nowrap}
-#label-hud.show{opacity:1;pointer-events:auto}
-#label-tag{font-size:.56rem;letter-spacing:.24em;text-transform:uppercase;color:#5de0f8;margin-bottom:5px}
-#label-name{font-size:1.8rem;font-weight:600;cursor:pointer;line-height:1;display:inline-block;position:relative}
-#label-name::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:2px;background:#5de0f8;transition:width .3s}
-#label-name:hover::after{width:100%}
-#label-sub{font-size:.78rem;color:rgba(255,255,255,.48);margin-top:7px;line-height:1.5;font-family:sans-serif;font-weight:300}
-#label-cta{display:inline-block;margin-top:11px;font-size:.63rem;letter-spacing:.16em;text-transform:uppercase;color:#f5a623;border:1px solid rgba(245,166,35,.6);padding:5px 16px;cursor:pointer;transition:background .2s,color .2s,border-color .2s;pointer-events:auto;backdrop-filter:blur(4px)}
-#label-cta:hover{background:#f5a623;color:#000;border-color:#f5a623}
+/* ── SCANLINE OVERLAY ────────────────────────────────────────────────────── */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 9999;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent calc(var(--scan-size) - 1px),
+    rgba(0,0,0,0.18) calc(var(--scan-size) - 1px),
+    rgba(0,0,0,0.18) var(--scan-size)
+  );
+  animation: scanroll 12s linear infinite;
+}
+@keyframes scanroll {
+  0%   { background-position: 0 0; }
+  100% { background-position: 0 300px; }
+}
 
-#dots{position:absolute;bottom:3.4rem;left:50%;transform:translateX(-50%);display:flex;gap:8px;opacity:0;transition:opacity .7s}
-#dots.show{opacity:1}
-.dot{width:6px;height:6px;border-radius:50%;border:1px solid rgba(93,224,248,.35);transition:background .3s,border-color .3s}
-.dot.active{background:#5de0f8;border-color:#5de0f8}
+/* CRT vignette */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 9998;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center,
+    transparent 55%,
+    rgba(0,0,0,0.55) 100%
+  );
+}
 
-#hint{position:absolute;bottom:1.8rem;left:50%;transform:translateX(-50%);font-size:.53rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.25);opacity:0;transition:opacity .7s;white-space:nowrap}
-#hint.show{opacity:1}
-#launch-hint{position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);font-size:.63rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.55);animation:pulse 2.2s ease-in-out infinite;white-space:nowrap;pointer-events:none}
-@keyframes pulse{0%,100%{opacity:.28}50%{opacity:.85}}
-#rotate-hint{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(93,224,248,.55);opacity:0;transition:opacity .8s;white-space:nowrap;pointer-events:none;text-align:center}
-#rotate-hint.show{opacity:1}
+/* ── RAIN CANVAS ─────────────────────────────────────────────────────────── */
+#rain-canvas {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+  opacity: 0.45;
+}
 
-/* ── MODEL DEBUG (shown briefly, auto-hides) ── */
-#debug{position:absolute;top:1rem;right:1rem;font-size:.55rem;color:rgba(255,255,255,.35);line-height:1.8;text-align:right;opacity:0;transition:opacity .5s}
-#debug.show{opacity:1}
+/* ── AMBIENT GLOW ────────────────────────────────────────────────────────── */
+.glow-orb {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(120px);
+  z-index: 1;
+}
+.glow-orb-1 {
+  width: 600px; height: 600px;
+  background: rgba(232,146,10,0.06);
+  top: -200px; left: -200px;
+}
+.glow-orb-2 {
+  width: 400px; height: 400px;
+  background: rgba(196,59,26,0.05);
+  bottom: -100px; right: -100px;
+}
 
-/* ── OVERLAY ── */
-#overlay{position:fixed;inset:0;z-index:100;background:rgba(3,7,18,0);backdrop-filter:blur(0px);pointer-events:none;transition:background .5s,backdrop-filter .5s;display:flex;align-items:center;justify-content:center}
-#overlay.open{background:rgba(3,7,18,.94);backdrop-filter:blur(12px);pointer-events:auto}
-#page{max-width:660px;width:90%;opacity:0;transform:translateY(26px);transition:opacity .4s .15s,transform .4s .15s;padding:2.8rem;border:1px solid rgba(93,224,248,.14);position:relative;max-height:82vh;overflow-y:auto;background:rgba(5,12,28,.6)}
-#overlay.open #page{opacity:1;transform:none}
-#pg-tag{font-size:.58rem;letter-spacing:.24em;text-transform:uppercase;color:#5de0f8;margin-bottom:.85rem}
-#pg-title{font-size:2.4rem;font-weight:200;line-height:1.1;margin-bottom:1.3rem}
-#pg-body{font-size:.91rem;font-weight:300;color:rgba(255,255,255,.72);line-height:1.9;font-family:sans-serif}
-#pg-body p+p{margin-top:.9rem}
-#close-btn{position:absolute;top:1rem;right:1.2rem;font-size:.62rem;letter-spacing:.15em;color:rgba(255,255,255,.38);cursor:pointer;border:1px solid rgba(255,255,255,.14);padding:4px 10px;background:none;text-transform:uppercase;font-family:'Courier New',monospace;transition:color .2s,border-color .2s}
-#close-btn:hover{color:#fff;border-color:rgba(255,255,255,.5)}
+/* ══════════════════════════════════════════════════════════════════════════
+   LANDING / START SCREEN
+══════════════════════════════════════════════════════════════════════════ */
+#landing {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: stretch;
+  z-index: 10;
+  overflow: hidden;
+}
+
+/* Left panel — menu */
+.menu-panel {
+  position: relative;
+  z-index: 20;
+  width: 420px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 0 0 6vw;
+  background: linear-gradient(to right,
+    rgba(8,6,4,0.97) 0%,
+    rgba(8,6,4,0.82) 75%,
+    transparent 100%
+  );
+}
+
+/* Top identity block */
+.id-block {
+  margin-bottom: 3.2rem;
+}
+
+.id-tag {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.32em;
+  color: var(--amber-dim);
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+  opacity: 0;
+  animation: fadeIn 0.6s 0.4s ease forwards;
+}
+
+.id-name {
+  font-family: var(--display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+  line-height: 1;
+  text-shadow: 0 0 40px rgba(232,146,10,0.4), 0 0 80px rgba(232,146,10,0.15);
+  opacity: 0;
+  animation: fadeIn 0.7s 0.6s ease forwards;
+}
+
+.id-slash {
+  color: var(--amber);
+  font-weight: 400;
+}
+
+.id-sub {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.24em;
+  color: var(--amber-dim);
+  text-transform: uppercase;
+  margin-top: 0.7rem;
+  opacity: 0;
+  animation: fadeIn 0.7s 0.85s ease forwards;
+}
+
+/* Player count — mimics the "6,520 PLAYERS ONLINE" detail */
+.id-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  opacity: 0;
+  animation: fadeIn 0.7s 1.05s ease forwards;
+}
+.status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 8px var(--amber);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { opacity: 1; box-shadow: 0 0 8px var(--amber); }
+  50%      { opacity: 0.5; box-shadow: 0 0 3px var(--amber); }
+}
+.status-text {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  color: var(--text-lo);
+  text-transform: uppercase;
+}
+
+/* Divider */
+.menu-divider {
+  width: 180px;
+  height: 1px;
+  background: linear-gradient(to right, var(--amber), transparent);
+  margin-bottom: 1.8rem;
+  opacity: 0;
+  animation: fadeIn 0.6s 1.1s ease forwards;
+}
+
+/* ── MENU ITEMS ── */
+.menu-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.menu-item {
+  opacity: 0;
+  position: relative;
+}
+
+/* Stagger each item */
+.menu-item:nth-child(1) { animation: slideIn 0.5s 1.2s ease forwards; }
+.menu-item:nth-child(2) { animation: slideIn 0.5s 1.35s ease forwards; }
+.menu-item:nth-child(3) { animation: slideIn 0.5s 1.5s ease forwards; }
+.menu-item:nth-child(4) { animation: slideIn 0.5s 1.65s ease forwards; }
+.menu-item:nth-child(5) { animation: slideIn 0.5s 1.8s ease forwards; }
+
+.menu-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.2rem 0.75rem 0;
+  font-family: var(--mono);
+  font-size: 1.05rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-decoration: none;
+  position: relative;
+  transition: color 0.15s;
+  border-left: 2px solid transparent;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Selection bar — slides in from left on hover */
+.menu-link::before {
+  content: '';
+  position: absolute;
+  left: -2px; top: 0;
+  width: 0; height: 100%;
+  background: var(--amber-lo);
+  border-left: 2px solid var(--amber);
+  transition: width 0.18s ease;
+  z-index: -1;
+}
+
+.menu-link:hover,
+.menu-link.active {
+  color: var(--text);
+}
+
+.menu-link:hover::before,
+.menu-link.active::before {
+  width: calc(100% + 2px);
+}
+
+.menu-link:hover .menu-arrow,
+.menu-link.active .menu-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.menu-num {
+  font-size: 0.55rem;
+  color: var(--amber-dim);
+  letter-spacing: 0.1em;
+  width: 1.6rem;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.menu-arrow {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--amber);
+  margin-left: auto;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+/* Sub-label under each menu item */
+.menu-sublabel {
+  font-family: var(--mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.18em;
+  color: var(--text-lo);
+  padding: 0 0 0.55rem 2.6rem;
+  text-transform: uppercase;
+  display: block;
+}
+
+/* Bottom system info */
+.sys-info {
+  margin-top: 3rem;
+  opacity: 0;
+  animation: fadeIn 0.8s 2.2s ease forwards;
+}
+
+.sys-line {
+  font-family: var(--mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.14em;
+  color: var(--text-lo);
+  text-transform: uppercase;
+  line-height: 2;
+}
+
+.sys-line span {
+  color: var(--amber-dim);
+  margin-left: 0.4rem;
+}
+
+/* ── CHARACTER PANEL — right side ── */
+.char-panel {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* SVG character silhouette */
+.char-figure {
+  position: absolute;
+  bottom: 0;
+  right: 8%;
+  width: min(340px, 38vw);
+  height: auto;
+  opacity: 0;
+  animation: charReveal 1.2s 1.8s ease forwards;
+  filter: drop-shadow(0 0 30px rgba(232,146,10,0.25)) drop-shadow(0 0 60px rgba(232,146,10,0.08));
+}
+
+@keyframes charReveal {
+  0%   { opacity:0; transform: translateY(20px); }
+  100% { opacity:1; transform: translateY(0); }
+}
+
+/* Ambient scan line on character */
+.char-scan {
+  position: absolute;
+  bottom: 0;
+  right: 8%;
+  width: min(340px, 38vw);
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(232,146,10,0.03) 48%,
+    rgba(232,146,10,0.07) 50%,
+    rgba(232,146,10,0.03) 52%,
+    transparent 100%
+  );
+  background-size: 100% 200%;
+  animation: charScan 4s linear 2.8s infinite;
+  pointer-events: none;
+  z-index: 25;
+}
+@keyframes charScan {
+  0%   { background-position: 0 -100%; }
+  100% { background-position: 0 200%; }
+}
+
+/* HUD corner elements */
+.hud-corner {
+  position: absolute;
+  width: 40px; height: 40px;
+  pointer-events: none;
+  opacity: 0;
+  animation: fadeIn 1s 2.4s ease forwards;
+}
+.hud-corner.tl { top:1.5rem; left: 420px; border-top:1px solid var(--border-hi); border-left:1px solid var(--border-hi); }
+.hud-corner.tr { top:1.5rem; right:1.5rem; border-top:1px solid var(--border-hi); border-right:1px solid var(--border-hi); }
+.hud-corner.bl { bottom:1.5rem; left: 420px; border-bottom:1px solid var(--border-hi); border-left:1px solid var(--border-hi); }
+.hud-corner.br { bottom:1.5rem; right:1.5rem; border-bottom:1px solid var(--border-hi); border-right:1px solid var(--border-hi); }
+
+/* Floating HUD readouts */
+.hud-readout {
+  position: absolute;
+  font-family: var(--mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.18em;
+  color: var(--text-lo);
+  text-transform: uppercase;
+  pointer-events: none;
+  opacity: 0;
+  animation: fadeIn 1s 2.6s ease forwards;
+  line-height: 1.9;
+}
+.hud-readout.top-right {
+  top: 2rem; right: 2rem;
+  text-align: right;
+}
+.hud-readout.bottom-left {
+  bottom: 2rem; left: calc(420px + 1rem);
+}
+
+.hud-val { color: var(--amber-dim); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   CONTENT SECTIONS
+══════════════════════════════════════════════════════════════════════════ */
+.content-section {
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
+  border-top: 1px solid var(--border);
+}
+
+.section-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 6rem 2.4rem;
+}
+
+/* Section header */
+.sec-header {
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+  margin-bottom: 4rem;
+  padding-bottom: 1.4rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.sec-num {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  color: var(--amber-dim);
+}
+
+.sec-title {
+  font-family: var(--display);
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+  text-shadow: 0 0 30px rgba(232,146,10,0.2);
+}
+
+.sec-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--border), transparent);
+}
+
+/* ── ABOUT ── */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.about-text p {
+  font-size: 1rem;
+  font-weight: 300;
+  color: var(--text-dim);
+  line-height: 1.9;
+  margin-bottom: 1.1rem;
+}
+.about-text p strong { color: var(--text); font-weight: 500; }
+
+.about-text blockquote {
+  margin-top: 1.6rem;
+  padding: 1rem 1.4rem;
+  border-left: 2px solid var(--amber-dim);
+  font-style: italic;
+  color: var(--text-lo);
+  font-size: 0.94rem;
+  background: var(--amber-lo);
+}
+
+.stat-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.stat-item {
+  background: var(--bg2);
+  padding: 1.4rem 1.6rem;
+  position: relative;
+  transition: background 0.2s;
+}
+.stat-item:hover { background: rgba(232,146,10,0.05); }
+
+.stat-item::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 2px; height: 100%;
+  background: var(--amber);
+  opacity: 0.5;
+}
+
+.stat-num {
+  font-family: var(--display);
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--amber);
+  line-height: 1;
+  text-shadow: 0 0 20px rgba(232,146,10,0.5);
+}
+
+.stat-lbl {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  color: var(--text-lo);
+  text-transform: uppercase;
+  margin-top: 0.3rem;
+}
+
+/* ── PROJECTS ── */
+.project-card {
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  padding: 2.2rem;
+  margin-bottom: 1.4rem;
+  position: relative;
+  transition: border-color 0.25s, background 0.25s;
+  overflow: hidden;
+}
+
+.project-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(to right, var(--amber), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.project-card:hover {
+  border-color: var(--border-hi);
+  background: rgba(232,146,10,0.04);
+}
+.project-card:hover::before { opacity: 1; }
+
+/* Corner bracket on hover */
+.project-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 20px; height: 20px;
+  border-bottom: 1px solid var(--amber-dim);
+  border-right: 1px solid var(--amber-dim);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.project-card:hover::after { opacity: 1; }
+
+.proj-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.proj-mission {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 0.4rem;
+}
+
+.proj-name {
+  font-family: var(--display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text);
+  text-transform: uppercase;
+}
+
+.badges {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.badge {
+  font-family: var(--mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 0.24rem 0.65rem;
+  border: 1px solid var(--border);
+  color: var(--text-lo);
+}
+.badge.live { border-color:rgba(232,146,10,0.5); color:var(--amber); background:rgba(232,146,10,0.08); }
+.badge.mars { border-color:rgba(196,59,26,0.5); color:#e07050; background:rgba(196,59,26,0.08); }
+
+.proj-desc {
+  font-size: 0.96rem;
+  font-weight: 300;
+  color: var(--text-dim);
+  line-height: 1.85;
+  margin-bottom: 1.2rem;
+}
+
+.proj-placeholder {
+  font-style: italic;
+  color: var(--text-lo);
+  font-size: 0.88rem;
+  line-height: 1.7;
+  padding: 0.8rem 1rem;
+  border-left: 1px solid var(--border);
+  margin-bottom: 1.2rem;
+  background: rgba(232,146,10,0.03);
+}
+
+.proj-meta {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--border);
+}
+
+.meta-item { display: flex; flex-direction: column; gap: 0.2rem; }
+
+.meta-lbl {
+  font-family: var(--mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+}
+
+.meta-val {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+}
+
+/* ── SKILLS ── */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.skill-group {
+  background: var(--bg2);
+  padding: 1.6rem;
+  transition: background 0.2s;
+}
+.skill-group:hover { background: rgba(232,146,10,0.04); }
+
+.sg-title {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.skill-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.skill-list li {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.skill-list li::before {
+  content: '▸';
+  color: var(--amber-dim);
+  font-size: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* ── PUBLICATIONS ── */
+.pub-placeholder {
+  border: 1px dashed var(--border);
+  padding: 4rem 2rem;
+  text-align: center;
+  background: rgba(232,146,10,0.02);
+  position: relative;
+}
+
+.pub-placeholder::before {
+  content: '// FORTHCOMING';
+  position: absolute;
+  top: 1rem; left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.28em;
+  color: var(--amber-dim);
+}
+
+.pub-ph-text {
+  font-family: var(--body);
+  font-size: 1.05rem;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--text-lo);
+  max-width: 400px;
+  margin: 0 auto 1rem;
+  line-height: 1.7;
+}
+
+.pub-ph-sub {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  color: rgba(240,221,184,0.18);
+}
+
+/* ── CONTACT ── */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.contact-intro {
+  font-size: 1rem;
+  font-weight: 300;
+  color: var(--text-dim);
+  line-height: 1.9;
+  margin-bottom: 1.4rem;
+}
+
+.contact-note {
+  font-size: 0.88rem;
+  color: var(--text-lo);
+  font-style: italic;
+  line-height: 1.8;
+  padding: 1rem;
+  border-left: 1px solid var(--border);
+  background: rgba(232,146,10,0.03);
+}
+.contact-note strong { color: var(--text-dim); font-style: normal; font-weight: 400; }
+
+.contact-links { display: flex; flex-direction: column; gap: 0.6rem; }
+
+.contact-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.1rem;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  text-decoration: none;
+  transition: border-color 0.2s, background 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.contact-link::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0;
+  width: 2px; height: 100%;
+  background: var(--amber);
+  transform: scaleY(0);
+  transition: transform 0.18s ease;
+}
+
+.contact-link:hover {
+  border-color: var(--border-hi);
+  background: rgba(232,146,10,0.05);
+}
+.contact-link:hover::before { transform: scaleY(1); }
+
+.cl-label {
+  font-family: var(--mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+  min-width: 70px;
+}
+
+.cl-value {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--amber);
+  letter-spacing: 0.04em;
+}
+
+/* ── FOOTER ── */
+footer {
+  position: relative; z-index: 10;
+  padding: 1.8rem 2.4rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.footer-id {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  color: var(--text-lo);
+  text-transform: uppercase;
+}
+
+.footer-note {
+  font-family: var(--mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.12em;
+  color: rgba(240,221,184,0.16);
+}
+
+/* ── REVEAL ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.75s ease, transform 0.75s ease;
+}
+.reveal.visible { opacity: 1; transform: none; }
+
+/* ── BACK TO TOP ── */
+.back-btn {
+  display: block;
+  width: fit-content;
+  margin: 3rem auto 0;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+  text-decoration: none;
+  padding: 0.6rem 1.4rem;
+  border: 1px solid var(--border);
+  transition: color 0.2s, border-color 0.2s;
+}
+.back-btn:hover { color: var(--amber); border-color: var(--amber-dim); }
+
+/* ── KEYFRAMES ── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 780px) {
+  .menu-panel { width: 100%; padding: 6rem 1.8rem 3rem; }
+  .char-panel { display: none; }
+  .hud-corner, .hud-readout { display: none; }
+  .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 2.4rem; }
+  .skills-grid { grid-template-columns: 1fr 1fr; }
+  #landing { flex-direction: column; }
+}
+
+@media (max-width: 480px) {
+  .skills-grid { grid-template-columns: 1fr; }
+  .section-inner { padding: 4rem 1.4rem; }
+  .proj-header { flex-direction: column; }
+}
 </style>
 </head>
 <body>
 
-<!-- Loading screen -->
-<div id="loader">
-  <div id="loader-title">Initializing Mission Systems</div>
-  <div id="loader-bar-wrap"><div id="loader-bar"></div></div>
-  <div id="loader-pct">0%</div>
-  <div id="loader-status">Loading vehicle model...</div>
-</div>
+<!-- Ambient glow orbs -->
+<div class="glow-orb glow-orb-1"></div>
+<div class="glow-orb glow-orb-2"></div>
 
-<canvas id="c"></canvas>
+<!-- Rain canvas -->
+<canvas id="rain-canvas"></canvas>
 
-<div id="hud">
-  <div id="name"><h1>Your Name</h1><p>Aerospace Engineer</p></div>
-  <div id="arr-left"><button class="arr-btn" id="btn-l" aria-label="Previous"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button></div>
-  <div id="arr-right"><button class="arr-btn" id="btn-r" aria-label="Next"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button></div>
-  <div id="label-hud">
-    <div id="label-tag"></div>
-    <div id="label-name"></div>
-    <div id="label-sub"></div>
-    <div id="label-cta">Open section &rarr;</div>
+<!-- ══════════════════════════════════════════════════
+     LANDING SCREEN
+══════════════════════════════════════════════════ -->
+<div id="landing">
+
+  <!-- LEFT: Menu Panel -->
+  <div class="menu-panel">
+    <div class="id-block">
+      <div class="id-tag">Space Operations // Test Engineer</div>
+      <div class="id-name">BRAGG<span class="id-slash"> //</span><br>RYAN</div>
+      <div class="id-sub">Valcor Engineering Corp. &nbsp;·&nbsp; Springfield, NJ</div>
+      <div class="id-status">
+        <div class="status-dot"></div>
+        <div class="status-text">Active — 2 Mission Programs</div>
+      </div>
+    </div>
+
+    <div class="menu-divider"></div>
+
+    <ul class="menu-list">
+      <li class="menu-item">
+        <a class="menu-link" href="#about">
+          <span class="menu-num">01</span>
+          About
+          <span class="menu-arrow">▶</span>
+        </a>
+        <span class="menu-sublabel">Profile &amp; Background</span>
+      </li>
+      <li class="menu-item">
+        <a class="menu-link" href="#projects">
+          <span class="menu-num">02</span>
+          Projects
+          <span class="menu-arrow">▶</span>
+        </a>
+        <span class="menu-sublabel">Vulcan · ExoMars · More</span>
+      </li>
+      <li class="menu-item">
+        <a class="menu-link" href="games.html">
+          <span class="menu-num">03</span>
+          The Lab
+          <span class="menu-arrow">▶</span>
+        </a>
+        <span class="menu-sublabel">Games &amp; Experiments</span>
+      </li>
+      <li class="menu-item">
+        <a class="menu-link" href="#skills">
+          <span class="menu-num">04</span>
+          Skills
+          <span class="menu-arrow">▶</span>
+        </a>
+        <span class="menu-sublabel">Tools &amp; Disciplines</span>
+      </li>
+      <li class="menu-item">
+        <a class="menu-link" href="#publications">
+          <span class="menu-num">05</span>
+          Writing
+          <span class="menu-arrow">▶</span>
+        </a>
+        <span class="menu-sublabel">Technical Publications</span>
+      </li>
+      <li class="menu-item">
+        <a class="menu-link" href="#contact">
+          <span class="menu-num">06</span>
+          Contact
+          <span class="menu-arrow">▶</span>
+        </a>
+        <span class="menu-sublabel">Get in Touch</span>
+      </li>
+    </ul>
+
+    <div class="sys-info">
+      <div class="sys-line">Location <span>40.6976° N, 74.2632° W</span></div>
+      <div class="sys-line">Clearance <span>[Level if applicable]</span></div>
+      <div class="sys-line">Status <span>Open to Opportunities</span></div>
+      <div class="sys-line">Ver <span>2025.1</span></div>
+    </div>
   </div>
-  <div id="dots"></div>
-  <div id="hint">arrow keys to navigate &nbsp;&bull;&nbsp; enter to open</div>
-  <div id="launch-hint">Click to launch</div>
-  <div id="rotate-hint">Use arrow keys to rotate the rocket</div>
-  <div id="debug"></div>
-</div>
 
-<div id="overlay">
-  <div id="page">
-    <button id="close-btn">&#x2715; Close</button>
-    <div id="pg-tag"></div>
-    <div id="pg-title"></div>
-    <div id="pg-body"></div>
+  <!-- RIGHT: Character + HUD -->
+  <div class="char-panel">
+    <!-- HUD corners -->
+    <div class="hud-corner tl"></div>
+    <div class="hud-corner tr"></div>
+    <div class="hud-corner bl"></div>
+    <div class="hud-corner br"></div>
+
+    <!-- HUD readouts -->
+    <div class="hud-readout top-right">
+      <div>Mission Status <span class="hud-val">// ACTIVE</span></div>
+      <div>Programs Running <span class="hud-val">// 02</span></div>
+      <div>Domain <span class="hud-val">// Space Operations</span></div>
+      <div>Class <span class="hud-val">// Test Engineering</span></div>
+    </div>
+    <div class="hud-readout bottom-left">
+      <div>ULA Vulcan Centaur <span class="hud-val">// Propulsion Reg.</span></div>
+      <div>ESA ExoMars RFM <span class="hud-val">// Descent Reg. · 2030</span></div>
+    </div>
+
+    <!-- Character scan effect -->
+    <div class="char-scan"></div>
+
+    <!-- SVG Character Silhouette — stylized anime engineer figure -->
+    <svg class="char-figure" viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg" fill="none">
+      <defs>
+        <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#f0ddb8" stop-opacity="0.9"/>
+          <stop offset="60%" stop-color="#c8a870" stop-opacity="0.7"/>
+          <stop offset="100%" stop-color="#080604" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="glowGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#e8920a" stop-opacity="0"/>
+          <stop offset="50%" stop-color="#e8920a" stop-opacity="0.8"/>
+          <stop offset="100%" stop-color="#e8920a" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="softGlow">
+          <feGaussianBlur stdDeviation="8" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+
+      <!-- Outer edge glow halo -->
+      <ellipse cx="150" cy="180" rx="90" ry="110" fill="rgba(232,146,10,0.04)" filter="url(#softGlow)"/>
+
+      <!-- HEAD — stylized -->
+      <ellipse cx="150" cy="90" rx="38" ry="44" fill="url(#bodyGrad)" opacity="0.85"/>
+      <!-- Hair block — short, angular -->
+      <path d="M112 76 Q115 48 150 46 Q185 48 188 76 Q180 58 150 56 Q120 58 112 76Z" fill="#c8a870" opacity="0.7"/>
+      <!-- Jaw sharpen -->
+      <path d="M120 110 Q150 130 180 110 Q178 118 150 124 Q122 118 120 110Z" fill="url(#bodyGrad)" opacity="0.6"/>
+      <!-- Eyes — glowing -->
+      <ellipse cx="135" cy="88" rx="7" ry="4" fill="#e8920a" opacity="0.9" filter="url(#glow)"/>
+      <ellipse cx="165" cy="88" rx="7" ry="4" fill="#e8920a" opacity="0.9" filter="url(#glow)"/>
+      <ellipse cx="135" cy="88" rx="3" ry="2" fill="#fff8e0" opacity="0.95"/>
+      <ellipse cx="165" cy="88" rx="3" ry="2" fill="#fff8e0" opacity="0.95"/>
+
+      <!-- NECK -->
+      <rect x="138" y="128" width="24" height="20" rx="2" fill="url(#bodyGrad)" opacity="0.7"/>
+
+      <!-- SHOULDERS + CHEST — armored jacket feel -->
+      <path d="M80 148 Q95 138 150 136 Q205 138 220 148 L228 200 Q205 192 150 190 Q95 192 72 200Z"
+            fill="url(#bodyGrad)" opacity="0.75"/>
+      <!-- Chest plate detail -->
+      <path d="M120 148 L150 145 L180 148 L183 175 L150 180 L117 175Z"
+            fill="rgba(232,146,10,0.12)" stroke="rgba(232,146,10,0.35)" stroke-width="0.8"/>
+      <!-- Shoulder armor left -->
+      <path d="M80 148 Q65 145 60 158 L68 200 Q78 195 92 195 L92 175 L80 148Z"
+            fill="url(#bodyGrad)" opacity="0.6"/>
+      <!-- Shoulder armor right -->
+      <path d="M220 148 Q235 145 240 158 L232 200 Q222 195 208 195 L208 175 L220 148Z"
+            fill="url(#bodyGrad)" opacity="0.6"/>
+      <!-- Tech detail lines on chest -->
+      <line x1="128" y1="158" x2="172" y2="158" stroke="rgba(232,146,10,0.5)" stroke-width="0.8"/>
+      <line x1="132" y1="164" x2="168" y2="164" stroke="rgba(232,146,10,0.3)" stroke-width="0.6"/>
+      <!-- Collar -->
+      <path d="M128 136 L150 144 L172 136" stroke="rgba(240,221,184,0.4)" stroke-width="1" fill="none"/>
+
+      <!-- ARMS -->
+      <!-- Left arm -->
+      <path d="M80 155 Q62 160 55 190 L58 250 Q65 250 75 248 L82 200 Q82 178 88 165Z"
+            fill="url(#bodyGrad)" opacity="0.65"/>
+      <!-- Right arm -->
+      <path d="M220 155 Q238 160 245 190 L242 250 Q235 250 225 248 L218 200 Q218 178 212 165Z"
+            fill="url(#bodyGrad)" opacity="0.65"/>
+      <!-- Arm tech bands -->
+      <line x1="60" y1="200" x2="78" y2="202" stroke="rgba(232,146,10,0.4)" stroke-width="0.8"/>
+      <line x1="222" y1="200" x2="240" y2="202" stroke="rgba(232,146,10,0.4)" stroke-width="0.8"/>
+
+      <!-- TORSO / BODY -->
+      <path d="M92 195 Q95 240 98 280 L202 280 Q205 240 208 195 Q175 205 150 205 Q125 205 92 195Z"
+            fill="url(#bodyGrad)" opacity="0.7"/>
+      <!-- Belt / utility -->
+      <rect x="98" y="270" width="104" height="14" rx="2" fill="rgba(232,146,10,0.15)" stroke="rgba(232,146,10,0.3)" stroke-width="0.8"/>
+      <!-- Belt buckle -->
+      <rect x="140" y="272" width="20" height="10" rx="1" fill="rgba(232,146,10,0.3)" stroke="rgba(232,146,10,0.6)" stroke-width="0.8"/>
+
+      <!-- LEGS -->
+      <!-- Left leg -->
+      <path d="M98 282 Q95 340 96 400 L120 402 L126 284Z"
+            fill="url(#bodyGrad)" opacity="0.65"/>
+      <!-- Right leg -->
+      <path d="M202 282 Q205 340 204 400 L180 402 L174 284Z"
+            fill="url(#bodyGrad)" opacity="0.65"/>
+      <!-- Thigh tech lines -->
+      <line x1="100" y1="320" x2="122" y2="322" stroke="rgba(232,146,10,0.3)" stroke-width="0.7"/>
+      <line x1="178" y1="320" x2="200" y2="322" stroke="rgba(232,146,10,0.3)" stroke-width="0.7"/>
+      <!-- Knee pads -->
+      <rect x="96" y="360" width="26" height="14" rx="3" fill="rgba(240,221,184,0.15)" stroke="rgba(232,146,10,0.25)" stroke-width="0.8"/>
+      <rect x="178" y="360" width="26" height="14" rx="3" fill="rgba(240,221,184,0.15)" stroke="rgba(232,146,10,0.25)" stroke-width="0.8"/>
+
+      <!-- BOOTS / fade to nothing -->
+      <path d="M96 400 Q94 450 90 480 L130 480 L126 402Z" fill="url(#bodyGrad)" opacity="0.4"/>
+      <path d="M204 400 Q206 450 210 480 L170 480 L174 402Z" fill="url(#bodyGrad)" opacity="0.4"/>
+
+      <!-- Edge glow lines — character outline highlight -->
+      <path d="M112 80 Q80 120 72 200 L70 280 Q95 295 98 282"
+            stroke="rgba(232,146,10,0.25)" stroke-width="1" fill="none"/>
+      <path d="M188 80 Q220 120 228 200 L230 280 Q205 295 202 282"
+            stroke="rgba(232,146,10,0.25)" stroke-width="1" fill="none"/>
+
+      <!-- Ambient glow at feet -->
+      <ellipse cx="150" cy="490" rx="80" ry="12" fill="rgba(232,146,10,0.12)" filter="url(#softGlow)"/>
+      <!-- Ground reflection line -->
+      <line x1="70" y1="488" x2="230" y2="488" stroke="url(#glowGrad)" stroke-width="1" opacity="0.6"/>
+    </svg>
+
+  </div><!-- /char-panel -->
+</div><!-- /landing -->
+
+
+<!-- ══════════════════════════════════════════════════
+     SECTION: ABOUT
+══════════════════════════════════════════════════ -->
+<section class="content-section" id="about">
+  <div class="section-inner">
+    <div class="sec-header reveal">
+      <span class="sec-num">// 01</span>
+      <h2 class="sec-title">About</h2>
+      <div class="sec-line"></div>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <p>
+          I'm a <strong>Test Engineer in Space Operations</strong> at Valcor Engineering Corporation,
+          a precision fluid control manufacturer based in Springfield, NJ, serving aerospace,
+          defense, and nuclear industries since 1951.
+        </p>
+        <p>
+          My work focuses on testing the components that cannot fail — pressure regulators
+          and fluid control valves that go on launch vehicles and planetary missions.
+          I own the full test cycle: procedure development, acceptance testing,
+          qualification testing, data analysis, and reporting.
+        </p>
+        <p>
+          [<em>Add 1–2 sentences about your background or what drew you to aerospace.
+          This is the most-read section — make it personal.</em>]
+        </p>
+        <blockquote>
+          "The valve that performs flawlessly at sea level must perform identically
+          at cryogenic temperatures, in hard vacuum, after vibration loading —
+          and it must do so every time."
+        </blockquote>
+      </div>
+
+      <div class="stat-grid reveal">
+        <div class="stat-item">
+          <div class="stat-num">2</div>
+          <div class="stat-lbl">Active Mission Programs</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">70+</div>
+          <div class="stat-lbl">Years Valcor Serving Aerospace</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">2030</div>
+          <div class="stat-lbl">ExoMars Mars Landing Target</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">[X]</div>
+          <div class="stat-lbl">Your Stat — Tests Run, Products Qualified, etc.</div>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
+</section>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION: PROJECTS
+══════════════════════════════════════════════════ -->
+<section class="content-section" id="projects">
+  <div class="section-inner">
+    <div class="sec-header reveal">
+      <span class="sec-num">// 02</span>
+      <h2 class="sec-title">Projects</h2>
+      <div class="sec-line"></div>
+    </div>
+
+    <!-- Vulcan -->
+    <div class="project-card reveal">
+      <div class="proj-header">
+        <div>
+          <div class="proj-mission">ULA · Vulcan Centaur</div>
+          <div class="proj-name">Pressure Regulator Replacement Program</div>
+        </div>
+        <div class="badges">
+          <span class="badge live">Active</span>
+          <span class="badge">Launch Vehicle</span>
+          <span class="badge">Propulsion</span>
+        </div>
+      </div>
+      <p class="proj-desc">
+        Developing and qualifying a replacement pressure regulator for United Launch Alliance's
+        Vulcan Centaur — ULA's next-generation heavy-lift rocket, designed to succeed the Atlas V
+        in serving national security, commercial, and NASA missions. My responsibilities
+        span the complete test cycle from procedure development through acceptance and
+        qualification testing to data analysis and formal reporting.
+      </p>
+      <p class="proj-placeholder">
+        [Add one specific detail you can share — a challenge you solved, a methodology you developed,
+        or an outcome. Even something like "reduced test cycle time" or "developed a novel
+        leak verification procedure" tells a real story without disclosing proprietary data.]
+      </p>
+      <div class="proj-meta">
+        <div class="meta-item">
+          <span class="meta-lbl">Customer</span>
+          <span class="meta-val">United Launch Alliance</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-lbl">Vehicle</span>
+          <span class="meta-val">Vulcan Centaur</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-lbl">Domain</span>
+          <span class="meta-val">Launch Vehicle Propulsion</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-lbl">Role</span>
+          <span class="meta-val">Test Engineer</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ExoMars -->
+    <div class="project-card reveal">
+      <div class="proj-header">
+        <div>
+          <div class="proj-mission">ESA · ExoMars Rosalind Franklin Mission</div>
+          <div class="proj-name">Mars Descent Regulator Program</div>
+        </div>
+        <div class="badges">
+          <span class="badge live">Active</span>
+          <span class="badge mars">Mars · 2030</span>
+          <span class="badge">Planetary Descent</span>
+        </div>
+      </div>
+      <p class="proj-desc">
+        Testing a pressure regulation component for the ESA ExoMars Rosalind Franklin Mission —
+        a lander-rover system targeting Mars in 2030 to search for evidence of past and present
+        life. The landing platform must decelerate from 45 m/s at parachute phase end to under
+        3 m/s at touchdown using retro rockets. The component I am qualifying plays a direct
+        role in that six-minute entry, descent, and landing sequence.
+      </p>
+      <p class="proj-placeholder">
+        [Same as above — one specific technical or process detail you can share makes this
+        section memorable. The public mission context above is already strong; a personal
+        contribution note closes it out.]
+      </p>
+      <div class="proj-meta">
+        <div class="meta-item">
+          <span class="meta-lbl">Customer</span>
+          <span class="meta-val">European Space Agency</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-lbl">Mission</span>
+          <span class="meta-val">ExoMars RFM</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-lbl">Domain</span>
+          <span class="meta-val">Planetary Descent</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-lbl">Launch</span>
+          <span class="meta-val">2028 (planned)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Placeholder -->
+    <div class="project-card reveal" style="border-style:dashed; opacity:0.55;">
+      <div class="proj-mission">Additional Program</div>
+      <div class="proj-name" style="font-size:1.1rem; color:var(--text-dim); margin-top:0.4rem;">[Project Name]</div>
+      <p class="proj-desc" style="margin-top:0.8rem; font-style:italic; color:var(--text-lo); font-size:0.9rem;">
+        Add a third project here — a previous role, personal engineering project,
+        academic work, or other Valcor program you can describe.
+      </p>
+    </div>
+
+    <a href="#landing" class="back-btn">↑ Back to Menu</a>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     SECTION: SKILLS
+══════════════════════════════════════════════════ -->
+<section class="content-section" id="skills">
+  <div class="section-inner">
+    <div class="sec-header reveal">
+      <span class="sec-num">// 03</span>
+      <h2 class="sec-title">Skills &amp; Tools</h2>
+      <div class="sec-line"></div>
+    </div>
+
+    <div class="skills-grid reveal">
+      <div class="skill-group">
+        <div class="sg-title">Test Engineering</div>
+        <ul class="skill-list">
+          <li>Test procedure development</li>
+          <li>Acceptance testing</li>
+          <li>Qualification testing</li>
+          <li>Data acquisition &amp; analysis</li>
+          <li>Test report authoring</li>
+          <li>Leak &amp; proof testing</li>
+        </ul>
+      </div>
+      <div class="skill-group">
+        <div class="sg-title">Fluid Systems</div>
+        <ul class="skill-list">
+          <li>Pressure regulators</li>
+          <li>Solenoid valves</li>
+          <li>Check &amp; relief valves</li>
+          <li>Propellant control systems</li>
+          <li>Pressurant systems (GHe, GN₂)</li>
+          <li>[Add specific media/fluids]</li>
+        </ul>
+      </div>
+      <div class="skill-group">
+        <div class="sg-title">Standards &amp; Methods</div>
+        <ul class="skill-list">
+          <li>[e.g. MIL-STD-1540]</li>
+          <li>[e.g. AIAA S-080]</li>
+          <li>[e.g. NASA-STD-7002]</li>
+          <li>GD&amp;T interpretation</li>
+          <li>[Drawing standards you use]</li>
+          <li>[Quality system — AS9100?]</li>
+        </ul>
+      </div>
+      <div class="skill-group">
+        <div class="sg-title">Software &amp; Tools</div>
+        <ul class="skill-list">
+          <li>[DAQ software]</li>
+          <li>[CAD — SolidWorks, CATIA?]</li>
+          <li>[MS Office / Excel]</li>
+          <li>[Scripting — Python, MATLAB?]</li>
+          <li>[PLM / ERP system?]</li>
+        </ul>
+      </div>
+      <div class="skill-group">
+        <div class="sg-title">Education</div>
+        <ul class="skill-list">
+          <li>[Degree] in [Field]</li>
+          <li>[University Name]</li>
+          <li>[Graduation Year]</li>
+          <li>[Relevant coursework]</li>
+        </ul>
+      </div>
+      <div class="skill-group">
+        <div class="sg-title">Certifications</div>
+        <ul class="skill-list">
+          <li>[Certifications]</li>
+          <li>[Safety certs]</li>
+          <li>[Clearance if applicable]</li>
+          <li>[Memberships — AIAA?]</li>
+        </ul>
+      </div>
+    </div>
+
+    <a href="#landing" class="back-btn">↑ Back to Menu</a>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     SECTION: PUBLICATIONS
+══════════════════════════════════════════════════ -->
+<section class="content-section" id="publications">
+  <div class="section-inner">
+    <div class="sec-header reveal">
+      <span class="sec-num">// 04</span>
+      <h2 class="sec-title">Technical Writing</h2>
+      <div class="sec-line"></div>
+    </div>
+
+    <div class="pub-placeholder reveal">
+      <p class="pub-ph-text">
+        Papers, technical reports, and conference presentations will appear here.
+      </p>
+      <p class="pub-ph-sub">— AIAA &nbsp;·&nbsp; SAE &nbsp;·&nbsp; ASME &nbsp;·&nbsp; Internal White Papers —</p>
+    </div>
+
+    <a href="#landing" class="back-btn">↑ Back to Menu</a>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     SECTION: CONTACT
+══════════════════════════════════════════════════ -->
+<section class="content-section" id="contact">
+  <div class="section-inner">
+    <div class="sec-header reveal">
+      <span class="sec-num">// 05</span>
+      <h2 class="sec-title">Contact</h2>
+      <div class="sec-line"></div>
+    </div>
+
+    <div class="contact-grid">
+      <div class="reveal">
+        <p class="contact-intro">
+          Open to conversations about aerospace test engineering, fluid systems,
+          new opportunities, and interesting problems worth solving.
+        </p>
+        <p class="contact-note">
+          <strong>Note on project details:</strong> I'm happy to discuss my work in general terms.
+          Test parameters, customer specifications, and proprietary data remain confidential
+          per standard aerospace industry practice.
+        </p>
+      </div>
+
+      <div class="contact-links reveal">
+        <a href="mailto:rbragg32@gmail.com" class="contact-link">
+          <span class="cl-label">Email</span>
+          <span class="cl-value">rbragg32@gmail.com</span>
+        </a>
+        <a href="https://linkedin.com/in/ryan-bragg" target="_blank" rel="noopener" class="contact-link">
+          <span class="cl-label">LinkedIn</span>
+          <span class="cl-value">Ryan Bragg</span>
+        </a>
+        <a href="https://github.com/rbragg32" target="_blank" rel="noopener" class="contact-link">
+          <span class="cl-label">GitHub</span>
+          <span class="cl-value">rbragg32</span>
+        </a>
+        <a href="https://rbragg32.github.io" target="_blank" rel="noopener" class="contact-link">
+          <span class="cl-label">Portfolio</span>
+          <span class="cl-value">rbragg32.github.io</span>
+        </a>
+      </div>
+    </div>
+
+    <a href="#landing" class="back-btn">↑ Back to Menu</a>
+  </div>
+</section>
+
+<footer>
+  <span class="footer-id">Ryan Bragg · Aerospace Test Engineer · rbragg32.github.io</span>
+  <span class="footer-note">Valcor Engineering Corp. · Springfield, NJ</span>
+</footer>
+
+
+<!-- ══════════════════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════════════════ -->
 <script>
-// ── SECTIONS ─────────────────────────────────────────────────────────────────
-var SECTIONS = [
-  { tag:'Mission Brief', name:'About Me',   sub:'Who I am and what drives me.',           angle:0,
-    body:'<p>Hi, I\'m <strong style="color:#fff">Your Name</strong> — an aerospace engineer specializing in [propulsion / structures / avionics / systems engineering].</p><p>I\'ve spent my career working on [launch vehicles / satellites / defense systems]. Driven by building things that work at the edge of what\'s physically possible.</p><p>Outside engineering, I [hobby or interest].</p>' },
-  { tag:'Flight Log',    name:'Experience', sub:'Missions and roles I have been part of.', angle:Math.PI*2/5,
-    body:'<p><strong style="color:#fff">Senior Aerospace Engineer</strong> — Company Name (2021–Present)<br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Key responsibilities and impact. What systems did you own?</span></p><br/><p><strong style="color:#fff">Aerospace Engineer II</strong> — Previous Company (2018–2021)<br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">What you contributed — tests passed, launches supported.</span></p><br/><p><strong style="color:#fff">Engineering Intern</strong> — Earlier Company (2017)<br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Brief description of your internship.</span></p>' },
-  { tag:'Payload Bay',   name:'Projects',   sub:'Technical work I am proud of.',           angle:Math.PI*4/5,
-    body:'<p><strong style="color:#fff">Project One</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Goal, your role, outcome.</span></p><br/><p><strong style="color:#fff">Project Two</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Link to papers, GitHub repos, or writeups.</span></p><br/><p><strong style="color:#fff">Project Three</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Side projects, research, academic work.</span></p>' },
-  { tag:'Systems Check', name:'Skills',     sub:'Tools, disciplines, and methods.',        angle:Math.PI*6/5,
-    body:'<p><strong style="color:#fff">Disciplines</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">Structural analysis · Propulsion · GNC · Systems engineering · Thermal management</span></p><br/><p><strong style="color:#fff">Tools &amp; Software</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">MATLAB · Simulink · ANSYS · CATIA / SolidWorks · Python · STK</span></p><br/><p><strong style="color:#fff">Education</strong><br/><span style="color:rgba(255,255,255,.5);font-size:.85rem">B.S./M.S. Aerospace Engineering — University Name</span></p>' },
-  { tag:'Ground Control', name:'Contact',   sub:'Let us connect and build something.',     angle:Math.PI*8/5,
-    body:'<p>Open to new opportunities, collaborations, and interesting problems in aerospace.</p><br/><p>Email: <a href="mailto:your@email.com" style="color:#5de0f8">your@email.com</a></p><p>LinkedIn: <a href="https://linkedin.com/in/yourprofile" target="_blank" style="color:#5de0f8">linkedin.com/in/yourprofile</a></p><p>GitHub: <a href="https://github.com/yourusername" target="_blank" style="color:#5de0f8">github.com/yourusername</a></p>' }
-];
+// ── RAIN ────────────────────────────────────────────────────────────────────
+(function() {
+  var canvas = document.getElementById('rain-canvas');
+  var ctx    = canvas.getContext('2d');
+  var drops  = [];
+  var W, H;
 
-// ── RENDERER ─────────────────────────────────────────────────────────────────
-var renderer = new THREE.WebGLRenderer({canvas:document.getElementById('c'), antialias:true});
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setClearColor(0x7ab8e0);
-renderer.outputEncoding = THREE.sRGBEncoding; // correct color for GLB textures
-renderer.physicallyCorrectLights = true;
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
 
-var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 2000);
-camera.position.set(0, 2.5, 13);
-camera.lookAt(0, 2.0, 0);
+  function initDrops() {
+    drops = [];
+    var count = Math.floor(W / 3.2);
+    for (var i = 0; i < count; i++) {
+      drops.push({
+        x:     Math.random() * W,
+        y:     Math.random() * H,
+        len:   8  + Math.random() * 22,
+        speed: 10 + Math.random() * 18,
+        alpha: 0.08 + Math.random() * 0.22,
+        width: 0.4 + Math.random() * 0.6
+      });
+    }
+  }
 
-window.addEventListener('resize', function() {
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  camera.aspect = window.innerWidth/window.innerHeight;
-  camera.updateProjectionMatrix();
-});
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
 
-// ── LIGHTS — tuned for fully textured PBR GLB ────────────────────────────────
-scene.add(new THREE.AmbientLight(0x667788, 0.9));  // softer ambient so textures aren't washed out
-var sun = new THREE.DirectionalLight(0xfff8e8, 3.0);
-sun.position.set(8, 12, 6);
-scene.add(sun);
-var fill = new THREE.DirectionalLight(0xaaddff, 0.6);
-fill.position.set(-6, 2, -4);
-scene.add(fill);
-var back = new THREE.DirectionalLight(0x223344, 0.4);
-back.position.set(0, -5, -8);
-scene.add(back);
+    for (var i = 0; i < drops.length; i++) {
+      var d = drops[i];
+      // Slight diagonal (wind angle)
+      var angle = 0.08;
+      var dx = Math.sin(angle) * d.len;
+      var dy = Math.cos(angle) * d.len;
 
-// ── ROCKET GROUP (stays at fixed Y always) ────────────────────────────────────
-var rocket = new THREE.Group();
-scene.add(rocket);
-var rocketBaseY = 0.28;
-rocket.position.y = rocketBaseY;
+      var grad = ctx.createLinearGradient(d.x, d.y, d.x + dx, d.y + dy);
+      grad.addColorStop(0, 'rgba(232,146,10,0)');
+      grad.addColorStop(0.5, 'rgba(232,146,10,' + (d.alpha * 0.4) + ')');
+      grad.addColorStop(1, 'rgba(200,180,140,' + d.alpha + ')');
 
-// ── LOAD GLB MODEL ────────────────────────────────────────────────────────────
-var modelLoaded = false;
-var loaderBar   = document.getElementById('loader-bar');
-var loaderPct   = document.getElementById('loader-pct');
-var loaderStatus= document.getElementById('loader-status');
-var loaderEl    = document.getElementById('loader');
-var debugEl     = document.getElementById('debug');
+      ctx.beginPath();
+      ctx.moveTo(d.x, d.y);
+      ctx.lineTo(d.x + dx, d.y + dy);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = d.width;
+      ctx.stroke();
 
-var loader = new THREE.GLTFLoader();
-loader.load(
-  'NewGlenn.glb',
+      d.x += Math.sin(angle) * d.speed * 0.06;
+      d.y += Math.cos(angle) * d.speed * 0.06;
 
-  // ── ON LOAD ──
-  function(gltf) {
-    var model = gltf.scene;
+      if (d.y > H + 40 || d.x > W + 40) {
+        d.x = Math.random() * W;
+        d.y = -40;
+      }
+    }
 
-    // ── Add to scene first so Three.js computes world matrices ──
-    rocket.add(model);
+    // Occasional puddle ripples at bottom
+    if (Math.random() < 0.03) {
+      var rx = Math.random() * W;
+      var ry = H - 2 - Math.random() * 6;
+      ctx.beginPath();
+      ctx.ellipse(rx, ry, 6 + Math.random() * 8, 2, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(232,146,10,0.12)';
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+    }
 
-    // ── Force matrix update before any measurement ──
-    model.updateMatrixWorld(true);
+    requestAnimationFrame(draw);
+  }
 
-    // ── STEP 1: Measure full bounding box using geometry directly (no world matrix needed) ──
-    var fullBox = new THREE.Box3();
-    var posAttr, v = new THREE.Vector3();
-    model.traverse(function(child) {
-      if (child.isMesh && child.geometry) {
-        child.geometry.computeBoundingBox();
-        var gb = child.geometry.boundingBox;
-        if (gb) {
-          // expand using local vertex positions — safe without world matrix
-          fullBox.expandByPoint(gb.min);
-          fullBox.expandByPoint(gb.max);
-        }
+  resize();
+  initDrops();
+  draw();
+
+  window.addEventListener('resize', function() { resize(); initDrops(); });
+})();
+
+// ── SCROLL REVEAL ────────────────────────────────────────────────────────────
+(function() {
+  var els = document.querySelectorAll('.reveal');
+  var io  = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
       }
     });
+  }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+  els.forEach(function(el) { io.observe(el); });
+})();
 
-    var fullSize = new THREE.Vector3();
-    fullBox.getSize(fullSize);
-
-    // Guard against degenerate box
-    var maxDim = Math.max(fullSize.x, fullSize.y, fullSize.z);
-    if (maxDim === 0) maxDim = 1;
-
-    // ── STEP 2: Scale so tallest dimension = 8 units ──
-    var targetH = 8.0;
-    var scale = targetH / maxDim;
-    model.scale.setScalar(scale);
-    model.updateMatrixWorld(true);
-
-    // ── STEP 3: Re-measure in world space now that matrices are valid ──
-    var worldBox = new THREE.Box3().setFromObject(rocket);
-    var worldSize = new THREE.Vector3();
-    var worldCenter = new THREE.Vector3();
-    worldBox.getSize(worldSize);
-    worldBox.getCenter(worldCenter);
-
-    // ── STEP 4: Shift model so XZ center = 0 and base sits at y=0 ──
-    model.position.x = -worldCenter.x;
-    model.position.z = -worldCenter.z;
-    model.position.y = rocket.position.y - worldBox.min.y;
-    model.updateMatrixWorld(true);
-
-    modelLoaded = true;
-
-    // Debug readout
-    debugEl.innerHTML =
-      'Raw size: ' + fullSize.x.toFixed(2) + ' x ' + fullSize.y.toFixed(2) + ' x ' + fullSize.z.toFixed(2) + '<br>' +
-      'World size: ' + worldSize.x.toFixed(2) + ' x ' + worldSize.y.toFixed(2) + ' x ' + worldSize.z.toFixed(2) + '<br>' +
-      'Scale: ' + scale.toFixed(4) + '<br>' +
-      'Center offset: x=' + worldCenter.x.toFixed(2) + ' z=' + worldCenter.z.toFixed(2);
-    debugEl.classList.add('show');
-    setTimeout(function(){ debugEl.classList.remove('show'); }, 10000);
-
-    // Hide loader
-    loaderStatus.textContent = 'Vehicle ready';
-    loaderBar.style.width = '100%';
-    loaderPct.textContent = '100%';
-    setTimeout(function(){
-      loaderEl.classList.add('hidden');
-      setTimeout(function(){ loaderEl.style.display='none'; }, 900);
-    }, 400);
-
-    // Add flame and decals now that model is placed
-    buildFlameAndDecals();
-  },
-
-  // ── ON PROGRESS ──
-  function(xhr) {
-    if(xhr.lengthComputable) {
-      var pct = Math.round(xhr.loaded / xhr.total * 100);
-      loaderBar.style.width = pct + '%';
-      loaderPct.textContent = pct + '%';
-      if(pct > 30)  loaderStatus.textContent = 'Parsing geometry...';
-      if(pct > 70)  loaderStatus.textContent = 'Loading textures...';
-      if(pct > 90)  loaderStatus.textContent = 'Finalizing...';
+// ── SMOOTH ANCHOR LINKS ──────────────────────────────────────────────────────
+document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+  a.addEventListener('click', function(e) {
+    var id = this.getAttribute('href');
+    if (id === '#landing') {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
     }
-  },
-
-  // ── ON ERROR ──
-  function(err) {
-    console.error('GLB load error:', err);
-    loaderStatus.textContent = 'Error loading model — check filename & repo';
-    loaderPct.textContent = '!';
-    loaderBar.style.background = '#c13a2a';
-    // Still hide loader after delay and show fallback geometry
-    setTimeout(function(){
-      loaderEl.classList.add('hidden');
-      setTimeout(function(){ loaderEl.style.display='none'; }, 900);
-    }, 2000);
-    buildFallbackRocket();
-    buildFlameAndDecals();
-    modelLoaded = true;
-  }
-);
-
-// ── FALLBACK GEOMETRY (shown if GLB fails to load) ───────────────────────────
-function buildFallbackRocket() {
-  var mW = new THREE.MeshPhongMaterial({color:0xedf2f8,shininess:100});
-  var mD = new THREE.MeshPhongMaterial({color:0x182030,shininess:60});
-  var mM = new THREE.MeshPhongMaterial({color:0x7a8fa0,shininess:180});
-  rocket.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(0.36,0.40,6.0,32),mW),{position:{x:0,y:3,z:0}}));
-  rocket.add(Object.assign(new THREE.Mesh(new THREE.ConeGeometry(0.30,3.0,32),mW),{position:{x:0,y:8.5,z:0}}));
-  rocket.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.36,0.8,24,1,true),mM),{position:{x:0,y:-0.4,z:0}}));
-}
-
-// ── FLAME + DECALS (built after model loads so position is known) ─────────────
-var flameGroup, flameMeshes;
-function buildFlameAndDecals() {
-
-  // Flame — positioned at base of rocket group
-  flameGroup = new THREE.Group();
-  flameGroup.position.y = -0.3; // just below engine base
-  rocket.add(flameGroup);
-
-  var flameDefs = [
-    {r:0.13,h:0.9, col:0xffffff,op:0.95},
-    {r:0.20,h:1.6, col:0xffee88,op:0.80},
-    {r:0.27,h:2.4, col:0xff8800,op:0.55},
-    {r:0.34,h:3.4, col:0xff3300,op:0.28},
-    {r:0.40,h:4.2, col:0xcc1100,op:0.12}
-  ];
-  flameMeshes = [];
-  for(var i=0;i<flameDefs.length;i++){
-    var fd=flameDefs[i];
-    var fm=new THREE.Mesh(
-      new THREE.ConeGeometry(fd.r,fd.h,10),
-      new THREE.MeshBasicMaterial({color:fd.col,transparent:true,opacity:fd.op})
-    );
-    fm.rotation.x=Math.PI;
-    fm.position.y=-(i*0.22);
-    flameGroup.add(fm);
-    flameMeshes.push({mat:fm.material,base:fd.op});
-  }
-  flameGroup.visible=false;
-
-  // Decals — placed on the clean upper second stage, above Blue Origin branding
-  // New Glenn: lower black stage has BO logo/flag, upper white stage is clean
-  var bodyRadius = 0.30; // upper stage is narrower
-  var bodyMidY   = 6.5;  // upper stage vertical midpoint
-
-  for(var si=0;si<SECTIONS.length;si++){
-    (function(sec){
-      var cw=1024, ch=72;
-      var cvs=document.createElement('canvas');
-      cvs.width=cw; cvs.height=ch;
-      var ctx=cvs.getContext('2d');
-      ctx.clearRect(0,0,cw,ch);
-      ctx.font='900 52px "Arial Narrow",Arial';
-      ctx.textAlign='left';
-      ctx.textBaseline='middle';
-      var txt=sec.name.toUpperCase();
-      var tw=ctx.measureText(txt).width;
-      var sx=(cw-tw)/2;
-      ctx.shadowColor='rgba(0,0,0,0.4)';
-      ctx.shadowBlur=4; ctx.shadowOffsetX=1; ctx.shadowOffsetY=1;
-      ctx.fillStyle='rgba(18,18,22,0.93)';
-      ctx.fillText(txt,sx,ch/2);
-      ctx.shadowBlur=0; ctx.shadowOffsetX=0; ctx.shadowOffsetY=0;
-      ctx.strokeStyle='rgba(93,224,248,0.7)';
-      ctx.lineWidth=2;
-      ctx.beginPath(); ctx.moveTo(sx-4,ch-7); ctx.lineTo(sx+tw+4,ch-7); ctx.stroke();
-
-      var tex=new THREE.CanvasTexture(cvs);
-      var plane=new THREE.Mesh(
-        new THREE.PlaneGeometry(2.8,0.22),
-        new THREE.MeshBasicMaterial({map:tex,transparent:true,side:THREE.DoubleSide,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1})
-      );
-      var a=sec.angle;
-      plane.position.set(Math.sin(a)*bodyRadius, bodyMidY, Math.cos(a)*bodyRadius);
-      plane.rotation.y=-a;
-      plane.rotation.z=Math.PI/2;
-      rocket.add(plane);
-    })(SECTIONS[si]);
-  }
-}
-
-// ── LAUNCHPAD WORLD (descends during launch) ──────────────────────────────────
-var world = new THREE.Group();
-scene.add(world);
-
-var ground=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.MeshPhongMaterial({color:0x1e2420}));
-ground.rotation.x=-Math.PI/2; world.add(ground);
-
-var apron=new THREE.Mesh(new THREE.CircleGeometry(12,32),new THREE.MeshPhongMaterial({color:0x2e2e2e}));
-apron.rotation.x=-Math.PI/2; apron.position.y=0.01; world.add(apron);
-
-var pad=new THREE.Mesh(new THREE.CylinderGeometry(2.2,2.2,0.28,32),new THREE.MeshPhongMaterial({color:0x3a3a3a}));
-pad.position.y=0.14; world.add(pad);
-
-var exhaustGlowMat=new THREE.MeshBasicMaterial({color:0xff6600,transparent:true,opacity:0,side:THREE.DoubleSide});
-var exhaustGlow=new THREE.Mesh(new THREE.PlaneGeometry(3,3),exhaustGlowMat);
-exhaustGlow.rotation.x=-Math.PI/2; exhaustGlow.position.y=0.02; world.add(exhaustGlow);
-
-var gantryMat=new THREE.MeshPhongMaterial({color:0x445566});
-var gPos=[[2.4,0],[-2.4,0],[0,2.4],[0,-2.4]];
-for(var gi=0;gi<gPos.length;gi++){
-  var gt=new THREE.Mesh(new THREE.BoxGeometry(0.12,5.5,0.12),gantryMat);
-  gt.position.set(gPos[gi][0],2.75,gPos[gi][1]); world.add(gt);
-}
-
-var cloudMat=new THREE.MeshPhongMaterial({color:0xffffff,transparent:true,opacity:0.65});
-var cloudGroup=new THREE.Group(); world.add(cloudGroup);
-for(var ci=0;ci<22;ci++){
-  var cx=(Math.random()-.5)*90, cy=16+Math.random()*12, cz=(Math.random()-.5)*90-15;
-  for(var cj=0;cj<5;cj++){
-    var puff=new THREE.Mesh(new THREE.SphereGeometry(1.4+Math.random()*2.2,8,6),cloudMat.clone());
-    puff.position.set(cx+(Math.random()-.5)*5,cy+(Math.random()-.5)*0.6,cz+(Math.random()-.5)*4);
-    puff.scale.y=0.32; cloudGroup.add(puff);
-  }
-}
-
-// ── STARS ────────────────────────────────────────────────────────────────────
-var starGeo=new THREE.BufferGeometry();
-var sPos=new Float32Array(5000*3);
-for(var i=0;i<5000*3;i++) sPos[i]=(Math.random()-.5)*1800;
-starGeo.setAttribute('position',new THREE.BufferAttribute(sPos,3));
-var starMat=new THREE.PointsMaterial({color:0xffffff,size:1.4,sizeAttenuation:true,transparent:true,opacity:0});
-scene.add(new THREE.Points(starGeo,starMat));
-
-// ── METEORS ──────────────────────────────────────────────────────────────────
-var meteors=[];
-function spawnMeteor(){
-  var g=new THREE.Group();
-  var len=2.0+Math.random()*3.5;
-  var mm=new THREE.MeshBasicMaterial({color:0xffee99,transparent:true,opacity:0.9});
-  var m=new THREE.Mesh(new THREE.CylinderGeometry(0.022,0.004,len,4),mm);
-  m.rotation.z=Math.PI/2; g.add(m);
-  var tm=new THREE.MeshBasicMaterial({color:0xff9944,transparent:true,opacity:0.35});
-  var tail=new THREE.Mesh(new THREE.CylinderGeometry(0.038,0.0,len*2,4),tm);
-  tail.rotation.z=Math.PI/2; tail.position.x=len*0.6; g.add(tail);
-  g.position.set(28+Math.random()*18,10+Math.random()*22,-12-Math.random()*28);
-  var spd=0.3+Math.random()*0.5;
-  g.userData={vx:-spd,vy:-spd*0.38,mat:mm,tmat:tm,life:0,maxLife:130};
-  scene.add(g); meteors.push(g);
-}
-
-// ── SKY ──────────────────────────────────────────────────────────────────────
-var skyDay  =new THREE.Color(0x7ab8e0);
-var skyDusk =new THREE.Color(0x0e1e42);
-var skySpace=new THREE.Color(0x020810);
-
-// ── STATE ────────────────────────────────────────────────────────────────────
-var phase='prelaunch', launchT=0, worldDescendSpeed=0;
-var currentSection=0, targetRotY=0, rotY=0;
-var navBusy=false, meteorTimer=0, rotationEnabled=false;
-
-// ── DOTS ─────────────────────────────────────────────────────────────────────
-var dotsEl=document.getElementById('dots');
-for(var di=0;di<SECTIONS.length;di++){
-  var dot=document.createElement('div');
-  dot.className='dot'+(di===0?' active':'');
-  dotsEl.appendChild(dot);
-}
-function updateLabel(idx){
-  var s=SECTIONS[idx];
-  document.getElementById('label-tag').textContent=s.tag;
-  document.getElementById('label-name').textContent=s.name;
-  document.getElementById('label-sub').textContent=s.sub;
-  document.querySelectorAll('.dot').forEach(function(d,i){d.classList.toggle('active',i===idx);});
-}
-updateLabel(0);
-
-function showOrbitUI(){
-  document.getElementById('name').style.opacity='1';
-  document.getElementById('arr-left').classList.add('show');
-  document.getElementById('arr-right').classList.add('show');
-  document.getElementById('label-hud').classList.add('show');
-  document.getElementById('dots').classList.add('show');
-  document.getElementById('hint').classList.add('show');
-  document.getElementById('rotate-hint').classList.remove('show');
-  document.getElementById('c').classList.add('orbit');
-}
-
-// ── NAVIGATION ───────────────────────────────────────────────────────────────
-function rotate(dir){
-  if(navBusy||!rotationEnabled) return;
-  navBusy=true;
-  var lh=document.getElementById('label-hud');
-  if(lh.classList.contains('show')){ lh.style.opacity='0'; }
-  currentSection=(currentSection+dir+SECTIONS.length)%SECTIONS.length;
-  targetRotY=-SECTIONS[currentSection].angle;
-  setTimeout(function(){
-    updateLabel(currentSection);
-    lh.style.transition='opacity .45s';
-    lh.style.opacity='1';
-    navBusy=false;
-  },340);
-}
-document.getElementById('btn-l').addEventListener('click',function(){rotate(-1);});
-document.getElementById('btn-r').addEventListener('click',function(){rotate(1);});
-document.addEventListener('keydown',function(e){
-  if(e.key==='ArrowLeft')  rotate(-1);
-  if(e.key==='ArrowRight') rotate(1);
-  if(e.key==='Escape')     closePage();
-  if(e.key==='Enter'&&phase==='orbit') openPage();
+    var target = document.querySelector(id);
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
 });
 
-// ── LAUNCH ───────────────────────────────────────────────────────────────────
-document.getElementById('c').addEventListener('click',function(){
-  if(phase==='prelaunch'&&modelLoaded){
-    phase='launching';
-    if(flameGroup) flameGroup.visible=true;
-    rotationEnabled=true;
-    document.getElementById('launch-hint').style.display='none';
-    document.getElementById('rotate-hint').classList.add('show');
-    document.getElementById('arr-left').classList.add('show');
-    document.getElementById('arr-right').classList.add('show');
-  }
-});
+// ── ACTIVE MENU ITEM on scroll ───────────────────────────────────────────────
+(function() {
+  var sections = ['about','projects','skills','publications','contact'];
+  var links    = document.querySelectorAll('.menu-link');
 
-// ── PAGE OVERLAY ─────────────────────────────────────────────────────────────
-function openPage(){
-  if(phase!=='orbit') return;
-  var s=SECTIONS[currentSection];
-  document.getElementById('pg-tag').textContent=s.tag;
-  document.getElementById('pg-title').textContent=s.name;
-  document.getElementById('pg-body').innerHTML=s.body;
-  document.getElementById('overlay').classList.add('open');
-}
-function closePage(){ document.getElementById('overlay').classList.remove('open'); }
-document.getElementById('overlay').addEventListener('click',function(e){ if(e.target===document.getElementById('overlay'))closePage(); });
-document.getElementById('label-name').addEventListener('click',openPage);
-document.getElementById('label-cta').addEventListener('click',openPage);
-document.getElementById('close-btn').addEventListener('click',closePage);
-
-// ── HELPERS ──────────────────────────────────────────────────────────────────
-function lerp(a,b,t){return a+(b-a)*t;}
-function lerpAngle(a,b,t){var d=b-a;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;return a+d*t;}
-function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
-function easeInOut(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}
-
-// ── ANIMATE ──────────────────────────────────────────────────────────────────
-var clock=new THREE.Clock();
-function animate(){
-  requestAnimationFrame(animate);
-  var dt=clock.getDelta();
-  var t=clock.getElapsedTime();
-
-  if(flameGroup&&flameGroup.visible){
-    var fl=0.86+Math.sin(t*32)*0.14;
-    flameGroup.scale.set(fl,0.82+Math.sin(t*26)*0.20,fl);
-    if(flameMeshes){
-      for(var fi=0;fi<flameMeshes.length;fi++){
-        flameMeshes[fi].mat.opacity=flameMeshes[fi].base*(0.75+Math.random()*0.25);
-      }
-    }
+  function onScroll() {
+    var scrollY = window.scrollY + window.innerHeight * 0.35;
+    var current = '';
+    sections.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el && el.offsetTop <= scrollY) current = id;
+    });
+    links.forEach(function(link) {
+      var href = link.getAttribute('href').replace('#','');
+      link.classList.toggle('active', href === current);
+    });
   }
 
-  if(rotationEnabled){
-    rotY=lerpAngle(rotY,targetRotY,0.06);
-    rocket.rotation.y=rotY;
-  }
-
-  if(phase==='prelaunch'){
-    rocket.position.y=rocketBaseY+Math.sin(t*0.9)*0.025;
-    camera.position.set(0,2.5,13);
-    camera.lookAt(0,2.0,0);
-  }
-
-  if(phase==='launching'){
-    launchT+=dt;
-    var lt=launchT;
-    rocket.position.y=rocketBaseY;
-    worldDescendSpeed=lt*lt*0.60;
-    world.position.y-=worldDescendSpeed*dt;
-    exhaustGlowMat.opacity=clamp(1.0-lt*0.4,0,0.55);
-    var skyT=clamp(lt/7.5,0,1);
-    var skyCol=new THREE.Color();
-    if(skyT<0.5){ skyCol.lerpColors(skyDay,skyDusk,skyT*2); }
-    else         { skyCol.lerpColors(skyDusk,skySpace,(skyT-0.5)*2); }
-    renderer.setClearColor(skyCol);
-    starMat.opacity=clamp(skyT*1.4,0,1);
-    camera.position.z=lerp(13,11.5,easeInOut(clamp(lt/6.0,0,1)));
-    camera.lookAt(0,2.5,0);
-    if(lt>9.0){
-      phase='orbit';
-      world.visible=false;
-      if(flameGroup) flameGroup.visible=false;
-      renderer.setClearColor(skySpace);
-      starMat.opacity=1.0;
-      exhaustGlowMat.opacity=0;
-      showOrbitUI();
-    }
-  }
-
-  if(phase==='orbit'){
-    rocket.position.y=Math.sin(t*0.5)*0.13;
-    camera.position.x=lerp(camera.position.x,Math.sin(t*0.11)*0.22,0.015);
-    camera.position.y=lerp(camera.position.y,2.5,0.012);
-    camera.position.z=lerp(camera.position.z,11.5,0.012);
-    camera.lookAt(0,1.8,0);
-    meteorTimer+=dt;
-    if(meteorTimer>2.2+Math.random()*4.5){spawnMeteor();meteorTimer=0;}
-    for(var mi=meteors.length-1;mi>=0;mi--){
-      var met=meteors[mi];
-      met.userData.life++;
-      met.position.x+=met.userData.vx;
-      met.position.y+=met.userData.vy;
-      var lr=met.userData.life/met.userData.maxLife;
-      met.userData.mat.opacity=0.9*(1-lr);
-      met.userData.tmat.opacity=0.35*(1-lr);
-      if(met.userData.life>=met.userData.maxLife){scene.remove(met);meteors.splice(mi,1);}
-    }
-  }
-
-  renderer.render(scene,camera);
-}
-animate();
+  window.addEventListener('scroll', onScroll, { passive: true });
+})();
 </script>
 </body>
 </html>
